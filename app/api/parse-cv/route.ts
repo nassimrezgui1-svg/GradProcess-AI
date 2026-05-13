@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
 
     if (fileName.endsWith(".pdf")) {
       // Dynamic import to avoid build-time issues
-      const pdfParse = (await import("pdf-parse")).default
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pdfParse = ((await import("pdf-parse")) as any).default ?? (await import("pdf-parse"))
       const result = await pdfParse(buffer)
       text = result.text
     } else if (fileName.endsWith(".docx")) {

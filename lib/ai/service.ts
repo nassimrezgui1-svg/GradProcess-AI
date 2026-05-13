@@ -5,7 +5,7 @@ import { z } from "zod"
 export const CVAnalysisSchema = z.object({
   overallScore: z.number(),
   passLikelihood: z.enum(["High risk", "Medium risk", "Strong match"]),
-  breakdown: z.record(z.number()),
+  breakdown: z.record(z.string(), z.number()),
   matchedKeywords: z.array(z.string()),
   missingKeywords: z.array(z.string()),
   weakBullets: z.array(z.string()),

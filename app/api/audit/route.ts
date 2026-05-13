@@ -8,7 +8,7 @@ const auditSchema = z.object({
   action: z.string().min(1).max(100),
   resourceType: z.string().max(100).optional(),
   resourceId: z.string().max(200).optional(),
-  metadata: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+  metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
 })
 
 export async function POST(request: NextRequest) {
