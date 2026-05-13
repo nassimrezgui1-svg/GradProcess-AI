@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client"
 const MAX_ATTEMPTS = 5
 const LOCKOUT_MS = 15 * 60 * 1000
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   const supabase = createClient()
@@ -146,5 +146,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }
