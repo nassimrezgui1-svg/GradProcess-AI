@@ -85,7 +85,7 @@ export default function CVTailoringPage() {
       setResult({
         overall: analysis.overallScore,
         passLikelihood: analysis.passLikelihood,
-        breakdown: analysis.breakdown,
+        breakdown: analysis.breakdown as Record<string, number>,
         matchedKeywords: analysis.matchedKeywords,
         missingKeywords: analysis.missingKeywords,
         weakBullets: analysis.weakBullets,
