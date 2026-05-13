@@ -6,29 +6,38 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 75) return "text-green-500"
+  if (score >= 75) return "text-emerald-500"
+  if (score >= 60) return "text-blue-500"
   if (score >= 40) return "text-amber-500"
-  return "text-red-500"
+  return "text-rose-400"
 }
 
 export function getScoreBg(score: number): string {
-  if (score >= 75) return "bg-green-500"
-  if (score >= 40) return "bg-amber-500"
-  return "bg-red-500"
+  if (score >= 75) return "bg-emerald-400"
+  if (score >= 60) return "bg-blue-400"
+  if (score >= 40) return "bg-amber-400"
+  return "bg-rose-400"
 }
 
 export function getScoreLabel(score: number): string {
-  if (score >= 90) return "Application Ready"
-  if (score >= 75) return "Strong"
-  if (score >= 60) return "Developing"
-  if (score >= 40) return "Needs Work"
-  return "Not Ready"
+  if (score >= 90) return "Application Ready ✨"
+  if (score >= 75) return "Strong Progress 🚀"
+  if (score >= 60) return "Developing Well"
+  if (score >= 40) return "Keep Improving"
+  return "Just Getting Started"
 }
 
-export function getScoreBand(score: number): { label: string; color: string } {
-  if (score >= 90) return { label: "Excellent", color: "text-green-400" }
-  if (score >= 75) return { label: "Strong", color: "text-green-500" }
-  if (score >= 60) return { label: "Developing", color: "text-amber-400" }
-  if (score >= 40) return { label: "Needs Improvement", color: "text-amber-500" }
-  return { label: "High Risk", color: "text-red-500" }
+export function getScoreBand(score: number): { label: string; color: string; emoji: string } {
+  if (score >= 90) return { label: "Application Ready", color: "text-emerald-600", emoji: "✨" }
+  if (score >= 75) return { label: "Strong Progress", color: "text-blue-600", emoji: "🚀" }
+  if (score >= 60) return { label: "Developing Well", color: "text-blue-500", emoji: "📈" }
+  if (score >= 40) return { label: "Keep Improving", color: "text-amber-600", emoji: "💪" }
+  return { label: "Just Getting Started", color: "text-rose-500", emoji: "🌱" }
+}
+
+export function getScoreRingColor(score: number): string {
+  if (score >= 75) return "#4ADE80"
+  if (score >= 60) return "#5B8DEF"
+  if (score >= 40) return "#FBBF24"
+  return "#FB7185"
 }
