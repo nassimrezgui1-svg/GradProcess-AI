@@ -11,7 +11,7 @@ import {
   Video, Mic, MicOff, VideoOff, Play, Square,
   CheckCircle, AlertCircle, Sparkles, ChevronRight, Timer,
   TrendingUp, MessageSquare, Target, Zap, Info, ArrowRight,
-  BarChart3, Trophy, BookOpen, RefreshCw, Clock, Volume2,
+  BarChart3, Trophy, BookOpen, RefreshCw, Clock, Volume2, Download,
 } from "lucide-react"
 
 // ─── Constants ───────────────────────────────────────────
@@ -88,6 +88,25 @@ function StarBadge({ has, label }: { has: boolean; label: string }) {
   )
 }
 
+// ─── Download helpers ─────────────────────────────────────
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+}
+
+function downloadTextFile(text: string, filename: string, mimeType = "text/plain") {
+  downloadBlob(new Blob([text], { type: mimeType }), filename)
+}
+
+function makeSlug(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50)
+}
+
 // ─── Main Page ────────────────────────────────────────────
 
 export default function VideoInterviewPage() {
@@ -108,6 +127,8 @@ export default function VideoInterviewPage() {
   // Recording
   const [isRecording, setIsRecording] = useState(false)
   const [recordingSeconds, setRecordingSeconds] = useState(0)
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null)
+  const [typedAnswer, setTypedAnswer] = useState("")
   const [transcript, setTranscript] = useState("")
   const [liveText, setLiveText] = useState("")
   const [fillerCountLive, setFillerCountLive] = useState(0)
@@ -141,10 +162,18 @@ export default function VideoInterviewPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const transcriptRef = useRef("")
   const secondsRef = useRef(0)
+  const chunksRef = useRef<Blob[]>([])
 
   useEffect(() => {
     setPastSessions(loadSessions())
   }, [])
+
+  // Revoke previous object URL when it changes or on unmount
+  useEffect(() => {
+    return () => {
+      if (recordedUrl) URL.revokeObjectURL(recordedUrl)
+    }
+  }, [recordedUrl])
 
   // ── Camera preview (kept running during interview) ──
   useEffect(() => {
@@ -220,15 +249,25 @@ export default function VideoInterviewPage() {
     secondsRef.current = 0
     setTranscript("")
     setLiveText("")
+    setTypedAnswer("")
     setFillerCountLive(0)
     setWpmLive(0)
     setRecordingSeconds(0)
     setIsRecording(true)
 
-    // MediaRecorder
+    // Clear any previous recording blob
+    setRecordedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return null })
+    chunksRef.current = []
+
+    // MediaRecorder — collect chunks so we can offer download after stop
     try {
       const mr = new MediaRecorder(streamRef.current)
       mediaRecorderRef.current = mr
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "video/webm" })
+        setRecordedUrl(URL.createObjectURL(blob))
+      }
       mr.start()
     } catch {}
 
@@ -282,7 +321,7 @@ export default function VideoInterviewPage() {
       try { recognitionRef.current.stop() } catch {}
     }
 
-    const finalTranscript = transcriptRef.current + liveText
+    const finalTranscript = (transcriptRef.current + liveText).trim() || typedAnswer
     const duration = secondsRef.current
     const words = finalTranscript.trim().split(/\s+/).filter(Boolean).length
     const wpm = Math.round(words / Math.max(duration / 60, 0.1))
@@ -346,7 +385,7 @@ export default function VideoInterviewPage() {
       setAnalyzing(false)
       setPhase("feedback")
     }
-  }, [liveText, questions, qIndex, setup, answers, session, isFollowUp, currentAnalysis])
+  }, [liveText, typedAnswer, questions, qIndex, setup, answers, session, isFollowUp, currentAnalysis])
 
   const handleNextQuestion = () => {
     setIsFollowUp(false)
@@ -411,6 +450,8 @@ export default function VideoInterviewPage() {
   const handleRestart = () => {
     streamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current = null
+    setRecordedUrl(prev => { if (prev) URL.revokeObjectURL(prev); return null })
+    chunksRef.current = []
     setPhase("setup")
     setQuestions([])
     setQIndex(0)
@@ -421,7 +462,69 @@ export default function VideoInterviewPage() {
     setIsFollowUp(false)
     setTranscript("")
     setLiveText("")
+    setTypedAnswer("")
   }
+
+  const handleDownloadVideo = () => {
+    if (!recordedUrl) return
+    const questionText = currentAnalysis?.questionText ?? questions[qIndex]?.text ?? "question"
+    const slug = questionText
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 50)
+    const date = new Date().toISOString().split("T")[0]
+    const a = document.createElement("a")
+    a.href = recordedUrl
+    a.download = `gradprocess-video-interview-${slug}-${date}.webm`
+    a.click()
+  }
+
+  const handleDownloadTranscript = () => {
+    const questionText = currentAnalysis?.questionText ?? questions[qIndex]?.text ?? "question"
+    const responseText = currentAnalysis?.transcript || typedAnswer || "No response recorded."
+    const date = new Date().toISOString().split("T")[0]
+    const content = [
+      "GradProcess AI — Video Interview Response",
+      "=".repeat(42),
+      "",
+      `Date:       ${date}`,
+      `Sector:     ${setup.sector}`,
+      `Role:       ${setup.role}`,
+      `Mode:       ${setup.mode}`,
+      `Difficulty: ${setup.difficulty}`,
+      "",
+      "Question",
+      "─".repeat(42),
+      questionText,
+      "",
+      "Your Response",
+      "─".repeat(42),
+      responseText,
+    ].join("\n")
+    downloadTextFile(content, `gradprocess-video-interview-${makeSlug(questionText)}-${date}.txt`)
+  }
+
+  const handleDownloadHtml = () => {
+    const questionText = currentAnalysis?.questionText ?? questions[qIndex]?.text ?? "question"
+    const responseText = (currentAnalysis?.transcript || typedAnswer || "No response recorded.").replace(/\n/g, "<br>")
+    const date = new Date().toISOString().split("T")[0]
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>GradProcess AI — Interview Response</title>
+<style>body{font-family:system-ui,sans-serif;max-width:680px;margin:48px auto;padding:0 24px;color:#1f2937}h1{font-size:1.1rem;color:#6D5EF3;margin-bottom:4px}h2{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#9CA3AF;margin:2rem 0 0.5rem}p{line-height:1.7;color:#374151}hr{border:none;border-top:1px solid #E5E7EB;margin:2rem 0}.meta{font-size:0.75rem;color:#9CA3AF}</style>
+</head>
+<body>
+<h1>GradProcess AI — Video Interview Response</h1>
+<p class="meta">${date} · ${setup.sector} · ${setup.role} · ${setup.mode} · ${setup.difficulty}</p>
+<hr>
+<h2>Question</h2><p>${questionText}</p>
+<h2>Your Response</h2><p>${responseText}</p>
+</body></html>`
+    downloadBlob(new Blob([html], { type: "text/html" }), `gradprocess-video-interview-${makeSlug(questionText)}-${date}.html`)
+  }
+
+  const mediaRecorderSupported = typeof window !== "undefined" && typeof window.MediaRecorder !== "undefined"
 
   const currentQ = questions[qIndex]
   const totalQs = questions.length
@@ -730,6 +833,25 @@ export default function VideoInterviewPage() {
                   </div>
                 )}
 
+                {!mediaRecorderSupported && (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
+                      <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-blue-700">Video recording is unavailable in your browser, but you can still complete and download your response. Type your answer below or speak — AI feedback and transcript download will still work.</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-ink-muted mb-1.5">Your response (optional — type here if mic is unavailable)</label>
+                      <textarea
+                        value={typedAnswer}
+                        onChange={e => setTypedAnswer(e.target.value)}
+                        rows={4}
+                        placeholder="Type your answer here…"
+                        className="w-full px-3 py-2.5 border border-surface-border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-3">
                   <button onClick={startRecording}
                     className="flex-1 py-3.5 rounded-xl font-semibold text-sm text-white hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
@@ -847,6 +969,20 @@ export default function VideoInterviewPage() {
                     <p className="text-sm text-ink-faint italic">Start speaking — your words will appear here…</p>
                   )}
                 </div>
+
+                {/* Fallback typed answer for unsupported browsers */}
+                {!mediaRecorderSupported && (
+                  <div>
+                    <label className="block text-xs font-medium text-ink-muted mb-1.5">Type your response here</label>
+                    <textarea
+                      value={typedAnswer}
+                      onChange={e => setTypedAnswer(e.target.value)}
+                      rows={5}
+                      placeholder="Type your answer here — it will be submitted and analysed…"
+                      className="w-full px-3 py-2.5 border border-surface-border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                    />
+                  </div>
+                )}
 
                 {/* STAR reminder */}
                 <div className="grid grid-cols-4 gap-2">
@@ -1048,6 +1184,61 @@ export default function VideoInterviewPage() {
                 Your Transcript
               </h3>
               <p className="text-sm text-ink-muted leading-relaxed">{a.transcript || "No transcript captured."}</p>
+            </motion.div>
+
+            {/* Downloads card — always shown */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+              className="bg-white rounded-2xl border border-surface-border p-5">
+              <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+                <Download className="w-4 h-4 text-ink-faint" />
+                Download Your Response
+              </h3>
+
+              {/* Video playback (supported browsers only) */}
+              {recordedUrl && (
+                <div className="mb-4">
+                  <video
+                    src={recordedUrl}
+                    controls
+                    playsInline
+                    className="w-full rounded-xl border border-surface-border bg-gray-900 mb-3"
+                    style={{ maxHeight: 300 }}
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                {recordedUrl && (
+                  <button
+                    onClick={handleDownloadVideo}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
+                    style={{ color: "#6D5EF3", borderColor: "rgba(109,94,243,0.3)", backgroundColor: "#EEE9FF" }}>
+                    <Video className="w-4 h-4" />
+                    Download Video (.webm)
+                  </button>
+                )}
+                <button
+                  onClick={handleDownloadTranscript}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
+                  style={{ color: "#059669", borderColor: "rgba(5,150,105,0.3)", backgroundColor: "#ECFDF5" }}>
+                  <Download className="w-4 h-4" />
+                  Download Transcript (.txt)
+                </button>
+                <button
+                  onClick={handleDownloadHtml}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
+                  style={{ color: "#6B7280", borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" }}>
+                  <Download className="w-4 h-4" />
+                  Download Summary (.html)
+                </button>
+              </div>
+
+              {!mediaRecorderSupported && (
+                <p className="text-xs text-ink-faint mt-3 flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                  Video recording is unavailable in this browser — transcript and HTML downloads are fully supported.
+                </p>
+              )}
             </motion.div>
 
             {/* Actions */}

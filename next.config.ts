@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
 
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }]
