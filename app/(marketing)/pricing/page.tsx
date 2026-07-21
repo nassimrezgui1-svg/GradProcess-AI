@@ -1,231 +1,242 @@
-import Link from "next/link"
-import { CheckCircle, X, ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+"use client"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
+import { CheckCircle, ArrowRight, Zap, Loader2, AlertCircle } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
-const plans = [
+const features = [
+  "Unlimited CV scans with ATS scoring",
+  "All psychometric test types — numerical, verbal, logical, abstract, SJT, attention to detail",
+  "AI video interview practice & full delivery scoring",
+  "STAR answer builder — all 23 competencies",
+  "Full 9-stage process simulation exam",
+  "13 sector industry hubs with commercial awareness drills",
+  "Weekly readiness reports & progress analytics",
+  "AI coach Ava — available 24/7",
+  "Application tracker (unlimited roles)",
+  "Score benchmarking vs graduate applicant pool",
+]
+
+const faqs = [
   {
-    name: "Free",
-    price: "£0",
-    period: "forever",
-    description: "Try GradProcess AI with no commitment",
-    color: "border-gray-200",
-    cta: "Get started free",
-    ctaStyle: "bg-gray-900 text-white hover:bg-gray-800",
-    features: [
-      "1 CV scan",
-      "5 STAR scenarios",
-      "1 mini psychometric quiz",
-      "Limited industry content (2 sectors)",
-      "Basic progress dashboard",
-    ],
+    q: "Can I cancel at any time?",
+    a: "Yes — cancel any time from your account settings. You keep access until the end of your current billing period. No penalties, no questions.",
   },
   {
-    name: "Pro Student",
-    price: "£19",
-    yearlyPrice: "£149",
-    period: "per month",
-    description: "Everything you need to ace the application process",
-    color: "border-blue-500",
-    popular: true,
-    cta: "Start Pro Student",
-    ctaStyle: "bg-blue-600 text-white hover:bg-blue-700",
-    features: [
-      "Unlimited CV scans & ATS scoring",
-      "Video interview practice (all modes)",
-      "Psychometric practice (all 6 types)",
-      "Sector preparation (all 13 sectors)",
-      "STAR builder (all 23 competencies)",
-      "Full progress dashboard & analytics",
-      "Weekly readiness reports",
-    ],
+    q: "Is this the launch price?",
+    a: "Yes. £19.99/month is our initial launch fee. We may increase pricing after the launch period — subscribers locked in now keep their current rate.",
   },
   {
-    name: "Premium",
-    price: "£39",
-    yearlyPrice: "£299",
-    period: "per month",
-    description: "For serious applicants targeting top-tier firms",
-    color: "border-purple-400",
-    cta: "Start Premium",
-    ctaStyle: "bg-purple-600 text-white hover:bg-purple-700",
-    features: [
-      "Everything in Pro Student",
-      "Full mock process exam (all 9 stages)",
-      "Advanced video scoring (NLP analysis)",
-      "Personalised improvement roadmap",
-      "Final interview preparation module",
-      "Unlimited practice sessions",
-      "Priority support (24h response)",
-    ],
+    q: "Do you offer refunds?",
+    a: "We offer a full refund within 7 days of your first payment if you're not satisfied — no questions asked.",
   },
   {
-    name: "University / Enterprise",
-    price: "Custom",
-    period: "per cohort",
-    description: "For careers services and university partnerships",
-    color: "border-teal-400",
-    cta: "Contact us",
-    ctaStyle: "bg-teal-600 text-white hover:bg-teal-700",
-    features: [
-      "Cohort analytics dashboard",
-      "Admin portal with student management",
-      "White-label option available",
-      "Bulk licensing discounts",
-      "Custom sector content",
-      "Dedicated account manager",
-      "SLA-backed support",
-    ],
+    q: "Is there a university or careers service plan?",
+    a: "Yes — contact us at hello@gradprocess.ai and we'll put together a cohort package for your careers service.",
   },
 ]
 
-const comparisonRows = [
-  { feature: "CV scans", free: "1", pro: "Unlimited", premium: "Unlimited", enterprise: "Unlimited" },
-  { feature: "STAR scenarios", free: "5", pro: "Unlimited", premium: "Unlimited", enterprise: "Unlimited" },
-  { feature: "Psychometric tests", free: "1 type", pro: "All 6 types", premium: "All 6 types", enterprise: "All 6 types" },
-  { feature: "Video interview practice", free: false, pro: true, premium: true, enterprise: true },
-  { feature: "Sector coverage", free: "2 sectors", pro: "13 sectors", premium: "13 sectors", enterprise: "Custom" },
-  { feature: "Full process exam", free: false, pro: false, premium: true, enterprise: true },
-  { feature: "Advanced video scoring", free: false, pro: false, premium: true, enterprise: true },
-  { feature: "Progress analytics", free: "Basic", pro: "Full", premium: "Full + roadmap", enterprise: "Cohort view" },
-  { feature: "Admin/cohort dashboard", free: false, pro: false, premium: false, enterprise: true },
-  { feature: "White-label", free: false, pro: false, premium: false, enterprise: true },
-  { feature: "Support", free: "Email", pro: "Email", premium: "Priority (24h)", enterprise: "Dedicated manager" },
-]
+function PricingContent() {
+  const params = useSearchParams()
+  const gated = params.get("gate") === "1"
+  const cancelled = params.get("checkout") === "cancelled"
+
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [subActive, setSubActive] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return
+      setUser(user)
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("status")
+        .eq("user_id", user.id)
+        .single()
+      if (data?.status === "active" || data?.status === "trialing") setSubActive(true)
+    })
+  }, [])
+
+  async function handleCheckout() {
+    if (!user) {
+      window.location.href = "/signup?next=/pricing"
+      return
+    }
+    if (subActive) {
+      window.location.href = "/dashboard"
+      return
+    }
+    setLoading(true)
+    const res = await fetch("/api/stripe/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: "student_pro" }),
+    })
+    const { url } = await res.json()
+    if (url) window.location.href = url
+    else setLoading(false)
+  }
+
+  const ctaLabel = subActive ? "Go to Dashboard" : user ? "Subscribe now" : "Get started"
+
+  return (
+    <div>
+      {/* ── Hero ── */}
+      <section className="relative pt-36 pb-20 px-6 text-center overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.1), transparent 70%)" }} />
+        <div className="relative max-w-3xl mx-auto">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>
+            Simple pricing
+          </p>
+          <h1 className="text-5xl md:text-6xl font-black text-white mb-5 leading-tight">
+            One plan.{" "}
+            <span style={{
+              background: "linear-gradient(90deg, #818CF8, #22D3EE)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              Full access.
+            </span>
+          </h1>
+          <p className="text-lg" style={{ color: "rgba(255,255,255,0.45)" }}>
+            No tiers. No feature limits. Everything you need to land your graduate scheme.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Gated / cancelled banners ── */}
+      {gated && (
+        <div className="px-6 pb-6">
+          <div className="max-w-2xl mx-auto flex items-center gap-3 rounded-2xl px-5 py-4"
+            style={{ background: "rgba(251,113,133,0.08)", border: "1px solid rgba(251,113,133,0.2)" }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: "#FB7185" }} />
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
+              <span className="font-bold text-white">Subscription required.</span> Subscribe to access the full GradProcess AI platform.
+            </p>
+          </div>
+        </div>
+      )}
+      {cancelled && (
+        <div className="px-6 pb-6">
+          <div className="max-w-2xl mx-auto flex items-center gap-3 rounded-2xl px-5 py-4"
+            style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: "#FBBF24" }} />
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
+              Payment cancelled — no charge was made. Subscribe whenever you&apos;re ready.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pricing card ── */}
+      <section className="px-6 pb-24">
+        <div className="max-w-2xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden"
+            style={{ background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)", boxShadow: "0 32px 80px rgba(99,102,241,0.4)" }}>
+
+            <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none"
+              style={{ background: "rgba(255,255,255,0.07)" }} />
+            <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full blur-2xl pointer-events-none"
+              style={{ background: "rgba(139,92,246,0.35)" }} />
+
+            <div className="relative p-8 sm:p-12">
+              <div className="inline-flex items-center gap-2 text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded-full mb-8"
+                style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                <Zap className="w-3 h-3" />
+                Initial Launch Offer
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8 mb-10">
+                <div>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-6xl font-black text-white tracking-tight">£19.99</span>
+                    <span className="text-xl font-semibold" style={{ color: "rgba(196,181,253,0.8)" }}>/month</span>
+                  </div>
+                  <p style={{ color: "rgba(196,181,253,0.7)" }} className="text-sm">
+                    Cancel any time · No hidden fees
+                  </p>
+                </div>
+                <button
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="flex-shrink-0 inline-flex items-center justify-center gap-2.5 text-base font-black px-9 py-4 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+                  style={{ background: "#FFFFFF", color: "#6366F1", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+                  {loading
+                    ? <Loader2 className="w-5 h-5 animate-spin" />
+                    : <><span>{ctaLabel}</span><ArrowRight className="w-5 h-5" /></>
+                  }
+                </button>
+              </div>
+
+              <div className="mb-8" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
+                {features.map(f => (
+                  <div key={f} className="flex items-start gap-3">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-white" />
+                    <span className="text-sm leading-snug" style={{ color: "rgba(224,214,255,0.9)" }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center mt-5 text-xs" style={{ color: "rgba(255,255,255,0.22)" }}>
+            Price may increase after the initial launch period · Existing subscribers keep their rate
+          </p>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="py-20 px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-2xl mx-auto">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-3 text-center" style={{ color: "#818CF8" }}>FAQ</p>
+          <h2 className="text-3xl font-black text-white mb-10 text-center">Common questions</h2>
+          <div className="space-y-4">
+            {faqs.map(faq => (
+              <div key={faq.q}
+                className="rounded-2xl p-6"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <h4 className="font-bold text-white mb-2">{faq.q}</h4>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.52)" }}>{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="relative py-28 px-6 overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #0EA5E9 100%)" }}>
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.1), transparent 60%)" }} />
+        <div className="relative max-w-3xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            Start practising today.
+          </h2>
+          <p className="text-lg text-indigo-100 mb-10">
+            £19.99/mo · Full access · Cancel any time.
+          </p>
+          <button
+            onClick={handleCheckout}
+            disabled={loading}
+            className="inline-flex items-center gap-3 text-base font-bold px-10 py-5 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+            style={{ background: "#FFFFFF", color: "#6366F1", boxShadow: "0 12px 48px rgba(0,0,0,0.2)" }}>
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>{ctaLabel} <ArrowRight className="w-5 h-5" /></>}
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
 
 export default function PricingPage() {
   return (
-    <div className="bg-white">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#0a0f1e] to-[#1e293b] pt-32 pb-16 px-6 text-center">
-        <h1 className="text-5xl font-bold text-white mb-4">Simple, honest pricing</h1>
-        <p className="text-xl text-gray-300 max-w-xl mx-auto mb-4">
-          Start for free. Upgrade when you need more. Cancel anytime.
-        </p>
-        <p className="text-sm text-gray-500">
-          Pro Student: Save £79 with annual billing (£149/year) · Premium: Save £169/year (£299/year)
-        </p>
-      </section>
-
-      {/* Plans */}
-      <section className="py-16 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {plans.map(plan => (
-              <div
-                key={plan.name}
-                className={cn(
-                  "bg-white rounded-2xl border-2 p-6 flex flex-col",
-                  plan.color,
-                  plan.popular && "shadow-xl"
-                )}
-              >
-                {plan.popular && (
-                  <div className="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full text-center mb-4">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{plan.name}</h3>
-                <p className="text-sm text-gray-500 mb-4">{plan.description}</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                  {plan.period && plan.price !== "Custom" && (
-                    <span className="text-gray-400 text-sm ml-1">/{plan.period}</span>
-                  )}
-                  {plan.yearlyPrice && (
-                    <p className="text-xs text-green-600 mt-1">or {plan.yearlyPrice}/year — save 2 months</p>
-                  )}
-                </div>
-                <ul className="space-y-2 flex-1 mb-6">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={plan.name === "University / Enterprise" ? "#" : "/signup"}
-                  className={cn(
-                    "w-full text-center py-3 rounded-xl font-semibold text-sm transition-all",
-                    plan.ctaStyle
-                  )}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison table */}
-      <section className="py-16 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Full Feature Comparison</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 pr-4 text-sm font-medium text-gray-500 w-48">Feature</th>
-                  {["Free", "Pro Student", "Premium", "Enterprise"].map(p => (
-                    <th key={p} className="text-center py-3 px-4 text-sm font-semibold text-gray-900">{p}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr key={row.feature} className={cn("border-b border-gray-100", i % 2 === 0 && "bg-gray-50/50")}>
-                    <td className="py-3 pr-4 text-sm text-gray-700">{row.feature}</td>
-                    {[row.free, row.pro, row.premium, row.enterprise].map((val, j) => (
-                      <td key={j} className="text-center py-3 px-4">
-                        {val === true ? (
-                          <CheckCircle className="w-4 h-4 text-green-500 mx-auto" />
-                        ) : val === false ? (
-                          <X className="w-4 h-4 text-gray-300 mx-auto" />
-                        ) : (
-                          <span className="text-sm text-gray-600">{val}</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-16 px-6 bg-gray-50">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {[
-              { q: "Can I switch plans?", a: "Yes, you can upgrade or downgrade at any time. Changes take effect at the next billing date." },
-              { q: "Is there a student discount?", a: "All our plans are designed specifically for students. The Pro Student plan at £19/month is our standard student offering." },
-              { q: "Do you offer refunds?", a: "Yes — we offer a full refund within 7 days of purchase if you're not satisfied." },
-              { q: "How do I access the University/Enterprise plan?", a: "Contact us at hello@gradprocess.ai and we'll set up a demo for your careers service." },
-            ].map(faq => (
-              <div key={faq.q} className="bg-white rounded-2xl border border-gray-100 p-5">
-                <h4 className="font-semibold text-gray-900 mb-2">{faq.q}</h4>
-                <p className="text-sm text-gray-600">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-6 bg-gradient-to-br from-[#0a0f1e] to-[#1e293b] text-center">
-        <h2 className="text-4xl font-bold text-white mb-4">Start free today</h2>
-        <p className="text-gray-300 mb-8">No credit card required for the free tier</p>
-        <Link
-          href="/signup"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-        >
-          Get started free <ArrowRight className="w-4 h-4" />
-        </Link>
-      </section>
-    </div>
+    <Suspense>
+      <PricingContent />
+    </Suspense>
   )
 }

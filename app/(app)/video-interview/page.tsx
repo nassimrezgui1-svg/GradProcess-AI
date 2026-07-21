@@ -14,7 +14,7 @@ import {
   BarChart3, Trophy, BookOpen, RefreshCw, Clock, Volume2, Download,
 } from "lucide-react"
 
-// ─── Constants ───────────────────────────────────────────
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 const SECTORS = ["Consulting", "Investment Banking", "Banking", "Technology", "Asset Management", "Insurance", "Law", "Engineering", "FMCG", "Healthcare", "Energy", "Public Sector"]
 
@@ -36,23 +36,23 @@ const SECTOR_ROLES: Record<string, string[]> = {
 const MODES: InterviewMode[] = ["Competency", "Strengths", "Motivational", "Technical", "Commercial", "Situational", "Leadership", "Behavioral", "Mixed"]
 const DIFFICULTIES: Difficulty[] = ["Beginner", "Intermediate", "Advanced", "Assessment Centre", "Elite"]
 
-const ACTIVE_STYLE = { borderColor: "#6D5EF3", backgroundColor: "#EEE9FF", color: "#6D5EF3" }
-const INACTIVE_STYLE = { borderColor: "#E8EAF0", color: "#6B7280" }
+const ACTIVE_STYLE: React.CSSProperties = { borderColor: "rgba(91,140,255,0.5)", backgroundColor: "rgba(91,140,255,0.12)", color: "#5B8CFF" }
+const INACTIVE_STYLE: React.CSSProperties = { borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.65)" }
 
-// ─── Score helpers ────────────────────────────────────────
+// ─── Score helpers ────────────────────────────────────────────────────────────
 
 function scoreColor(s: number) {
-  if (s >= 75) return "text-emerald-600"
-  if (s >= 60) return "text-brand-blue"
-  if (s >= 40) return "text-amber-500"
+  if (s >= 75) return "text-emerald-400"
+  if (s >= 60) return "text-blue-400"
+  if (s >= 40) return "text-amber-400"
   return "text-rose-400"
 }
 
-function scoreBg(s: number) {
-  if (s >= 75) return "bg-emerald-50 border-emerald-100"
-  if (s >= 60) return "bg-blue-50 border-blue-100"
-  if (s >= 40) return "bg-amber-50 border-amber-100"
-  return "bg-rose-50 border-rose-100"
+function scoreBgStyle(s: number): React.CSSProperties {
+  if (s >= 75) return { background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)" }
+  if (s >= 60) return { background: "rgba(91,140,255,0.1)", border: "1px solid rgba(91,140,255,0.2)" }
+  if (s >= 40) return { background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }
+  return { background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)" }
 }
 
 function scoreLabel(s: number) {
@@ -68,12 +68,12 @@ function fmtTime(s: number) {
   return `${m}:${sec.toString().padStart(2, "0")}`
 }
 
-// ─── Sub-components ───────────────────────────────────────
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function ScorePill({ label, score }: { label: string; score: number }) {
   return (
-    <div className={cn("rounded-xl border px-3 py-2 text-center", scoreBg(score))}>
-      <p className="text-xs text-ink-muted font-medium mb-0.5">{label}</p>
+    <div className={cn("rounded-xl px-3 py-2 text-center")} style={scoreBgStyle(score)}>
+      <p className="text-xs font-medium mb-0.5" style={{ color: "rgba(255,255,255,0.65)" }}>{label}</p>
       <p className={cn("text-xl font-bold", scoreColor(score))}>{score}</p>
     </div>
   )
@@ -81,14 +81,18 @@ function ScorePill({ label, score }: { label: string; score: number }) {
 
 function StarBadge({ has, label }: { has: boolean; label: string }) {
   return (
-    <div className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border", has ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-rose-50 border-rose-100 text-rose-600")}>
+    <div className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium")}
+      style={has
+        ? { background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)", color: "#34D399" }
+        : { background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171" }
+      }>
       {has ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
       {label}
     </div>
   )
 }
 
-// ─── Download helpers ─────────────────────────────────────
+// ─── Download helpers ─────────────────────────────────────────────────────────
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -107,7 +111,7 @@ function makeSlug(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50)
 }
 
-// ─── Main Page ────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function VideoInterviewPage() {
   // Setup
@@ -530,6 +534,9 @@ export default function VideoInterviewPage() {
   const totalQs = questions.length
   const isLastQ = qIndex >= totalQs - 1
 
+  const cardStyle: React.CSSProperties = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }
+  const inputStyle: React.CSSProperties = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#ffffff", borderRadius: 12 }
+
   // ── RENDER ────────────────────────────────────────────
 
   // ── SETUP ──
@@ -543,16 +550,16 @@ export default function VideoInterviewPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* ── Config panel ── */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-surface-border overflow-hidden">
+              <div className="lg:col-span-2 rounded-2xl overflow-hidden" style={cardStyle}>
                 {/* Header */}
-                <div className="px-6 pt-6 pb-4 border-b border-surface-border flex items-center gap-3">
+                <div className="px-6 pt-6 pb-4 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
                     <Video className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-ink">Configure Your Interview</h2>
-                    <p className="text-sm text-ink-muted">AI-generated questions tailored to your exact sector and role</p>
+                    <h2 className="text-base font-semibold text-white">Configure Your Interview</h2>
+                    <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>AI-generated questions tailored to your exact sector and role</p>
                   </div>
                 </div>
 
@@ -560,18 +567,18 @@ export default function VideoInterviewPage() {
                   {/* Sector + Role */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-ink mb-1.5">Target Sector</label>
+                      <label className="block text-xs font-semibold text-white mb-1.5">Target Sector</label>
                       <select value={setup.sector} onChange={e => setSector(e.target.value)}
-                        className="w-full px-3 py-2.5 border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        style={{ borderColor: "#E8EAF0" }}>
+                        className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        style={inputStyle}>
                         {SECTORS.map(s => <option key={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-ink mb-1.5">Target Role</label>
+                      <label className="block text-xs font-semibold text-white mb-1.5">Target Role</label>
                       <select value={setup.role} onChange={e => setSetup(p => ({ ...p, role: e.target.value }))}
-                        className="w-full px-3 py-2.5 border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        style={{ borderColor: "#E8EAF0" }}>
+                        className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        style={inputStyle}>
                         {sectorRoles.map(r => <option key={r}>{r}</option>)}
                       </select>
                     </div>
@@ -579,9 +586,9 @@ export default function VideoInterviewPage() {
 
                   {/* Mode */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-2">
+                    <label className="block text-xs font-semibold text-white mb-2">
                       Interview Mode
-                      <span className="ml-2 font-normal text-ink-faint">— pick the competency type you want to practise</span>
+                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>— pick the competency type you want to practise</span>
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {MODES.map(m => (
@@ -597,7 +604,7 @@ export default function VideoInterviewPage() {
 
                   {/* Difficulty */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-2">Difficulty Level</label>
+                    <label className="block text-xs font-semibold text-white mb-2">Difficulty Level</label>
                     <div className="flex gap-2 flex-wrap">
                       {DIFFICULTIES.map(d => (
                         <button key={d} onClick={() => setSetup(p => ({ ...p, difficulty: d }))}
@@ -612,25 +619,25 @@ export default function VideoInterviewPage() {
 
                   {/* Question count */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-2">
-                      Questions: <span style={{ color: "#6D5EF3" }}>{setup.questionCount}</span>
-                      <span className="ml-2 font-normal text-ink-faint">({setup.questionCount <= 3 ? "Quick practice" : setup.questionCount <= 5 ? "Standard session" : "Full interview"})</span>
+                    <label className="block text-xs font-semibold text-white mb-2">
+                      Questions: <span style={{ color: "#5B8CFF" }}>{setup.questionCount}</span>
+                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>({setup.questionCount <= 3 ? "Quick practice" : setup.questionCount <= 5 ? "Standard session" : "Full interview"})</span>
                     </label>
                     <input type="range" min={2} max={8} value={setup.questionCount}
                       onChange={e => setSetup(p => ({ ...p, questionCount: +e.target.value }))}
-                      className="w-full" style={{ accentColor: "#6D5EF3" }} />
-                    <div className="flex justify-between text-xs text-ink-faint mt-1">
+                      className="w-full" style={{ accentColor: "#5B8CFF" }} />
+                    <div className="flex justify-between text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
                       <span>2 — Quick</span><span>8 — Full simulation</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Start button — always visible at bottom of card */}
+                {/* Start button */}
                 <div className="px-6 pb-6">
                   <button onClick={handleStartInterview} disabled={generatingQs}
                     className="w-full py-4 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2"
                     style={{
-                      background: generatingQs ? "#9CA3AF" : "linear-gradient(135deg,#6D5EF3,#5B8DEF)",
+                      background: generatingQs ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg,#6D5EF3,#5B8DEF)",
                       cursor: generatingQs ? "not-allowed" : "pointer",
                     }}>
                     {generatingQs
@@ -638,7 +645,7 @@ export default function VideoInterviewPage() {
                       : <><Play className="w-4 h-4" />Start {setup.mode} Interview — {setup.sector}</>
                     }
                   </button>
-                  <p className="text-xs text-center mt-3" style={{ color: "#9CA3AF" }}>
+                  <p className="text-xs text-center mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                     You will be asked to grant camera &amp; microphone access on the next screen.
                   </p>
                 </div>
@@ -647,8 +654,8 @@ export default function VideoInterviewPage() {
               {/* ── Sidebar ── */}
               <div className="space-y-4">
                 {/* What's included */}
-                <div className="bg-white rounded-2xl border border-surface-border p-5">
-                  <h3 className="text-sm font-semibold text-ink mb-3">What this session includes</h3>
+                <div className="rounded-2xl p-5" style={cardStyle}>
+                  <h3 className="text-sm font-semibold text-white mb-3">What this session includes</h3>
                   <div className="space-y-2">
                     {[
                       "AI questions tailored to your sector & role",
@@ -660,8 +667,8 @@ export default function VideoInterviewPage() {
                       "Adaptive follow-up questions",
                       "Full scored report",
                     ].map(f => (
-                      <div key={f} className="flex items-center gap-2 text-xs text-ink-muted">
-                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#10B981" }} />
+                      <div key={f} className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#34D399" }} />
                         {f}
                       </div>
                     ))}
@@ -669,26 +676,26 @@ export default function VideoInterviewPage() {
                 </div>
 
                 {/* Recent sessions */}
-                <div className="bg-white rounded-2xl border border-surface-border p-5">
-                  <h3 className="text-sm font-semibold text-ink mb-3">Recent Sessions</h3>
+                <div className="rounded-2xl p-5" style={cardStyle}>
+                  <h3 className="text-sm font-semibold text-white mb-3">Recent Sessions</h3>
                   {pastSessions.length === 0 ? (
                     <div className="text-center py-4">
-                      <Video className="w-7 h-7 mx-auto mb-2" style={{ color: "#9CA3AF" }} />
-                      <p className="text-xs" style={{ color: "#9CA3AF" }}>No sessions yet — complete your first above</p>
+                      <Video className="w-7 h-7 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>No sessions yet — complete your first above</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       {pastSessions.slice(0, 3).map(s => (
-                        <div key={s.id} className="p-3 rounded-xl border" style={{ backgroundColor: "#F3F5F9", borderColor: "#E8EAF0" }}>
+                        <div key={s.id} className="p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                           <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-xs font-medium text-ink">{s.setup.sector} · {s.setup.mode}</span>
+                            <span className="text-xs font-medium text-white">{s.setup.sector} · {s.setup.mode}</span>
                             {s.report && (
-                              <span className="text-xs font-bold" style={{ color: s.report.overallScore >= 75 ? "#059669" : s.report.overallScore >= 60 ? "#5B8DEF" : "#F59E0B" }}>
+                              <span className="text-xs font-bold" style={{ color: s.report.overallScore >= 75 ? "#34D399" : s.report.overallScore >= 60 ? "#5B8CFF" : "#F59E0B" }}>
                                 {s.report.overallScore}/100
                               </span>
                             )}
                           </div>
-                          <p className="text-xs" style={{ color: "#9CA3AF" }}>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                             {new Date(s.timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {s.questions.length}Q
                           </p>
                         </div>
@@ -698,10 +705,10 @@ export default function VideoInterviewPage() {
                 </div>
 
                 {/* Tip */}
-                <div className="rounded-2xl p-4" style={{ background: "linear-gradient(135deg,#EEE9FF,#EBF1FD)", border: "1px solid rgba(109,94,243,0.15)" }}>
-                  <p className="text-xs font-bold text-ink mb-1">STAR Framework</p>
-                  <p className="text-xs leading-relaxed" style={{ color: "#6B7280" }}>
-                    <strong>S</strong>ituation → <strong>T</strong>ask → <strong>A</strong>ction → <strong>R</strong>esult.
+                <div className="rounded-2xl p-4" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
+                  <p className="text-xs font-bold text-white mb-1">STAR Framework</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    <strong style={{ color: "#5B8CFF" }}>S</strong>ituation → <strong style={{ color: "#5B8CFF" }}>T</strong>ask → <strong style={{ color: "#5B8CFF" }}>A</strong>ction → <strong style={{ color: "#5B8CFF" }}>R</strong>esult.
                     Always quantify your Result with numbers or measurable impact.
                   </p>
                 </div>
@@ -719,17 +726,17 @@ export default function VideoInterviewPage() {
       <div className="flex flex-col min-h-full">
         <Topbar title="Video Interview — Setup" />
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-2xl border border-surface-border p-8 text-center space-y-6">
+          <div className="max-w-md w-full rounded-2xl p-8 text-center space-y-6" style={cardStyle}>
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
               <Mic className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-ink mb-2">Allow Camera & Microphone</h2>
-              <p className="text-sm text-ink-muted leading-relaxed">GradProcess AI needs access to record your responses and transcribe your answers in real-time. Your recordings are processed locally and never stored on external servers.</p>
+              <h2 className="text-lg font-bold text-white mb-2">Allow Camera & Microphone</h2>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>GradProcess AI needs access to record your responses and transcribe your answers in real-time. Your recordings are processed locally and never stored on external servers.</p>
             </div>
 
             {permError && (
-              <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 text-sm text-rose-700 text-left">
+              <div className="rounded-xl p-3 text-sm text-left" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171" }}>
                 {permError}
               </div>
             )}
@@ -742,15 +749,16 @@ export default function VideoInterviewPage() {
                 Allow Camera & Microphone
               </button>
               <button onClick={tryMicOnly}
-                className="w-full py-3 rounded-xl font-semibold text-sm text-ink-muted border border-surface-border hover:bg-surface-muted transition-all flex items-center justify-center gap-2">
+                className="w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                style={{ color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)" }}>
                 <Mic className="w-4 h-4" />
                 Microphone Only
               </button>
             </div>
 
-            <div className="flex items-start gap-2 text-left bg-surface-muted rounded-xl p-3">
-              <Info style={{ color: "#6D5EF3" }} className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-ink-muted">Live transcription uses your browser's built-in speech recognition. Works best in Chrome or Edge.</p>
+            <div className="flex items-start gap-2 text-left rounded-xl p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
+              <Info style={{ color: "#5B8CFF" }} className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Live transcription uses your browser's built-in speech recognition. Works best in Chrome or Edge.</p>
             </div>
           </div>
         </div>
@@ -768,11 +776,11 @@ export default function VideoInterviewPage() {
           <div className="max-w-4xl mx-auto space-y-5">
             {/* Progress */}
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-surface-border rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
                 <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg,#6D5EF3,#5B8DEF)" }}
                   initial={{ width: 0 }} animate={{ width: `${((qIndex) / totalQs) * 100}%` }} transition={{ duration: 0.5 }} />
               </div>
-              <span className="text-xs text-ink-faint whitespace-nowrap">{qIndex + 1}/{totalQs}</span>
+              <span className="text-xs whitespace-nowrap" style={{ color: "rgba(255,255,255,0.4)" }}>{qIndex + 1}/{totalQs}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -786,67 +794,68 @@ export default function VideoInterviewPage() {
                         <p className="text-xs text-gray-500">Camera not available</p>
                       </div>
                   }
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/40 rounded-full px-2.5 py-1 text-xs text-white">
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-white" style={{ background: "rgba(0,0,0,0.5)" }}>
                     <div className="w-2 h-2 rounded-full bg-gray-400" />
                     Ready
                   </div>
                 </div>
-                <div className="mt-3 p-3 bg-surface-muted rounded-xl border border-surface-border">
-                  <p className="text-xs font-medium text-ink-muted flex items-center gap-1.5 mb-1">
+                <div className="mt-3 p-3 rounded-xl" style={cardStyle}>
+                  <p className="text-xs font-medium flex items-center gap-1.5 mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>
                     <Clock className="w-3.5 h-3.5" />
                     Suggested: {fmtTime(currentQ.suggestedSeconds)}
                   </p>
                   {isFollowUp
-                    ? <p className="text-xs text-amber-600 font-medium">Follow-up question based on your previous answer</p>
-                    : <p className="text-xs text-ink-faint">Take a moment to collect your thoughts, then click Record</p>
+                    ? <p className="text-xs text-amber-400 font-medium">Follow-up question based on your previous answer</p>
+                    : <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Take a moment to collect your thoughts, then click Record</p>
                   }
                 </div>
               </div>
 
               {/* Question card */}
               <div className="lg:col-span-3 space-y-4">
-                <div className="bg-white rounded-2xl border border-surface-border p-6">
+                <div className="rounded-2xl p-6" style={cardStyle}>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                      style={{ backgroundColor: "#EEE9FF", color: "#6D5EF3" }}>
+                      style={{ background: "rgba(91,140,255,0.15)", color: "#5B8CFF" }}>
                       {isFollowUp ? "Follow-up" : currentQ.type}
                     </span>
-                    {!isFollowUp && <span className="text-xs text-ink-faint">{currentQ.competency}</span>}
+                    {!isFollowUp && <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{currentQ.competency}</span>}
                   </div>
-                  <p className="text-lg font-semibold text-ink leading-relaxed">{displayQ}</p>
+                  <p className="text-lg font-semibold text-white leading-relaxed">{displayQ}</p>
                 </div>
 
                 {!isFollowUp && (
-                  <div className="rounded-xl p-4" style={{ backgroundColor: "#EEE9FF", border: "1px solid rgba(109,94,243,0.2)" }}>
-                    <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: "#6D5EF3" }}>
+                  <div className="rounded-xl p-4" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
+                    <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: "#5B8CFF" }}>
                       <Sparkles className="w-3.5 h-3.5" />
                       Ava's Coaching Tip
                     </p>
-                    <p className="text-xs text-ink-muted leading-relaxed">{currentQ.hint}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{currentQ.hint}</p>
                   </div>
                 )}
 
                 {isFollowUp && currentAnalysis?.followUpReason && (
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-amber-700 mb-1">Why this follow-up?</p>
-                    <p className="text-xs text-amber-600 leading-relaxed">{currentAnalysis.followUpReason}</p>
+                  <div className="rounded-xl p-4" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                    <p className="text-xs font-semibold mb-1" style={{ color: "#FBBF24" }}>Why this follow-up?</p>
+                    <p className="text-xs leading-relaxed" style={{ color: "rgba(251,191,36,0.8)" }}>{currentAnalysis.followUpReason}</p>
                   </div>
                 )}
 
                 {!mediaRecorderSupported && (
                   <div className="space-y-3">
-                    <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
-                      <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-blue-700">Video recording is unavailable in your browser, but you can still complete and download your response. Type your answer below or speak — AI feedback and transcript download will still work.</p>
+                    <div className="flex items-start gap-2 rounded-xl p-3" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
+                      <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#5B8CFF" }} />
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Video recording is unavailable in your browser, but you can still complete and download your response. Type your answer below or speak — AI feedback and transcript download will still work.</p>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-ink-muted mb-1.5">Your response (optional — type here if mic is unavailable)</label>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>Your response (optional — type here if mic is unavailable)</label>
                       <textarea
                         value={typedAnswer}
                         onChange={e => setTypedAnswer(e.target.value)}
                         rows={4}
                         placeholder="Type your answer here…"
-                        className="w-full px-3 py-2.5 border border-surface-border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                        className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                        style={inputStyle}
                       />
                     </div>
                   </div>
@@ -861,18 +870,19 @@ export default function VideoInterviewPage() {
                   </button>
                   {!isFollowUp && (
                     <button onClick={handleNextQuestion}
-                      className="px-4 py-3.5 rounded-xl font-medium text-sm text-ink-muted border border-surface-border hover:bg-surface-muted transition-all">
+                      className="px-4 py-3.5 rounded-xl font-medium text-sm transition-all"
+                      style={{ color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)" }}>
                       Skip
                     </button>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2 justify-end">
-                  <span className="text-xs text-ink-faint">Live coaching</span>
+                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Live coaching</span>
                   <button
                     onClick={() => setLiveCoaching(v => !v)}
                     aria-pressed={liveCoaching}
-                    style={{ backgroundColor: liveCoaching ? "#6D5EF3" : "#E8EAF0" }}
+                    style={{ backgroundColor: liveCoaching ? "#6D5EF3" : "rgba(255,255,255,0.15)" }}
                     className="w-9 h-5 rounded-full transition-colors relative flex-shrink-0">
                     <span className={cn("absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-transform", liveCoaching ? "translate-x-4" : "translate-x-0")} />
                   </button>
@@ -925,19 +935,22 @@ export default function VideoInterviewPage() {
                     <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                       className="mt-3 space-y-2">
                       {recordingSeconds > 120 && (
-                        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-700">
+                        <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
+                          style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "#FBBF24" }}>
                           <Timer className="w-3.5 h-3.5 flex-shrink-0" />
                           Wrapping up? Aim to include your result.
                         </div>
                       )}
                       {wpmLive > 165 && (
-                        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-700">
+                        <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
+                          style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "#FBBF24" }}>
                           <Volume2 className="w-3.5 h-3.5 flex-shrink-0" />
                           Slightly fast — slow down a touch.
                         </div>
                       )}
                       {fillerCountLive >= 8 && (
-                        <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 text-xs text-rose-600">
+                        <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
+                          style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171" }}>
                           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                           Many fillers detected — try pausing instead.
                         </div>
@@ -949,37 +962,38 @@ export default function VideoInterviewPage() {
 
               {/* Right panel */}
               <div className="lg:col-span-3 space-y-4">
-                <div className="bg-surface-muted border border-surface-border rounded-2xl p-4">
-                  <p className="text-xs font-medium text-ink-muted mb-2">Question:</p>
-                  <p className="text-sm font-semibold text-ink leading-relaxed">{displayQ}</p>
+                <div className="rounded-2xl p-4" style={cardStyle}>
+                  <p className="text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.65)" }}>Question:</p>
+                  <p className="text-sm font-semibold text-white leading-relaxed">{displayQ}</p>
                 </div>
 
                 {/* Live transcript */}
-                <div className="bg-white border border-surface-border rounded-2xl p-4 min-h-[140px] max-h-[220px] overflow-y-auto">
-                  <div className="text-xs font-medium text-ink-muted mb-2 flex items-center gap-1.5">
-                    <motion.span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                <div className="rounded-2xl p-4 min-h-[140px] max-h-[220px] overflow-y-auto" style={cardStyle}>
+                  <div className="text-xs font-medium mb-2 flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    <motion.span className="w-2 h-2 rounded-full inline-block" style={{ background: "#34D399" }} animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
                     Live Transcript
                   </div>
                   {fullTranscript ? (
-                    <p className="text-sm text-ink leading-relaxed">
+                    <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
                       {transcript}
-                      <span className="text-ink-faint italic">{liveText}</span>
+                      <span className="italic" style={{ color: "rgba(255,255,255,0.35)" }}>{liveText}</span>
                     </p>
                   ) : (
-                    <p className="text-sm text-ink-faint italic">Start speaking — your words will appear here…</p>
+                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.35)" }}>Start speaking — your words will appear here…</p>
                   )}
                 </div>
 
                 {/* Fallback typed answer for unsupported browsers */}
                 {!mediaRecorderSupported && (
                   <div>
-                    <label className="block text-xs font-medium text-ink-muted mb-1.5">Type your response here</label>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>Type your response here</label>
                     <textarea
                       value={typedAnswer}
                       onChange={e => setTypedAnswer(e.target.value)}
                       rows={5}
                       placeholder="Type your answer here — it will be submitted and analysed…"
-                      className="w-full px-3 py-2.5 border border-surface-border rounded-xl text-sm text-ink bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                      className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                      style={inputStyle}
                     />
                   </div>
                 )}
@@ -987,9 +1001,9 @@ export default function VideoInterviewPage() {
                 {/* STAR reminder */}
                 <div className="grid grid-cols-4 gap-2">
                   {["Situation", "Task", "Action", "Result"].map((s) => (
-                    <div key={s} className="bg-surface-muted border border-surface-border rounded-lg p-2 text-center">
-                      <p className="text-xs font-bold text-ink">{s[0]}</p>
-                      <p className="text-xs text-ink-faint">{s}</p>
+                    <div key={s} className="rounded-lg p-2 text-center" style={cardStyle}>
+                      <p className="text-xs font-bold text-white">{s[0]}</p>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{s}</p>
                     </div>
                   ))}
                 </div>
@@ -1000,7 +1014,7 @@ export default function VideoInterviewPage() {
                   Stop & Submit Answer
                 </button>
 
-                <p className="text-xs text-ink-faint text-center">
+                <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
                   Your answer will be transcribed and analysed by Ava
                 </p>
               </div>
@@ -1023,14 +1037,14 @@ export default function VideoInterviewPage() {
               <Sparkles className="w-7 h-7 text-white" />
             </motion.div>
             <div>
-              <h3 className="text-base font-semibold text-ink mb-1">Ava is reviewing your answer</h3>
-              <p className="text-sm text-ink-muted">Checking STAR structure, delivery, and content quality…</p>
+              <h3 className="text-base font-semibold text-white mb-1">Ava is reviewing your answer</h3>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Checking STAR structure, delivery, and content quality…</p>
             </div>
-            <div className="flex flex-col gap-2 text-xs text-ink-faint">
+            <div className="flex flex-col gap-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
               {["Detecting STAR components", "Counting filler words", "Scoring delivery metrics", "Generating ideal answer", "Preparing follow-up question"].map((s, i) => (
                 <motion.div key={s} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.4 }}
                   className="flex items-center gap-2 justify-center">
-                  <motion.div style={{ backgroundColor: "#6D5EF3" }} className="w-1.5 h-1.5 rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, delay: i * 0.4, repeat: Infinity }} />
+                  <motion.div style={{ backgroundColor: "#5B8CFF" }} className="w-1.5 h-1.5 rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, delay: i * 0.4, repeat: Infinity }} />
                   {s}
                 </motion.div>
               ))}
@@ -1051,15 +1065,15 @@ export default function VideoInterviewPage() {
           <div className="max-w-4xl mx-auto space-y-5">
             {/* Score row */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-surface-border p-5">
+              className="rounded-2xl p-5" style={cardStyle}>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-xs text-ink-faint mb-1 font-medium">{isFollowUp ? "Follow-up" : currentQ?.type} · Q{qIndex + 1}/{totalQs}</p>
-                  <p className="text-sm font-semibold text-ink line-clamp-2">{a.questionText}</p>
+                  <p className="text-xs mb-1 font-medium" style={{ color: "rgba(255,255,255,0.4)" }}>{isFollowUp ? "Follow-up" : currentQ?.type} · Q{qIndex + 1}/{totalQs}</p>
+                  <p className="text-sm font-semibold text-white line-clamp-2">{a.questionText}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className={cn("text-3xl font-bold", scoreColor(a.overallScore))}>{a.overallScore}</p>
-                  <p className="text-xs text-ink-faint">/100</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</p>
                 </div>
               </div>
               <div className="grid grid-cols-5 gap-2">
@@ -1074,9 +1088,9 @@ export default function VideoInterviewPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* STAR breakdown */}
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="bg-white rounded-2xl border border-surface-border p-5">
-                <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Target style={{ color: "#6D5EF3" }} className="w-4 h-4" />
+                className="rounded-2xl p-5" style={cardStyle}>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <Target style={{ color: "#5B8CFF" }} className="w-4 h-4" />
                   STAR Analysis
                 </h3>
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -1086,47 +1100,53 @@ export default function VideoInterviewPage() {
                   <StarBadge has={a.star.hasResult} label="Result" />
                 </div>
                 <div className="flex gap-3 text-xs mb-3">
-                  <span className={cn("flex items-center gap-1", a.star.hasQuantifiedResult ? "text-emerald-600" : "text-rose-500")}>
+                  <span className={cn("flex items-center gap-1", a.star.hasQuantifiedResult ? "text-emerald-400" : "text-rose-400")}>
                     {a.star.hasQuantifiedResult ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     Quantified result
                   </span>
-                  <span className={cn("flex items-center gap-1", a.star.hasOwnership ? "text-emerald-600" : "text-rose-500")}>
+                  <span className={cn("flex items-center gap-1", a.star.hasOwnership ? "text-emerald-400" : "text-rose-400")}>
                     {a.star.hasOwnership ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     Clear ownership
                   </span>
                 </div>
-                {a.star.feedback && <p className="text-xs text-ink-muted leading-relaxed bg-surface-muted rounded-lg p-3">{a.star.feedback}</p>}
+                {a.star.feedback && <p className="text-xs leading-relaxed rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)" }}>{a.star.feedback}</p>}
               </motion.div>
 
               {/* Delivery & fillers */}
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                className="bg-white rounded-2xl border border-surface-border p-5">
-                <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-brand-blue" />
+                className="rounded-2xl p-5" style={cardStyle}>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <Volume2 className="w-4 h-4" style={{ color: "#5B8CFF" }} />
                   Delivery Metrics
                 </h3>
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="bg-surface-muted rounded-lg p-3">
-                    <p className="text-xs text-ink-faint">Duration</p>
-                    <p className="text-sm font-bold text-ink">{fmtTime(a.durationSeconds)}</p>
-                    <p className="text-xs text-ink-faint">{a.durationSeconds < 60 ? "Too short" : a.durationSeconds > 180 ? "Too long" : "Good length"}</p>
+                  <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Duration</p>
+                    <p className="text-sm font-bold text-white">{fmtTime(a.durationSeconds)}</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{a.durationSeconds < 60 ? "Too short" : a.durationSeconds > 180 ? "Too long" : "Good length"}</p>
                   </div>
-                  <div className="bg-surface-muted rounded-lg p-3">
-                    <p className="text-xs text-ink-faint">Speaking pace</p>
-                    <p className={cn("text-sm font-bold", a.delivery.pacing === "good" ? "text-emerald-600" : "text-amber-500")}>{a.delivery.wordsPerMinute} wpm</p>
-                    <p className="text-xs text-ink-faint capitalize">{a.delivery.pacing}</p>
+                  <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Speaking pace</p>
+                    <p className={cn("text-sm font-bold", a.delivery.pacing === "good" ? "text-emerald-400" : "text-amber-400")}>{a.delivery.wordsPerMinute} wpm</p>
+                    <p className="text-xs capitalize" style={{ color: "rgba(255,255,255,0.4)" }}>{a.delivery.pacing}</p>
                   </div>
                 </div>
-                <div className={cn("rounded-lg p-3 border", a.fillerWords.severity === "low" ? "bg-emerald-50 border-emerald-100" : a.fillerWords.severity === "medium" ? "bg-amber-50 border-amber-100" : "bg-rose-50 border-rose-100")}>
-                  <p className="text-xs font-semibold text-ink mb-1">Filler Words: {a.fillerWords.total} total ({a.fillerWords.perMinute}/min)</p>
+                <div className="rounded-lg p-3"
+                  style={a.fillerWords.severity === "low"
+                    ? { background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)" }
+                    : a.fillerWords.severity === "medium"
+                    ? { background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }
+                    : { background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }
+                  }>
+                  <p className="text-xs font-semibold text-white mb-1">Filler Words: {a.fillerWords.total} total ({a.fillerWords.perMinute}/min)</p>
                   {Object.keys(a.fillerWords.breakdown).length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {Object.entries(a.fillerWords.breakdown).sort(([, x], [, y]) => y - x).slice(0, 5).map(([word, count]) => (
-                        <span key={word} className="text-xs bg-white/70 px-2 py-0.5 rounded-full text-ink-muted">"{word}" ×{count}</span>
+                        <span key={word} className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }}>"{word}" ×{count}</span>
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-ink-muted mt-1.5 leading-relaxed">{getFillerFeedback(a.fillerWords)}</p>
+                  <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{getFillerFeedback(a.fillerWords)}</p>
                 </div>
               </motion.div>
             </div>
@@ -1134,29 +1154,29 @@ export default function VideoInterviewPage() {
             {/* Strengths & improvements */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
-                <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+              <div className="rounded-2xl p-5" style={cardStyle}>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
                   Strengths
                 </h3>
                 <ul className="space-y-2">
                   {a.strengths.length > 0 ? a.strengths.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-ink-muted">
-                      <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                       {s}
                     </li>
-                  )) : <p className="text-xs text-ink-faint">Keep working — strengths develop with practice.</p>}
+                  )) : <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Keep working — strengths develop with practice.</p>}
                 </ul>
               </div>
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
-                <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-500" />
+              <div className="rounded-2xl p-5" style={cardStyle}>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400" />
                   Improvements
                 </h3>
                 <ul className="space-y-2">
                   {a.improvements.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-ink-muted">
-                      <ArrowRight className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <ArrowRight className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                       {s}
                     </li>
                   ))}
@@ -1167,42 +1187,42 @@ export default function VideoInterviewPage() {
             {/* Ideal answer */}
             {a.idealAnswer && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-                className="bg-white rounded-2xl border border-surface-border p-5">
-                <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Sparkles style={{ color: "#6D5EF3" }} className="w-4 h-4" />
+                className="rounded-2xl p-5" style={cardStyle}>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <Sparkles style={{ color: "#8B5CF6" }} className="w-4 h-4" />
                   Ava's Model Answer
                 </h3>
-                <p className="text-sm text-ink-muted leading-relaxed rounded-xl p-4" style={{ backgroundColor: "rgba(238,233,255,0.5)", border: "1px solid rgba(109,94,243,0.1)" }}>{a.idealAnswer}</p>
+                <p className="text-sm leading-relaxed rounded-xl p-4" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", color: "rgba(255,255,255,0.65)" }}>{a.idealAnswer}</p>
               </motion.div>
             )}
 
             {/* Transcript */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl border border-surface-border p-5">
-              <h3 className="text-sm font-semibold text-ink mb-2 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-ink-faint" />
+              className="rounded-2xl p-5" style={cardStyle}>
+              <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
                 Your Transcript
               </h3>
-              <p className="text-sm text-ink-muted leading-relaxed">{a.transcript || "No transcript captured."}</p>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{a.transcript || "No transcript captured."}</p>
             </motion.div>
 
-            {/* Downloads card — always shown */}
+            {/* Downloads card */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="bg-white rounded-2xl border border-surface-border p-5">
-              <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
-                <Download className="w-4 h-4 text-ink-faint" />
+              className="rounded-2xl p-5" style={cardStyle}>
+              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <Download className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
                 Download Your Response
               </h3>
 
-              {/* Video playback (supported browsers only) */}
+              {/* Video playback */}
               {recordedUrl && (
                 <div className="mb-4">
                   <video
                     src={recordedUrl}
                     controls
                     playsInline
-                    className="w-full rounded-xl border border-surface-border bg-gray-900 mb-3"
-                    style={{ maxHeight: 300 }}
+                    className="w-full rounded-xl bg-gray-900 mb-3"
+                    style={{ maxHeight: 300, border: "1px solid rgba(255,255,255,0.08)" }}
                   />
                 </div>
               )}
@@ -1211,30 +1231,30 @@ export default function VideoInterviewPage() {
                 {recordedUrl && (
                   <button
                     onClick={handleDownloadVideo}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
-                    style={{ color: "#6D5EF3", borderColor: "rgba(109,94,243,0.3)", backgroundColor: "#EEE9FF" }}>
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                    style={{ color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.1)" }}>
                     <Video className="w-4 h-4" />
                     Download Video (.webm)
                   </button>
                 )}
                 <button
                   onClick={handleDownloadTranscript}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
-                  style={{ color: "#059669", borderColor: "rgba(5,150,105,0.3)", backgroundColor: "#ECFDF5" }}>
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                  style={{ color: "#34D399", border: "1px solid rgba(52,211,153,0.3)", background: "rgba(52,211,153,0.08)" }}>
                   <Download className="w-4 h-4" />
                   Download Transcript (.txt)
                 </button>
                 <button
                   onClick={handleDownloadHtml}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all hover:opacity-90"
-                  style={{ color: "#6B7280", borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" }}>
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                  style={{ color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.06)" }}>
                   <Download className="w-4 h-4" />
                   Download Summary (.html)
                 </button>
               </div>
 
               {!mediaRecorderSupported && (
-                <p className="text-xs text-ink-faint mt-3 flex items-center gap-1.5">
+                <p className="text-xs mt-3 flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                   <Info className="w-3.5 h-3.5 flex-shrink-0" />
                   Video recording is unavailable in this browser — transcript and HTML downloads are fully supported.
                 </p>
@@ -1245,8 +1265,8 @@ export default function VideoInterviewPage() {
             <div className="flex gap-3 pb-4">
               {a.followUpQuestion && !isFollowUp && (
                 <button onClick={handleAnswerFollowUp}
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm border-2 transition-all"
-                  style={{ color: "#6D5EF3", borderColor: "rgba(109,94,243,0.3)", backgroundColor: "#EEE9FF" }}>
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all"
+                  style={{ color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.08)" }}>
                   <MessageSquare className="w-4 h-4" />
                   Answer Follow-up
                 </button>
@@ -1277,8 +1297,8 @@ export default function VideoInterviewPage() {
                   <BarChart3 className="w-7 h-7 text-white" />
                 </motion.div>
                 <div className="text-center">
-                  <h3 className="text-base font-semibold text-ink mb-1">Generating your full report…</h3>
-                  <p className="text-sm text-ink-muted">Ava is synthesising all {answers.length} answers</p>
+                  <h3 className="text-base font-semibold text-white mb-1">Generating your full report…</h3>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Ava is synthesising all {answers.length} answers</p>
                 </div>
               </div>
             ) : (
@@ -1289,14 +1309,14 @@ export default function VideoInterviewPage() {
                   style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-white/70 text-sm mb-1">{setup.sector} · {setup.mode} · {setup.difficulty}</p>
+                      <p className="text-sm mb-1" style={{ color: "rgba(255,255,255,0.7)" }}>{setup.sector} · {setup.mode} · {setup.difficulty}</p>
                       <h2 className="text-2xl font-bold mb-1">Session Complete</h2>
-                      <p className="text-white/70 text-sm">{answers.length} questions · {fmtTime(finalReport.totalDurationSeconds)} total</p>
+                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{answers.length} questions · {fmtTime(finalReport.totalDurationSeconds)} total</p>
                     </div>
                     <div className="text-right">
                       <p className="text-5xl font-bold">{finalReport.overallScore}</p>
-                      <p className="text-white/70 text-sm">/100</p>
-                      <p className="text-white/80 text-xs mt-1">{scoreLabel(finalReport.overallScore)}</p>
+                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>/100</p>
+                      <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.8)" }}>{scoreLabel(finalReport.overallScore)}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -1312,11 +1332,12 @@ export default function VideoInterviewPage() {
                     { label: "Comms", score: finalReport.communicationScore as number | null },
                     { label: "Body Language", score: null as number | null },
                   ].map(({ label, score }) => (
-                    <div key={label} className={cn("rounded-2xl border p-3 text-center", score !== null ? scoreBg(score) : "bg-surface-muted border-surface-border")}>
-                      <p className="text-xs text-ink-muted font-medium mb-1">{label}</p>
+                    <div key={label} className="rounded-2xl p-3 text-center"
+                      style={score !== null ? scoreBgStyle(score) : cardStyle}>
+                      <p className="text-xs font-medium mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{label}</p>
                       {score !== null
                         ? <p className={cn("text-xl font-bold", scoreColor(score))}>{score}</p>
-                        : <div><p className="text-base font-bold text-ink-faint">—</p><p className="text-xs text-ink-faint">Beta</p></div>
+                        : <div><p className="text-base font-bold" style={{ color: "rgba(255,255,255,0.4)" }}>—</p><p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Beta</p></div>
                       }
                     </div>
                   ))}
@@ -1325,58 +1346,58 @@ export default function VideoInterviewPage() {
                 {/* Session stats */}
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                   className="grid grid-cols-3 gap-3">
-                  <div className="bg-white rounded-2xl border border-surface-border p-4 text-center">
-                    <p className="text-xs text-ink-faint mb-1">Total Fillers</p>
-                    <p className={cn("text-2xl font-bold", finalReport.totalFillerWords > 20 ? "text-rose-500" : finalReport.totalFillerWords > 10 ? "text-amber-500" : "text-emerald-600")}>{finalReport.totalFillerWords}</p>
+                  <div className="rounded-2xl p-4 text-center" style={cardStyle}>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Fillers</p>
+                    <p className={cn("text-2xl font-bold", finalReport.totalFillerWords > 20 ? "text-rose-400" : finalReport.totalFillerWords > 10 ? "text-amber-400" : "text-emerald-400")}>{finalReport.totalFillerWords}</p>
                   </div>
-                  <div className="bg-white rounded-2xl border border-surface-border p-4 text-center">
-                    <p className="text-xs text-ink-faint mb-1">Avg Pace</p>
-                    <p className={cn("text-2xl font-bold", finalReport.avgWordsPerMinute >= 110 && finalReport.avgWordsPerMinute <= 155 ? "text-emerald-600" : "text-amber-500")}>{finalReport.avgWordsPerMinute} wpm</p>
+                  <div className="rounded-2xl p-4 text-center" style={cardStyle}>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Avg Pace</p>
+                    <p className={cn("text-2xl font-bold", finalReport.avgWordsPerMinute >= 110 && finalReport.avgWordsPerMinute <= 155 ? "text-emerald-400" : "text-amber-400")}>{finalReport.avgWordsPerMinute} wpm</p>
                   </div>
-                  <div className="bg-white rounded-2xl border border-surface-border p-4 text-center">
-                    <p className="text-xs text-ink-faint mb-1">Total Time</p>
-                    <p className="text-2xl font-bold text-ink">{fmtTime(finalReport.totalDurationSeconds)}</p>
+                  <div className="rounded-2xl p-4 text-center" style={cardStyle}>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Time</p>
+                    <p className="text-2xl font-bold text-white">{fmtTime(finalReport.totalDurationSeconds)}</p>
                   </div>
                 </motion.div>
 
                 {/* Recruiter feedback */}
                 {finalReport.recruiterFeedback && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="bg-white rounded-2xl border border-surface-border p-5">
-                    <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                      <MessageSquare style={{ color: "#6D5EF3" }} className="w-4 h-4" />
+                    className="rounded-2xl p-5" style={cardStyle}>
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <MessageSquare style={{ color: "#8B5CF6" }} className="w-4 h-4" />
                       Ava's Recruiter Debrief
                     </h3>
-                    <p className="text-sm text-ink-muted leading-relaxed rounded-xl p-4" style={{ backgroundColor: "rgba(238,233,255,0.5)", border: "1px solid rgba(109,94,243,0.1)" }}>{finalReport.recruiterFeedback}</p>
+                    <p className="text-sm leading-relaxed rounded-xl p-4" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", color: "rgba(255,255,255,0.65)" }}>{finalReport.recruiterFeedback}</p>
                   </motion.div>
                 )}
 
                 {/* Strengths & improvements */}
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
                   className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="bg-white rounded-2xl border border-surface-border p-5">
-                    <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-emerald-500" />
+                  <div className="rounded-2xl p-5" style={cardStyle}>
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-emerald-400" />
                       Session Strengths
                     </h3>
                     <ul className="space-y-2">
                       {finalReport.strengths?.map((s, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-ink-muted">
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                          <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                           {s}
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-white rounded-2xl border border-surface-border p-5">
-                    <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-amber-500" />
+                  <div className="rounded-2xl p-5" style={cardStyle}>
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-amber-400" />
                       Priority Improvements
                     </h3>
                     <ul className="space-y-2">
                       {finalReport.improvements?.map((s, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-ink-muted">
-                          <ArrowRight className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                        <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                          <ArrowRight className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                           {s}
                         </li>
                       ))}
@@ -1387,16 +1408,16 @@ export default function VideoInterviewPage() {
                 {/* Improvement roadmap */}
                 {finalReport.improvementRoadmap?.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                    className="bg-white rounded-2xl border border-surface-border p-5">
-                    <h3 className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-brand-blue" />
+                    className="rounded-2xl p-5" style={cardStyle}>
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" style={{ color: "#5B8CFF" }} />
                       Improvement Roadmap
                     </h3>
                     <div className="space-y-2">
                       {finalReport.improvementRoadmap.map((step, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-surface-muted rounded-xl border border-surface-border">
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                           <span className="w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: "#6D5EF3" }}>{i + 1}</span>
-                          <p className="text-sm text-ink-muted">{step}</p>
+                          <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{step}</p>
                         </div>
                       ))}
                     </div>
@@ -1405,29 +1426,30 @@ export default function VideoInterviewPage() {
 
                 {/* Per-question summary */}
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-                  className="bg-white rounded-2xl border border-surface-border p-5">
-                  <h3 className="text-sm font-semibold text-ink mb-3">Answer Breakdown</h3>
+                  className="rounded-2xl p-5" style={cardStyle}>
+                  <h3 className="text-sm font-semibold text-white mb-3">Answer Breakdown</h3>
                   <div className="space-y-2">
                     {answers.map((a, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-surface-muted rounded-xl border border-surface-border">
-                        <span className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0", scoreBg(a.overallScore))}>
+                      <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <span className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 text-white")}
+                          style={scoreBgStyle(a.overallScore)}>
                           <span className={scoreColor(a.overallScore)}>{a.overallScore}</span>
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-ink truncate">{a.questionText}</p>
-                          <p className="text-xs text-ink-faint">{a.delivery.wordsPerMinute} wpm · {a.fillerWords.total} fillers · {fmtTime(a.durationSeconds)}</p>
+                          <p className="text-xs font-medium text-white truncate">{a.questionText}</p>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{a.delivery.wordsPerMinute} wpm · {a.fillerWords.total} fillers · {fmtTime(a.durationSeconds)}</p>
                         </div>
-                        {i === finalReport.strongestAnswerIndex && <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full flex-shrink-0">Strongest</span>}
-                        {i === finalReport.weakestAnswerIndex && answers.length > 1 && <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full flex-shrink-0">Focus here</span>}
+                        {i === finalReport.strongestAnswerIndex && <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(52,211,153,0.12)", color: "#34D399", border: "1px solid rgba(52,211,153,0.25)" }}>Strongest</span>}
+                        {i === finalReport.weakestAnswerIndex && answers.length > 1 && <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.25)" }}>Focus here</span>}
                       </div>
                     ))}
                   </div>
                 </motion.div>
 
                 {/* AI disclaimer */}
-                <div className="flex items-start gap-2 bg-surface-muted rounded-xl p-4 border border-surface-border">
-                  <Info className="w-4 h-4 text-ink-faint flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-ink-faint leading-relaxed">This feedback is AI-generated and designed to support interview preparation. It should not be treated as an exact recruiter assessment. Body language analysis is in beta — visual scoring requires camera access and will be available in a future release.</p>
+                <div className="flex items-start gap-2 rounded-xl p-4" style={cardStyle}>
+                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }} />
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>This feedback is AI-generated and designed to support interview preparation. It should not be treated as an exact recruiter assessment. Body language analysis is in beta — visual scoring requires camera access and will be available in a future release.</p>
                 </div>
 
                 {/* Actions */}

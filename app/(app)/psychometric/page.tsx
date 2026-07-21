@@ -60,13 +60,13 @@ const iconMap: Record<string, React.ReactNode> = {
   eye: <Eye className="w-6 h-6" />,
 }
 
-const testColors: Record<string, string> = {
-  numerical: "bg-blue-100 text-blue-600",
-  verbal: "bg-purple-100 text-purple-600",
-  logical: "bg-green-100 text-green-600",
-  abstract: "bg-orange-100 text-orange-600",
-  sjt: "bg-teal-100 text-teal-600",
-  attention: "bg-red-100 text-red-600",
+const testColorStyles: Record<string, { bg: string; color: string }> = {
+  numerical: { bg: "rgba(91,140,255,0.15)", color: "#5B8CFF" },
+  verbal: { bg: "rgba(139,92,246,0.15)", color: "#8B5CF6" },
+  logical: { bg: "rgba(52,211,153,0.15)", color: "#34D399" },
+  abstract: { bg: "rgba(251,191,36,0.12)", color: "#FBBF24" },
+  sjt: { bg: "rgba(34,211,238,0.12)", color: "#22D3EE" },
+  attention: { bg: "rgba(244,114,182,0.12)", color: "#F472B6" },
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -253,12 +253,13 @@ export default function PsychometricPage() {
         <Topbar title="Psychometric Tests" />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              style={{ background: "rgba(91,140,255,0.12)" }}>
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#5B8CFF" }} />
             </div>
-            <h3 className="text-lg font-semibold text-ink mb-2">Generating 20 Questions</h3>
-            <p className="text-sm text-ink-muted">Creating unique {testName} questions with Claude AI...</p>
-            <p className="text-xs text-ink-faint mt-2">Questions are tailored to avoid repeating what you've seen before</p>
+            <h3 className="text-lg font-semibold text-white mb-2">Generating 20 Questions</h3>
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Ava is building your {testName} questions...</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>Questions are tailored to avoid repeating what you've seen before</p>
           </div>
         </div>
       </div>
@@ -278,67 +279,72 @@ export default function PsychometricPage() {
           <div className="max-w-2xl mx-auto space-y-4">
 
             {/* Progress bar */}
-            <div className="flex items-center justify-between text-sm text-ink-muted mb-1">
+            <div className="flex items-center justify-between text-sm mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>
               <span>Question {questionIndex + 1} of {questions.length}</span>
-              <span className={cn("font-semibold tabular-nums", timeLeft <= 15 ? "text-red-500" : "text-ink-muted")}>
+              <span className={cn("font-semibold tabular-nums", timeLeft <= 15 ? "text-red-400" : "")}
+                style={timeLeft > 15 ? { color: "rgba(255,255,255,0.65)" } : {}}>
                 {timeLeft}s
               </span>
             </div>
-            <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, background: "#5B8CFF" }} />
             </div>
-            <div className="h-1 bg-surface-muted rounded-full overflow-hidden">
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
               <div
-                className={cn("h-full rounded-full transition-all duration-1000", timerPct > 50 ? "bg-green-500" : timerPct > 25 ? "bg-amber-500" : "bg-red-500")}
-                style={{ width: `${timerPct}%` }}
+                className="h-full rounded-full transition-all duration-1000"
+                style={{
+                  width: `${timerPct}%`,
+                  background: timerPct > 50 ? "#34D399" : timerPct > 25 ? "#FBBF24" : "#F87171",
+                }}
               />
             </div>
 
             {/* Passage (verbal) */}
             {currentQ.passage && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-                <p className="text-xs font-semibold text-blue-700 mb-2 uppercase tracking-wide">Read the following passage</p>
-                <p className="text-sm text-ink leading-relaxed">{currentQ.passage}</p>
+              <div className="rounded-2xl p-5" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "#5B8CFF" }}>Read the following passage</p>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{currentQ.passage}</p>
               </div>
             )}
 
             {/* Question */}
-            <div className="bg-white rounded-2xl border border-surface-border p-6">
-              <p className="text-sm font-semibold text-ink-muted mb-3">
+            <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 {currentQ.type.charAt(0).toUpperCase() + currentQ.type.slice(1)} · {currentQ.difficulty}
               </p>
-              <p className="text-base font-medium text-ink leading-relaxed mb-6">{currentQ.question}</p>
+              <p className="text-base font-medium leading-relaxed mb-6 text-white">{currentQ.question}</p>
 
               <div className="space-y-3">
                 {currentQ.options.map((opt, i) => {
                   const isSelected = selected === i
                   const isCorrect = i === currentQ.correct
-                  let style = "border-surface-border bg-white hover:border-blue-300 hover:bg-blue-50 cursor-pointer"
+                  let bgStyle: React.CSSProperties = { background: "rgba(255,255,255,0.04)", border: "2px solid rgba(255,255,255,0.08)", cursor: "pointer" }
                   if (showExplanation) {
-                    if (isCorrect) style = "border-green-400 bg-green-50"
-                    else if (isSelected && !isCorrect) style = "border-red-400 bg-red-50"
-                    else style = "border-surface-border bg-surface-muted opacity-60"
+                    if (isCorrect) bgStyle = { background: "rgba(52,211,153,0.1)", border: "2px solid rgba(52,211,153,0.4)" }
+                    else if (isSelected && !isCorrect) bgStyle = { background: "rgba(248,113,113,0.1)", border: "2px solid rgba(248,113,113,0.4)" }
+                    else bgStyle = { background: "rgba(255,255,255,0.02)", border: "2px solid rgba(255,255,255,0.06)", opacity: 0.6 }
                   } else if (isSelected) {
-                    style = "border-blue-500 bg-blue-50"
+                    bgStyle = { background: "rgba(91,140,255,0.1)", border: "2px solid rgba(91,140,255,0.4)" }
                   }
                   return (
                     <button
                       key={i}
                       onClick={() => handleSelectAnswer(i)}
                       disabled={showExplanation || selected !== null}
-                      className={cn("w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-3", style)}
+                      className="w-full text-left p-4 rounded-xl transition-all flex items-center gap-3"
+                      style={bgStyle}
                     >
-                      <span className={cn(
-                        "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0",
-                        showExplanation && isCorrect ? "bg-green-500 text-white" :
-                        showExplanation && isSelected && !isCorrect ? "bg-red-500 text-white" :
-                        "bg-surface-muted text-ink-muted"
-                      )}>
+                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
+                        style={
+                          showExplanation && isCorrect ? { background: "#34D399", color: "#ffffff" } :
+                          showExplanation && isSelected && !isCorrect ? { background: "#F87171", color: "#ffffff" } :
+                          { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }
+                        }>
                         {["A", "B", "C", "D"][i]}
                       </span>
-                      <span className="text-sm text-ink">{opt}</span>
-                      {showExplanation && isCorrect && <CheckCircle className="w-4 h-4 text-green-500 ml-auto flex-shrink-0" />}
-                      {showExplanation && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-red-500 ml-auto flex-shrink-0" />}
+                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{opt}</span>
+                      {showExplanation && isCorrect && <CheckCircle className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: "#34D399" }} />}
+                      {showExplanation && isSelected && !isCorrect && <XCircle className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: "#F87171" }} />}
                     </button>
                   )
                 })}
@@ -347,25 +353,24 @@ export default function PsychometricPage() {
 
             {/* Explanation */}
             {showExplanation && (
-              <div className={cn(
-                "rounded-2xl border p-4 text-sm",
-                selected === currentQ.correct || selected === -1
-                  ? selected === currentQ.correct ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-                  : "bg-red-50 border-red-200"
-              )}>
+              <div className="rounded-2xl border p-4 text-sm"
+                style={selected === currentQ.correct
+                  ? { background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.25)" }
+                  : { background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.25)" }
+                }>
                 <div className="flex items-center gap-2 mb-2">
                   {selected === currentQ.correct
-                    ? <><CheckCircle className="w-4 h-4 text-green-600" /><span className="font-semibold text-green-800">Correct!</span></>
-                    : <><XCircle className="w-4 h-4 text-red-600" /><span className="font-semibold text-red-800">{selected === -1 ? "Time's up!" : "Incorrect"}</span></>
+                    ? <><CheckCircle className="w-4 h-4" style={{ color: "#34D399" }} /><span className="font-semibold" style={{ color: "#34D399" }}>Correct!</span></>
+                    : <><XCircle className="w-4 h-4" style={{ color: "#F87171" }} /><span className="font-semibold" style={{ color: "#F87171" }}>{selected === -1 ? "Time's up!" : "Incorrect"}</span></>
                   }
                 </div>
-                <p className="text-ink">{currentQ.explanation}</p>
-                <p className="text-xs text-ink-faint mt-2">Next question in a moment...</p>
+                <p style={{ color: "rgba(255,255,255,0.65)" }}>{currentQ.explanation}</p>
+                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>Next question in a moment...</p>
               </div>
             )}
 
             {/* Score tracker */}
-            <div className="flex items-center justify-between text-xs text-ink-faint px-1">
+            <div className="flex items-center justify-between text-xs px-1" style={{ color: "rgba(255,255,255,0.4)" }}>
               <span>{answers.filter(a => a.isCorrect).length} correct so far</span>
               <span>{answers.filter(a => !a.isCorrect && a.selected !== -1).length} incorrect · {answers.filter(a => a.selected === -1).length} timed out</span>
             </div>
@@ -387,62 +392,66 @@ export default function PsychometricPage() {
         <div className="flex-1 p-6 space-y-5 max-w-3xl mx-auto w-full">
 
           {/* Score banner */}
-          <div className="bg-gradient-to-r from-[#0a0f1e] to-[#1e293b] rounded-2xl p-8 text-white">
+          <div className="rounded-2xl p-8 text-white" style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #1e293b 100%)" }}>
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold mb-1">Test Complete!</h2>
-                <p className="text-ink-faint text-sm">{currentSession.testName} · {currentSession.total} questions</p>
-                <p className="text-xs text-ink-muted mt-1">{new Date(currentSession.date).toLocaleString()}</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{currentSession.testName} · {currentSession.total} questions</p>
+                <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>{new Date(currentSession.date).toLocaleString()}</p>
               </div>
               <div className="text-right">
                 <div className={cn("text-6xl font-bold", getScoreColor(currentSession.score))}>{currentSession.score}</div>
-                <div className="text-ink-faint text-sm">/100</div>
+                <div className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>/100</div>
                 <div className={cn("text-sm font-semibold mt-1", getScoreColor(currentSession.score))}>{getScoreLabel(currentSession.score)}</div>
               </div>
             </div>
-            <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="mt-4 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
               <div className={cn("h-full rounded-full transition-all", getScoreBg(currentSession.score))} style={{ width: `${currentSession.score}%` }} />
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-              <Trophy className="w-7 h-7 text-amber-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-ink">{currentSession.correct}/{currentSession.total}</p>
-              <p className="text-xs text-ink-muted mt-1">Correct</p>
+            <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <Trophy className="w-7 h-7 text-amber-400 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-white">{currentSession.correct}/{currentSession.total}</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>Correct</p>
             </div>
-            <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-              <Clock className="w-7 h-7 text-blue-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-ink">{currentSession.avgTime}s</p>
-              <p className="text-xs text-ink-muted mt-1">Avg per question</p>
+            <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <Clock className="w-7 h-7 mx-auto mb-2" style={{ color: "#5B8CFF" }} />
+              <p className="text-3xl font-bold text-white">{currentSession.avgTime}s</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>Avg per question</p>
             </div>
-            <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-              <TrendingUp className="w-7 h-7 text-purple-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-ink">{Math.min(99, Math.round(currentSession.score * 0.9 + 5))}th</p>
-              <p className="text-xs text-ink-muted mt-1">Percentile est.</p>
+            <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <TrendingUp className="w-7 h-7 mx-auto mb-2" style={{ color: "#8B5CF6" }} />
+              <p className="text-3xl font-bold text-white">{Math.min(99, Math.round(currentSession.score * 0.9 + 5))}th</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>Percentile est.</p>
             </div>
           </div>
 
           {/* Answer review */}
-          <div className="bg-white rounded-2xl border border-surface-border p-6">
-            <h3 className="text-sm font-semibold text-ink mb-4">Full Answer Review</h3>
+          <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <h3 className="text-sm font-semibold text-white mb-4">Full Answer Review</h3>
             <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
               {currentSession.answers.map((a, i) => (
-                <div key={i} className={cn("p-4 rounded-xl border", a.isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200")}>
+                <div key={i} className="p-4 rounded-xl"
+                  style={a.isCorrect
+                    ? { background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)" }
+                    : { background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }
+                  }>
                   <div className="flex items-start gap-3">
                     {a.isCorrect
-                      ? <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                      : <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                      ? <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#34D399" }} />
+                      : <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#F87171" }} />
                     }
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800">{i + 1}. {a.question}</p>
-                      <p className="text-xs text-ink-muted mt-1">
+                      <p className="text-sm font-medium text-white">{i + 1}. {a.question}</p>
+                      <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
                         Your answer: <strong>{a.selected >= 0 ? a.options[a.selected] : "Timed out"}</strong>
-                        {!a.isCorrect && <> · Correct: <strong className="text-green-700">{a.options[a.correct]}</strong></>}
-                        <span className="ml-2 text-ink-faint">({a.timeTaken}s)</span>
+                        {!a.isCorrect && <> · Correct: <strong style={{ color: "#34D399" }}>{a.options[a.correct]}</strong></>}
+                        <span className="ml-2" style={{ color: "rgba(255,255,255,0.4)" }}>({a.timeTaken}s)</span>
                       </p>
-                      {!a.isCorrect && <p className="text-xs text-ink-muted mt-1.5 leading-relaxed">{a.explanation}</p>}
+                      {!a.isCorrect && <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{a.explanation}</p>}
                     </div>
                   </div>
                 </div>
@@ -454,19 +463,22 @@ export default function PsychometricPage() {
           <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => handleStartTest(activeTestId)}
-              className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm text-white transition-colors hover:opacity-90"
+              style={{ background: "#5B8CFF" }}
             >
               <Zap className="w-4 h-4" /> Generate 20 New Questions
             </button>
             <button
               onClick={() => { setPhase("selection"); setActiveTab("tests") }}
-              className="flex items-center gap-2 px-5 py-3 bg-surface-muted text-ink rounded-xl font-semibold text-sm hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-colors"
+              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)" }}
             >
               <RotateCcw className="w-4 h-4" /> Try Different Test
             </button>
             <button
               onClick={() => { setPhase("selection"); setActiveTab("history") }}
-              className="flex items-center gap-2 px-5 py-3 bg-surface-muted text-ink rounded-xl font-semibold text-sm hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-colors"
+              style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)" }}
             >
               <History className="w-4 h-4" /> View Test Log
             </button>
@@ -484,29 +496,29 @@ export default function PsychometricPage() {
       <div className="flex-1 p-6 space-y-6">
 
         {/* Overall score banner */}
-        <div className="bg-gradient-to-r from-[#0a0f1e] to-[#1e293b] rounded-2xl p-6 text-white">
+        <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #1e293b 100%)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-ink-faint uppercase tracking-wide mb-1">Overall Psychometric Score</p>
+              <p className="text-xs uppercase tracking-wide mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Overall Psychometric Score</p>
               {overallScore !== null ? (
                 <>
                   <p className={cn("text-5xl font-bold", getScoreColor(overallScore))}>{overallScore}</p>
-                  <p className="text-ink-faint text-sm mt-1">
+                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
                     Across {testLog.length} test{testLog.length !== 1 ? "s" : ""} · {testLog.reduce((s, t) => s + t.total, 0)} total questions answered
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-4xl font-bold text-ink-faint">—</p>
-                  <p className="text-ink-muted text-sm mt-1">Complete your first test to get a score</p>
+                  <p className="text-4xl font-bold" style={{ color: "rgba(255,255,255,0.3)" }}>—</p>
+                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>Complete your first test to get a score</p>
                 </>
               )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               {scoreByType.filter(t => t.count > 0).slice(0, 4).map(t => (
-                <div key={t.id} className="text-center bg-white/5 rounded-xl px-3 py-2">
+                <div key={t.id} className="text-center rounded-xl px-3 py-2" style={{ background: "rgba(255,255,255,0.05)" }}>
                   <p className={cn("text-lg font-bold", getScoreColor(t.avg!))}>{t.avg}</p>
-                  <p className="text-xs text-ink-faint">{t.name.split(" ")[0]}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.name.split(" ")[0]}</p>
                 </div>
               ))}
             </div>
@@ -514,22 +526,23 @@ export default function PsychometricPage() {
         </div>
 
         {loadingError && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-            <p className="text-sm text-red-800">{loadingError}</p>
+          <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }}>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: "#F87171" }} />
+            <p className="text-sm" style={{ color: "#F87171" }}>{loadingError}</p>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-surface-muted rounded-xl p-1 w-fit">
+        <div className="flex gap-1 rounded-xl p-1 w-fit" style={{ background: "rgba(255,255,255,0.04)" }}>
           {(["tests", "history", "stats"] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize",
-                activeTab === tab ? "bg-white text-ink shadow-sm" : "text-ink-muted hover:text-ink"
-              )}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize"
+              style={activeTab === tab
+                ? { background: "rgba(255,255,255,0.08)", color: "#ffffff" }
+                : { color: "rgba(255,255,255,0.5)" }
+              }
             >
               {tab === "tests" ? "Choose Test" : tab === "history" ? `Test Log (${testLog.length})` : "Stats"}
             </button>
@@ -545,35 +558,38 @@ export default function PsychometricPage() {
               const avgScore = sessions.length > 0
                 ? Math.round(sessions.reduce((s, t) => s + t.score, 0) / sessions.length)
                 : null
+              const colorStyle = testColorStyles[test.id] || { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }
               return (
-                <div key={test.id} className="bg-white rounded-2xl border border-surface-border p-6 flex flex-col">
+                <div key={test.id} className="rounded-2xl p-6 flex flex-col" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <div className="flex items-start justify-between mb-4">
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", testColors[test.id])}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: colorStyle.bg, color: colorStyle.color }}>
                       {iconMap[test.icon] || <Brain className="w-6 h-6" />}
                     </div>
                     {avgScore !== null && (
                       <div className="text-right">
                         <span className={cn("text-sm font-bold", getScoreColor(avgScore))}>{avgScore}/100</span>
-                        <p className="text-xs text-ink-faint">{sessions.length} attempt{sessions.length !== 1 ? "s" : ""}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{sessions.length} attempt{sessions.length !== 1 ? "s" : ""}</p>
                       </div>
                     )}
                   </div>
-                  <h3 className="font-semibold text-ink mb-1">{test.name}</h3>
-                  <p className="text-xs text-ink-muted mb-1">{test.description}</p>
+                  <h3 className="font-semibold text-white mb-1">{test.name}</h3>
+                  <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{test.description}</p>
                   {last && (
-                    <p className="text-xs text-ink-faint mb-3">
+                    <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                       Last: {last.correct}/{last.total} correct · {new Date(last.date).toLocaleDateString()}
                     </p>
                   )}
                   <div className="mt-auto">
                     {last && (
-                      <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden mb-3">
+                      <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.08)" }}>
                         <div className={cn("h-full rounded-full", getScoreBg(last.score))} style={{ width: `${last.score}%` }} />
                       </div>
                     )}
                     <button
                       onClick={() => handleStartTest(test.id)}
-                      className="w-full py-2.5 rounded-xl font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-2.5 rounded-xl font-medium text-sm text-white transition-all flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ background: "#5B8CFF" }}
                     >
                       <Play className="w-4 h-4" />
                       {last ? "Practice Again (20 new Qs)" : "Start Practice (20 Qs)"}
@@ -589,41 +605,43 @@ export default function PsychometricPage() {
         {activeTab === "history" && (
           <div className="space-y-4">
             {testLog.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
-                <History className="w-10 h-10 text-ink-faint mx-auto mb-3" />
-                <p className="text-ink-muted font-medium">No tests completed yet</p>
-                <p className="text-sm text-ink-faint mt-1">Complete a test to see your history here</p>
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <History className="w-10 h-10 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.2)" }} />
+                <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>No tests completed yet</p>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Complete a test to see your history here</p>
               </div>
             ) : (
-              testLog.map((session, i) => (
-                <div key={session.id} className="bg-white rounded-2xl border border-surface-border p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-sm",
-                        testColors[session.testType] || "bg-surface-muted text-ink-muted"
-                      )}>
-                        {iconMap[psychometricTests.find(t => t.id === session.testType)?.icon || "brain"] || <Brain className="w-5 h-5" />}
+              testLog.map((session, i) => {
+                const colorStyle = testColorStyles[session.testType] || { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }
+                return (
+                  <div key={session.id} className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm"
+                          style={{ background: colorStyle.bg, color: colorStyle.color }}>
+                          {iconMap[psychometricTests.find(t => t.id === session.testType)?.icon || "brain"] || <Brain className="w-5 h-5" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{session.testName}</p>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{new Date(session.date).toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-ink">{session.testName}</p>
-                        <p className="text-xs text-ink-faint">{new Date(session.date).toLocaleString()}</p>
+                      <div className="text-right">
+                        <p className={cn("text-2xl font-bold", getScoreColor(session.score))}>{session.score}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className={cn("text-2xl font-bold", getScoreColor(session.score))}>{session.score}</p>
-                      <p className="text-xs text-ink-faint">/100</p>
+                    <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.08)" }}>
+                      <div className={cn("h-full rounded-full", getScoreBg(session.score))} style={{ width: `${session.score}%` }} />
+                    </div>
+                    <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-400" />{session.correct}/{session.total} correct</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" style={{ color: "#5B8CFF" }} />{session.avgTime}s avg</span>
+                      <span className="flex items-center gap-1"><Target className="w-3 h-3" style={{ color: "#8B5CF6" }} />{getScoreLabel(session.score)}</span>
                     </div>
                   </div>
-                  <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden mb-3">
-                    <div className={cn("h-full rounded-full", getScoreBg(session.score))} style={{ width: `${session.score}%` }} />
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-ink-muted">
-                    <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" />{session.correct}/{session.total} correct</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-blue-500" />{session.avgTime}s avg</span>
-                    <span className="flex items-center gap-1"><Target className="w-3 h-3 text-purple-500" />{getScoreLabel(session.score)}</span>
-                  </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         )}
@@ -632,45 +650,47 @@ export default function PsychometricPage() {
         {activeTab === "stats" && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-                <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-ink">{testLog.length}</p>
-                <p className="text-xs text-ink-muted">Tests Completed</p>
+              <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <Trophy className="w-6 h-6 text-amber-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{testLog.length}</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Tests Completed</p>
               </div>
-              <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-                <Target className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-ink">{testLog.reduce((s, t) => s + t.total, 0)}</p>
-                <p className="text-xs text-ink-muted">Questions Answered</p>
+              <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <Target className="w-6 h-6 mx-auto mb-2" style={{ color: "#5B8CFF" }} />
+                <p className="text-2xl font-bold text-white">{testLog.reduce((s, t) => s + t.total, 0)}</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Questions Answered</p>
               </div>
-              <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-                <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-ink">{testLog.reduce((s, t) => s + t.correct, 0)}</p>
-                <p className="text-xs text-ink-muted">Correct Answers</p>
+              <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <CheckCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#34D399" }} />
+                <p className="text-2xl font-bold text-white">{testLog.reduce((s, t) => s + t.correct, 0)}</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Correct Answers</p>
               </div>
-              <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-                <TrendingUp className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                <p className={cn("text-2xl font-bold", overallScore ? getScoreColor(overallScore) : "text-ink-faint")}>
+              <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <TrendingUp className="w-6 h-6 mx-auto mb-2" style={{ color: "#8B5CF6" }} />
+                <p className={cn("text-2xl font-bold", overallScore ? getScoreColor(overallScore) : "")}
+                  style={!overallScore ? { color: "rgba(255,255,255,0.4)" } : {}}>
                   {overallScore ?? "—"}
                 </p>
-                <p className="text-xs text-ink-muted">Overall Score</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Overall Score</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-surface-border p-6">
-              <h3 className="text-sm font-semibold text-ink mb-4">Score by Test Type</h3>
+            <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <h3 className="text-sm font-semibold text-white mb-4">Score by Test Type</h3>
               <div className="space-y-4">
                 {scoreByType.map(t => (
                   <div key={t.id}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm text-ink">{t.name}</span>
+                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{t.name}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-ink-faint">{t.count} attempt{t.count !== 1 ? "s" : ""}</span>
-                        <span className={cn("text-sm font-bold", t.avg ? getScoreColor(t.avg) : "text-ink-faint")}>
+                        <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.count} attempt{t.count !== 1 ? "s" : ""}</span>
+                        <span className={cn("text-sm font-bold", t.avg ? getScoreColor(t.avg) : "")}
+                          style={!t.avg ? { color: "rgba(255,255,255,0.4)" } : {}}>
                           {t.avg ?? "—"}
                         </span>
                       </div>
                     </div>
-                    <div className="h-2 bg-surface-muted rounded-full overflow-hidden">
+                    <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
                       {t.avg !== null && (
                         <div className={cn("h-full rounded-full transition-all duration-700", getScoreBg(t.avg))} style={{ width: `${t.avg}%` }} />
                       )}

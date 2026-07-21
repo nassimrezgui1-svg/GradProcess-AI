@@ -21,35 +21,6 @@ interface NewsItem {
   relevanceScore: number
 }
 
-const sectorColors: Record<string, string> = {
-  Banking: "bg-blue-100 text-blue-700 border-blue-200",
-  "Investment Banking": "bg-indigo-100 text-indigo-700 border-indigo-200",
-  Consulting: "bg-purple-100 text-purple-700 border-purple-200",
-  "Asset Management": "bg-teal-100 text-teal-700 border-teal-200",
-  "Wealth Management": "bg-emerald-100 text-emerald-700 border-emerald-200",
-  Insurance: "bg-amber-100 text-amber-700 border-amber-200",
-  Technology: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  Law: "bg-red-100 text-red-700 border-red-200",
-  Engineering: "bg-orange-100 text-orange-700 border-orange-200",
-  FMCG: "bg-lime-100 text-lime-700 border-lime-200",
-  Energy: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  Healthcare: "bg-rose-100 text-rose-700 border-rose-200",
-  "Public Sector": "bg-slate-100 text-slate-700 border-slate-200",
-}
-
-const sourceColors: Record<string, string> = {
-  "BBC Business": "bg-red-50 text-red-700 border-red-200",
-  "Financial Times": "bg-pink-50 text-pink-700 border-pink-200",
-  "The Guardian": "bg-blue-50 text-blue-700 border-blue-200",
-  "City A.M.": "bg-purple-50 text-purple-700 border-purple-200",
-  "The Economist": "bg-red-50 text-red-700 border-red-100",
-  "CNBC Business": "bg-cyan-50 text-cyan-700 border-cyan-200",
-  "CNBC Finance": "bg-cyan-50 text-cyan-700 border-cyan-200",
-  "MarketWatch": "bg-green-50 text-green-700 border-green-200",
-  "TechCrunch": "bg-orange-50 text-orange-700 border-orange-200",
-  "Wired": "bg-surface-muted text-ink border-surface-border",
-}
-
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()
   const h = Math.floor(diff / 3600000)
@@ -153,16 +124,15 @@ export default function IndustryHubPage() {
             <button
               key={s.sector}
               onClick={() => handleSectorChange(s.sector)}
-              className={cn(
-                "flex-shrink-0 rounded-2xl border-2 p-4 text-left transition-all min-w-[140px]",
-                activeSector === s.sector
-                  ? "border-blue-500 bg-blue-50 shadow-sm shadow-blue-100"
-                  : "border-surface-border bg-white hover:border-surface-border"
-              )}
+              className="flex-shrink-0 rounded-2xl p-4 text-left transition-all min-w-[140px]"
+              style={activeSector === s.sector
+                ? { border: "2px solid rgba(91,140,255,0.5)", background: "rgba(91,140,255,0.1)" }
+                : { border: "2px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)" }
+              }
             >
-              <p className="text-xs font-semibold text-ink-muted mb-1">{s.sector}</p>
+              <p className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{s.sector}</p>
               <p className={cn("text-2xl font-bold", getScoreColor(s.score))}>{s.score}</p>
-              <div className="h-1 bg-surface-muted rounded-full mt-2 overflow-hidden">
+              <div className="h-1 rounded-full mt-2 overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
                 <div className={cn("h-full rounded-full", getScoreBg(s.score))} style={{ width: `${s.score}%` }} />
               </div>
               <p className={cn("text-xs mt-1", getScoreColor(s.score))}>{getScoreLabel(s.score)}</p>
@@ -176,12 +146,11 @@ export default function IndustryHubPage() {
             <button
               key={s}
               onClick={() => handleSectorChange(s)}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-medium border transition-all",
-                activeSector === s
-                  ? sectorColors[s] || "bg-blue-100 text-blue-700 border-blue-200"
-                  : "bg-white text-ink-muted border-surface-border hover:border-gray-300"
-              )}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
+              style={activeSector === s
+                ? { background: "rgba(91,140,255,0.15)", color: "#5B8CFF", border: "1px solid rgba(91,140,255,0.3)" }
+                : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.08)" }
+              }
             >
               {s}
             </button>
@@ -193,9 +162,8 @@ export default function IndustryHubPage() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <span className={cn("text-xs font-semibold px-3 py-1 rounded-full border",
-                  sectorColors[activeSector] || "bg-blue-100 text-blue-700 border-blue-200"
-                )}>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full"
+                  style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff" }}>
                   Sector Knowledge
                 </span>
                 <span className={cn("text-xs font-semibold", getScoreColor(sectorScore))}>
@@ -203,14 +171,15 @@ export default function IndustryHubPage() {
                 </span>
               </div>
               <h2 className="text-2xl font-bold mb-2">{content?.name || activeSector}</h2>
-              <p className="text-ink-faint text-sm leading-relaxed max-w-2xl">{content?.overview || `Explore sector-specific knowledge, trends, and interview preparation for ${activeSector}.`}</p>
+              <p className="text-sm leading-relaxed max-w-2xl" style={{ color: "rgba(255,255,255,0.75)" }}>{content?.overview || `Explore sector-specific knowledge, trends, and interview preparation for ${activeSector}.`}</p>
             </div>
             <div className="flex-shrink-0 ml-6 text-right">
               <div className={cn("text-5xl font-bold", getScoreColor(sectorScore))}>{sectorScore}</div>
-              <div className="text-ink-faint text-sm">/100</div>
+              <div className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>/100</div>
               <button
                 onClick={() => fetchAiInsight(activeSector, "current trends")}
-                className="mt-3 flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-xs text-white px-3 py-1.5 rounded-lg transition-colors hover:opacity-90"
+                style={{ background: "rgba(255,255,255,0.2)" }}
               >
                 <Zap className="w-3 h-3" /> AI Insight
               </button>
@@ -269,15 +238,16 @@ export default function IndustryHubPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-surface-muted rounded-xl p-1 w-fit">
+        <div className="flex gap-1 rounded-xl p-1 w-fit" style={{ background: "rgba(255,255,255,0.04)" }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                activeTab === tab.id ? "bg-white text-ink shadow-sm" : "text-ink-muted hover:text-ink"
-              )}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={activeTab === tab.id
+                ? { background: "rgba(255,255,255,0.08)", color: "#ffffff" }
+                : { color: "rgba(255,255,255,0.5)" }
+              }
             >
               {tab.icon} {tab.label}
             </button>
@@ -290,34 +260,38 @@ export default function IndustryHubPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
               {/* Current Trends */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-blue-600" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(91,140,255,0.15)" }}>
+                    <TrendingUp className="w-4 h-4" style={{ color: "#5B8CFF" }} />
                   </div>
-                  <h3 className="text-sm font-semibold text-ink">Current Trends & Themes</h3>
+                  <h3 className="text-sm font-semibold text-white">Current Trends & Themes</h3>
                 </div>
                 <div className="space-y-2">
                   {(content?.trends || ["Digital transformation", "ESG", "AI integration", "Regulatory change"]).map((trend: string, i: number) => (
-                    <div key={i} className="rounded-xl border border-surface-border overflow-hidden">
+                    <div key={i} className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
                       <button
                         onClick={() => setExpandedTrend(expandedTrend === i ? null : i)}
-                        className="w-full flex items-center justify-between p-3 hover:bg-surface-muted transition-colors text-left"
+                        className="w-full flex items-center justify-between p-3 text-left transition-colors"
+                        style={{ background: "transparent" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-800 font-medium">{trend}</span>
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#5B8CFF" }} />
+                          <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>{trend}</span>
                         </div>
                         {expandedTrend === i
-                          ? <ChevronUp className="w-3 h-3 text-ink-faint flex-shrink-0" />
-                          : <ChevronDown className="w-3 h-3 text-ink-faint flex-shrink-0" />
+                          ? <ChevronUp className="w-3 h-3 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+                          : <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
                         }
                       </button>
                       {expandedTrend === i && (
                         <div className="px-3 pb-3">
                           <button
                             onClick={() => fetchAiInsight(activeSector, trend)}
-                            className="text-xs flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-xs flex items-center gap-1.5 font-medium transition-opacity hover:opacity-70"
+                            style={{ color: "#5B8CFF" }}
                           >
                             <Zap className="w-3 h-3" /> Get AI explanation for interviews
                           </button>
@@ -329,34 +303,39 @@ export default function IndustryHubPage() {
               </div>
 
               {/* Client Segments */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-purple-600" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(139,92,246,0.15)" }}>
+                    <Users className="w-4 h-4" style={{ color: "#8B5CF6" }} />
                   </div>
-                  <h3 className="text-sm font-semibold text-ink">Client Segments</h3>
+                  <h3 className="text-sm font-semibold text-white">Client Segments</h3>
                 </div>
                 <div className="space-y-2">
                   {(content?.clientSegments || ["Large corporates", "SMEs", "Institutional investors", "Government bodies"]).map((seg: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-surface-muted transition-colors">
-                      <ChevronRight className="w-3 h-3 text-ink-faint flex-shrink-0" />
-                      <span className="text-sm text-ink">{seg}</span>
+                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl transition-colors"
+                      style={{ background: "transparent" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <ChevronRight className="w-3 h-3 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{seg}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Graduate Roles */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Briefcase className="w-4 h-4 text-green-600" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(52,211,153,0.15)" }}>
+                    <Briefcase className="w-4 h-4" style={{ color: "#34D399" }} />
                   </div>
-                  <h3 className="text-sm font-semibold text-ink">Graduate Roles</h3>
+                  <h3 className="text-sm font-semibold text-white">Graduate Roles</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {(content?.graduateRoles || ["Graduate Analyst", "Associate", "Trainee", "Junior Consultant"]).map((role: string, i: number) => (
-                    <span key={i} className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+                    <span key={i} className="px-3 py-1.5 rounded-full text-xs font-medium"
+                      style={{ background: "rgba(52,211,153,0.12)", color: "#34D399", border: "1px solid rgba(52,211,153,0.25)" }}>
                       {role}
                     </span>
                   ))}
@@ -364,18 +343,22 @@ export default function IndustryHubPage() {
               </div>
 
               {/* Technical Areas */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Code className="w-4 h-4 text-orange-600" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(251,191,36,0.12)" }}>
+                    <Code className="w-4 h-4" style={{ color: "#FBBF24" }} />
                   </div>
-                  <h3 className="text-sm font-semibold text-ink">Technical Knowledge Areas</h3>
+                  <h3 className="text-sm font-semibold text-white">Technical Knowledge Areas</h3>
                 </div>
                 <div className="space-y-1.5">
                   {(content?.technicalAreas || ["Financial analysis", "Data interpretation", "Report writing", "Stakeholder management"]).map((area: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-surface-muted transition-colors">
-                      <CheckCircle className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
-                      <span className="text-sm text-ink">{area}</span>
+                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl transition-colors"
+                      style={{ background: "transparent" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#FBBF24" }} />
+                      <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{area}</span>
                     </div>
                   ))}
                 </div>
@@ -390,20 +373,21 @@ export default function IndustryHubPage() {
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-ink">Live News — {activeSector}</h3>
-                <p className="text-xs text-ink-faint mt-0.5">
+                <h3 className="text-sm font-semibold text-white">Live News — {activeSector}</h3>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                   Sourced from BBC, Financial Times, Guardian, City A.M., CNBC, Economist · updated every 30 min
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 {newsLoading ? (
-                  <span className="flex items-center gap-1.5 text-xs text-blue-600">
+                  <span className="flex items-center gap-1.5 text-xs" style={{ color: "#5B8CFF" }}>
                     <Loader2 className="w-3 h-3 animate-spin" /> Fetching latest...
                   </span>
                 ) : (
                   <button
                     onClick={() => fetchNews(activeSector, true)}
-                    className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-gray-800 bg-surface-muted hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"
+                    style={{ color: "rgba(255,255,255,0.65)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
                   >
                     <RefreshCw className="w-3 h-3" /> Refresh
                   </button>
@@ -418,12 +402,11 @@ export default function IndustryHubPage() {
                   <button
                     key={src}
                     onClick={() => setSourceFilter(src)}
-                    className={cn(
-                      "px-3 py-1 rounded-full text-xs font-medium border transition-all",
-                      sourceFilter === src
-                        ? "bg-gray-900 text-white border-gray-900"
-                        : "bg-white text-ink-muted border-surface-border hover:border-gray-300"
-                    )}
+                    className="px-3 py-1 rounded-full text-xs font-medium transition-all"
+                    style={sourceFilter === src
+                      ? { background: "rgba(91,140,255,0.15)", color: "#5B8CFF", border: "1px solid rgba(91,140,255,0.3)" }
+                      : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.08)" }
+                    }
                   >
                     {src === "all" ? `All (${news.length})` : src}
                   </button>
@@ -433,13 +416,13 @@ export default function IndustryHubPage() {
 
             {/* Error state */}
             {newsError && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }}>
+                <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: "#F87171" }} />
                 <div>
-                  <p className="text-sm text-red-800 font-medium">Could not load news</p>
-                  <p className="text-xs text-red-600 mt-0.5">{newsError}</p>
+                  <p className="text-sm font-medium" style={{ color: "#F87171" }}>Could not load news</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(248,113,113,0.8)" }}>{newsError}</p>
                 </div>
-                <button onClick={() => fetchNews(activeSector, true)} className="ml-auto text-xs text-red-600 hover:text-red-700 underline">Retry</button>
+                <button onClick={() => fetchNews(activeSector, true)} className="ml-auto text-xs underline" style={{ color: "#F87171" }}>Retry</button>
               </div>
             )}
 
@@ -447,11 +430,11 @@ export default function IndustryHubPage() {
             {newsLoading && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-surface-border p-5 animate-pulse">
-                    <div className="h-3 bg-surface-muted rounded w-1/4 mb-3" />
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                    <div className="h-4 bg-surface-muted rounded w-3/4 mb-3" />
-                    <div className="h-3 bg-surface-muted rounded w-1/2" />
+                  <div key={i} className="rounded-2xl p-5 animate-pulse" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div className="h-3 rounded w-1/4 mb-3" style={{ background: "rgba(255,255,255,0.08)" }} />
+                    <div className="h-4 rounded w-full mb-2" style={{ background: "rgba(255,255,255,0.06)" }} />
+                    <div className="h-4 rounded w-3/4 mb-3" style={{ background: "rgba(255,255,255,0.05)" }} />
+                    <div className="h-3 rounded w-1/2" style={{ background: "rgba(255,255,255,0.05)" }} />
                   </div>
                 ))}
               </div>
@@ -459,11 +442,11 @@ export default function IndustryHubPage() {
 
             {/* No results */}
             {!newsLoading && newsFetched && filteredNews.length === 0 && (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
-                <Globe className="w-10 h-10 text-ink-faint mx-auto mb-3" />
-                <p className="text-ink-muted font-medium">No news found for {activeSector}</p>
-                <p className="text-sm text-ink-faint mt-1">Try refreshing or selecting a different sector</p>
-                <button onClick={() => fetchNews(activeSector, true)} className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <Globe className="w-10 h-10 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.2)" }} />
+                <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>No news found for {activeSector}</p>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Try refreshing or selecting a different sector</p>
+                <button onClick={() => fetchNews(activeSector, true)} className="mt-4 text-sm font-medium" style={{ color: "#5B8CFF" }}>
                   Try again
                 </button>
               </div>
@@ -478,40 +461,47 @@ export default function IndustryHubPage() {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group bg-white rounded-2xl border border-surface-border p-5 hover:border-blue-200 hover:shadow-md transition-all flex flex-col"
+                    className="group rounded-2xl p-5 flex flex-col transition-all"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = "rgba(91,140,255,0.3)"
+                      e.currentTarget.style.background = "rgba(255,255,255,0.06)"
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"
+                      e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+                    }}
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <span className={cn(
-                        "text-xs font-semibold px-2.5 py-1 rounded-full border",
-                        sourceColors[item.source] || "bg-surface-muted text-ink-muted border-surface-border"
-                      )}>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                        style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)" }}>
                         {item.source}
                       </span>
-                      <div className="flex items-center gap-2 text-xs text-ink-faint">
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
                         <Clock className="w-3 h-3" />
                         {timeAgo(item.publishedAt)}
                       </div>
                     </div>
 
-                    <h4 className="text-sm font-semibold text-ink leading-snug mb-2 group-hover:text-blue-700 transition-colors line-clamp-3">
+                    <h4 className="text-sm font-semibold text-white leading-snug mb-2 line-clamp-3 group-hover:opacity-80 transition-opacity">
                       {item.title}
                     </h4>
 
                     {item.snippet && (
-                      <p className="text-xs text-ink-muted leading-relaxed line-clamp-2 flex-1 mb-3">
+                      <p className="text-xs leading-relaxed line-clamp-2 flex-1 mb-3" style={{ color: "rgba(255,255,255,0.65)" }}>
                         {item.snippet}
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+                    <div className="flex items-center justify-between mt-auto pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                       <div className="flex items-center gap-1.5">
                         {item.relevanceScore > 2 && (
-                          <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                          <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "#34D399" }}>
                             <Star className="w-3 h-3" /> Highly Relevant
                           </span>
                         )}
                       </div>
-                      <span className="flex items-center gap-1 text-xs text-blue-600 font-medium group-hover:underline">
+                      <span className="flex items-center gap-1 text-xs font-medium group-hover:underline" style={{ color: "#5B8CFF" }}>
                         Read full article <ExternalLink className="w-3 h-3" />
                       </span>
                     </div>
@@ -522,12 +512,12 @@ export default function IndustryHubPage() {
 
             {/* Interview tip */}
             {!newsLoading && filteredNews.length > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="rounded-xl p-4" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
                 <div className="flex items-start gap-3">
-                  <Brain className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <Brain className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#5B8CFF" }} />
                   <div>
-                    <p className="text-sm font-semibold text-blue-900">Interview Tip</p>
-                    <p className="text-xs text-blue-700 mt-1">
+                    <p className="text-sm font-semibold text-white">Interview Tip</p>
+                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
                       Pick 2-3 of these articles and prepare a 60-second summary. Interviewers in {activeSector} frequently ask "What have you read recently that affects this industry?" — having a specific, recent example with your own opinion will set you apart.
                     </p>
                   </div>
@@ -542,10 +532,10 @@ export default function IndustryHubPage() {
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Commercial awareness questions */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <HelpCircle className="w-5 h-5 text-blue-500" />
-                  <h3 className="text-sm font-semibold text-ink">Commercial Awareness Questions</h3>
+                  <HelpCircle className="w-5 h-5" style={{ color: "#5B8CFF" }} />
+                  <h3 className="text-sm font-semibold text-white">Commercial Awareness Questions</h3>
                 </div>
                 <div className="space-y-2">
                   {(content?.commercialPrompts || content?.interviewQuestions || [
@@ -554,16 +544,20 @@ export default function IndustryHubPage() {
                     "What differentiates the top firms in this space?",
                     "What recent news have you followed in this sector?"
                   ]).map((q: string, i: number) => (
-                    <div key={i} className="rounded-xl border border-surface-border overflow-hidden">
+                    <div key={i} className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
                       <button
                         onClick={() => setExpandedQuestion(expandedQuestion === i ? null : i)}
-                        className="w-full flex items-center gap-3 p-3.5 hover:bg-surface-muted transition-colors text-left"
+                        className="w-full flex items-center gap-3 p-3.5 text-left transition-colors"
+                        style={{ background: "transparent" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                       >
-                        <span className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0">Q</span>
-                        <p className="text-sm text-gray-800 flex-1">{q}</p>
+                        <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                          style={{ background: "rgba(91,140,255,0.15)", color: "#5B8CFF" }}>Q</span>
+                        <p className="text-sm flex-1" style={{ color: "rgba(255,255,255,0.65)" }}>{q}</p>
                         {expandedQuestion === i
-                          ? <ChevronUp className="w-4 h-4 text-ink-faint flex-shrink-0" />
-                          : <ChevronDown className="w-4 h-4 text-ink-faint flex-shrink-0" />
+                          ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
+                          : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }} />
                         }
                       </button>
                       {expandedQuestion === i && (
@@ -571,15 +565,16 @@ export default function IndustryHubPage() {
                           <button
                             onClick={() => fetchAiInsight(activeSector, q)}
                             disabled={insightLoading}
-                            className="flex items-center gap-1.5 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60"
+                            className="flex items-center gap-1.5 text-xs text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                            style={{ background: "#5B8CFF" }}
                           >
                             {insightLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
                             Generate AI model answer
                           </button>
                           {aiInsight?.strongAnswer && (
-                            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-xl">
-                              <p className="text-xs font-semibold text-green-700 mb-1">Model Answer</p>
-                              <p className="text-xs text-ink leading-relaxed">{aiInsight.strongAnswer}</p>
+                            <div className="mt-3 p-3 rounded-xl" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)" }}>
+                              <p className="text-xs font-semibold mb-1" style={{ color: "#34D399" }}>Model Answer</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{aiInsight.strongAnswer}</p>
                             </div>
                           )}
                         </div>
@@ -590,10 +585,10 @@ export default function IndustryHubPage() {
               </div>
 
               {/* Technical interview questions */}
-              <div className="bg-white rounded-2xl border border-surface-border p-5">
+              <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <Brain className="w-5 h-5 text-purple-500" />
-                  <h3 className="text-sm font-semibold text-ink">Technical Questions</h3>
+                  <Brain className="w-5 h-5" style={{ color: "#8B5CF6" }} />
+                  <h3 className="text-sm font-semibold text-white">Technical Questions</h3>
                 </div>
                 <div className="space-y-2">
                   {(content?.interviewQuestions || [
@@ -602,9 +597,14 @@ export default function IndustryHubPage() {
                     "How would you approach a client problem in this space?",
                     "What skills are most important for this role?",
                   ]).map((q: string, i: number) => (
-                    <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl border border-surface-border hover:bg-surface-muted transition-colors">
-                      <span className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">T</span>
-                      <p className="text-sm text-ink">{q}</p>
+                    <div key={i} className="flex items-start gap-3 p-3.5 rounded-xl transition-colors"
+                      style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5"
+                        style={{ background: "rgba(139,92,246,0.15)", color: "#8B5CF6" }}>T</span>
+                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{q}</p>
                     </div>
                   ))}
                 </div>
@@ -616,30 +616,35 @@ export default function IndustryHubPage() {
         {/* ─── CERTIFICATIONS TAB ───────────────────────────────────────────────── */}
         {activeTab === "certifications" && (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-surface-border p-6">
+            <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center gap-2 mb-5">
-                <Award className="w-5 h-5 text-amber-500" />
-                <h3 className="text-sm font-semibold text-ink">Recommended Certifications for {activeSector}</h3>
+                <Award className="w-5 h-5 text-amber-400" />
+                <h3 className="text-sm font-semibold text-white">Recommended Certifications for {activeSector}</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {(content?.certifications || ["Relevant industry certifications", "Data analytics", "Project management", "Cloud platforms"]).map((cert: string, i: number) => (
-                  <div key={i} className="flex items-center gap-3 p-4 rounded-xl border-2 border-amber-100 bg-amber-50 hover:border-amber-200 transition-colors">
-                    <div className="w-8 h-8 bg-amber-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Star className="w-4 h-4 text-amber-700" />
+                  <div key={i} className="flex items-center gap-3 p-4 rounded-xl transition-colors"
+                    style={{ border: "2px solid rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.06)" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(251,191,36,0.35)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(251,191,36,0.2)")}
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: "rgba(251,191,36,0.2)" }}>
+                      <Star className="w-4 h-4" style={{ color: "#FBBF24" }} />
                     </div>
-                    <span className="text-sm font-medium text-gray-800">{cert}</span>
+                    <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>{cert}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="rounded-xl p-4" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
               <div className="flex items-start gap-3">
-                <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <Zap className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#5B8CFF" }} />
                 <div>
-                  <p className="text-sm font-semibold text-blue-900">Pro tip</p>
-                  <p className="text-xs text-blue-700 mt-1">
-                    Even mentioning that you're <strong>studying for</strong> a certification shows commitment and commercial awareness.
+                  <p className="text-sm font-semibold text-white">Pro tip</p>
+                  <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    Even mentioning that you're <strong style={{ color: "rgba(255,255,255,0.85)" }}>studying for</strong> a certification shows commitment and commercial awareness.
                     The Bloomberg Market Concepts (BMC) certification is free for students and takes ~8 hours — mention it in any finance interview.
                   </p>
                 </div>

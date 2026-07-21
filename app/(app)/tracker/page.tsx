@@ -66,8 +66,11 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-surface-border p-4 hover:shadow-md transition-all cursor-pointer group relative"
+      className="rounded-2xl p-4 transition-all cursor-pointer group relative"
+      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
       onClick={onClick}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)")}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
@@ -78,8 +81,8 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
           {companyInitial(app.company)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-ink leading-tight truncate">{app.role}</p>
-          <p className="text-xs text-ink-muted truncate">{app.company}</p>
+          <p className="text-sm font-semibold text-white leading-tight truncate">{app.role}</p>
+          <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.65)" }}>{app.company}</p>
         </div>
       </div>
 
@@ -89,7 +92,8 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
           {app.sector}
         </span>
         {app.location && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-surface-muted text-ink-faint border border-surface-border flex items-center gap-1">
+          <span className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
+            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <MapPin className="w-2.5 h-2.5" />{app.location}
           </span>
         )}
@@ -97,7 +101,8 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
 
       {/* Deadline */}
       {dl && (
-        <div className={cn("flex items-center gap-1.5 text-xs mb-3", dl.urgent ? "text-red-600" : dl.over ? "text-ink-faint" : "text-ink-muted")}>
+        <div className={cn("flex items-center gap-1.5 text-xs mb-3", dl.urgent ? "text-red-400" : dl.over ? "" : "")}
+          style={dl.over ? { color: "rgba(255,255,255,0.4)" } : dl.urgent ? {} : { color: "rgba(255,255,255,0.65)" }}>
           <Clock className="w-3 h-3" />
           <span className="font-medium">{dl.urgent && !dl.over ? "⚡ " : ""}{dl.label}</span>
         </div>
@@ -107,10 +112,10 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
       {app.readinessScore !== undefined && (
         <div className="mb-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-ink-faint">Readiness</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Readiness</span>
             <span className="text-xs font-bold" style={{ color: scoreColor(app.readinessScore) }}>{app.readinessScore}/100</span>
           </div>
-          <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden">
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
             <div className="h-full rounded-full transition-all" style={{ width: `${app.readinessScore}%`, backgroundColor: scoreColor(app.readinessScore) }} />
           </div>
         </div>
@@ -122,7 +127,8 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
         <div className="relative flex-1">
           <button
             onClick={() => setMoveOpen(o => !o)}
-            className="w-full flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 px-3 rounded-lg border border-surface-border text-ink-muted hover:bg-surface-muted transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
+            style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.65)", background: "rgba(255,255,255,0.04)" }}
           >
             Move <ChevronDown className="w-3 h-3" />
           </button>
@@ -132,13 +138,17 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="absolute bottom-full left-0 mb-1 w-52 bg-white rounded-xl border border-surface-border shadow-xl z-20 py-1 overflow-hidden"
+                className="absolute bottom-full left-0 mb-1 w-52 rounded-xl z-20 py-1 overflow-hidden"
+                style={{ background: "rgba(10,18,35,0.97)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
               >
                 {STAGES.filter(s => s.id !== app.stage).map(s => (
                   <button
                     key={s.id}
                     onClick={() => { onMove(s.id); setMoveOpen(false) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs hover:bg-surface-muted text-left transition-colors"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-left transition-colors"
+                    style={{ color: "rgba(255,255,255,0.65)" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                   >
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
                     {s.label}
@@ -151,14 +161,20 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
 
         <button
           onClick={e => { e.stopPropagation(); onClick() }}
-          className="flex items-center justify-center p-1.5 rounded-lg text-ink-faint hover:text-brand-purple hover:bg-brand-purple/5 transition-colors"
+          className="flex items-center justify-center p-1.5 rounded-lg transition-colors"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+          onMouseEnter={e => { e.currentTarget.style.color = "#8B5CF6"; e.currentTarget.style.background = "rgba(139,92,246,0.1)" }}
+          onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent" }}
           title="View details"
         >
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={e => { e.stopPropagation(); onDelete() }}
-          className="flex items-center justify-center p-1.5 rounded-lg text-ink-faint hover:text-red-500 hover:bg-red-50 transition-colors"
+          className="flex items-center justify-center p-1.5 rounded-lg transition-colors"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+          onMouseEnter={e => { e.currentTarget.style.color = "#F87171"; e.currentTarget.style.background = "rgba(248,113,113,0.1)" }}
+          onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent" }}
           title="Delete"
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -183,7 +199,7 @@ function StageColumn({ stage, apps, onMove, onDelete, onCardClick, onAddToStage 
       {/* Column header */}
       <div className="flex items-center gap-2 px-1 mb-3">
         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stage.color }} />
-        <span className="text-xs font-semibold text-ink flex-1 truncate">{stage.label}</span>
+        <span className="text-xs font-semibold text-white flex-1 truncate">{stage.label}</span>
         <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: stage.bg, color: stage.text }}>
           {apps.length}
@@ -206,7 +222,10 @@ function StageColumn({ stage, apps, onMove, onDelete, onCardClick, onAddToStage 
       {/* Add to this stage */}
       <button
         onClick={() => onAddToStage(stage.id)}
-        className="mt-3 flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border-2 border-dashed border-surface-border text-ink-faint hover:border-gray-300 hover:text-ink-muted transition-all text-xs font-medium"
+        className="mt-3 flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
+        style={{ border: "2px dashed rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", background: "transparent" }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.65)" }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)" }}
       >
         <Plus className="w-3.5 h-3.5" /> Add here
       </button>
@@ -304,34 +323,48 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
     setSaving(false)
   }
 
+  const inputStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    color: "#ffffff",
+    borderRadius: 12,
+  }
+
   if (!open) return null
 
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-        <motion.div className="absolute inset-0 bg-black/40 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+        <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
         <motion.div
-          className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          className="relative rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          style={{ background: "#0A1225", border: "1px solid rgba(255,255,255,0.1)" }}
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-surface-border flex-shrink-0">
+          <div className="flex items-center justify-between px-6 py-5 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <div>
-              <h2 className="text-lg font-bold text-ink">Add Opportunity</h2>
-              <p className="text-xs text-ink-faint mt-0.5">Paste a job description to let AI extract the details automatically</p>
+              <h2 className="text-lg font-bold text-white">Add Opportunity</h2>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Paste a job description to let AI extract the details automatically</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl hover:bg-surface-muted text-ink-faint transition-colors"><X className="w-5 h-5" /></button>
+            <button onClick={onClose} className="p-2 rounded-xl transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            ><X className="w-5 h-5" /></button>
           </div>
 
           {/* Tabs */}
           <div className="flex gap-1 px-6 pt-4 flex-shrink-0">
             {[{ id: "paste" as const, label: "✦ AI Extract from JD", icon: Sparkles }, { id: "manual" as const, label: "Manual Entry", icon: FileText }].map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={cn("flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all", tab === t.id ? "text-white" : "text-ink-muted hover:text-ink bg-surface-muted")}
-                style={tab === t.id ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" } : {}}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={tab === t.id
+                  ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)", color: "#ffffff" }
+                  : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)" }
+                }
               >
                 <t.icon className="w-3.5 h-3.5" /> {t.label}
               </button>
@@ -343,11 +376,12 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
             {tab === "paste" ? (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1.5">Job Description / URL</label>
+                  <label className="block text-xs font-semibold text-white mb-1.5">Job Description / URL</label>
                   <div className="relative">
-                    <Link2 className="absolute left-3 top-3 w-4 h-4 text-ink-faint" />
+                    <Link2 className="absolute left-3 top-3 w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
                     <input
-                      className="w-full pl-9 pr-4 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30 bg-surface-muted"
+                      className="w-full pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                      style={{ ...inputStyle }}
                       placeholder="Paste job URL (optional)"
                       value={url}
                       onChange={e => setUrl(e.target.value)}
@@ -355,9 +389,10 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1.5">Paste Job Description</label>
+                  <label className="block text-xs font-semibold text-white mb-1.5">Paste Job Description</label>
                   <textarea
-                    className="w-full px-4 py-3 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30 resize-none bg-surface-muted"
+                    className="w-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40 resize-none"
+                    style={{ ...inputStyle }}
                     rows={10}
                     placeholder="Paste the full job description here — role title, responsibilities, requirements, deadline, salary… AI will extract everything."
                     value={jdText}
@@ -365,7 +400,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
                   />
                 </div>
                 {extractError && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                  <div className="flex items-center gap-2 p-3 rounded-xl text-xs" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171" }}>
                     <AlertCircle className="w-4 h-4 flex-shrink-0" /> {extractError}
                   </div>
                 )}
@@ -381,48 +416,40 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
             ) : (
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Company */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Company *</label>
-                    <input className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" placeholder="e.g. Goldman Sachs" value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-white mb-1">Company *</label>
+                    <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. Goldman Sachs" value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
                   </div>
-                  {/* Role */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Role Title *</label>
-                    <input className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" placeholder="e.g. Investment Banking Analyst" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-white mb-1">Role Title *</label>
+                    <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. Investment Banking Analyst" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} />
                   </div>
-                  {/* Sector */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Sector</label>
-                    <select className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30 bg-white" value={form.sector} onChange={e => setForm(f => ({ ...f, sector: e.target.value }))}>
+                    <label className="block text-xs font-semibold text-white mb-1">Sector</label>
+                    <select className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} value={form.sector} onChange={e => setForm(f => ({ ...f, sector: e.target.value }))}>
                       {SECTORS.map(s => <option key={s}>{s}</option>)}
                     </select>
                   </div>
-                  {/* Location */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Location</label>
-                    <input className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" placeholder="e.g. London" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-white mb-1">Location</label>
+                    <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. London" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
                   </div>
-                  {/* Deadline */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Application Deadline</label>
-                    <input type="date" className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-white mb-1">Application Deadline</label>
+                    <input type="date" className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} value={form.deadline} onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
                   </div>
-                  {/* Salary */}
                   <div>
-                    <label className="block text-xs font-semibold text-ink mb-1">Salary</label>
-                    <input className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" placeholder="e.g. £45,000–£55,000" value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-white mb-1">Salary</label>
+                    <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. £45,000–£55,000" value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} />
                   </div>
                 </div>
-                {/* Skills */}
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">Key Skills <span className="text-ink-faint font-normal">(comma separated)</span></label>
-                  <input className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30" placeholder="e.g. Financial modelling, Excel, Python, Stakeholder management" value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} />
+                  <label className="block text-xs font-semibold text-white mb-1">Key Skills <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: "normal" }}>(comma separated)</span></label>
+                  <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. Financial modelling, Excel, Python, Stakeholder management" value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} />
                 </div>
-                {/* Stage */}
                 <div>
-                  <label className="block text-xs font-semibold text-ink mb-1">Pipeline Stage</label>
-                  <select className="w-full px-3 py-2.5 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/30 bg-white" value={stage} onChange={e => setStage(e.target.value as Stage)}>
+                  <label className="block text-xs font-semibold text-white mb-1">Pipeline Stage</label>
+                  <select className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} value={stage} onChange={e => setStage(e.target.value as Stage)}>
                     {STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                   </select>
                 </div>
@@ -431,8 +458,12 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-surface-border flex-shrink-0">
-            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium text-ink-muted hover:bg-surface-muted transition-colors">Cancel</button>
+          <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            >Cancel</button>
             {tab === "manual" && (
               <button
                 onClick={handleSave}
@@ -502,7 +533,8 @@ export default function TrackerPage() {
       <div className="flex-1 overflow-hidden flex flex-col">
 
         {/* Stats + controls bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border flex-shrink-0 flex-wrap gap-3">
+        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0 flex-wrap gap-3"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-4">
             {[
               { label: "Active", value: stats.active, icon: Target, color: "#6D5EF3" },
@@ -514,8 +546,8 @@ export default function TrackerPage() {
                   <Icon className="w-3.5 h-3.5" style={{ color }} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-ink leading-none">{value}</p>
-                  <p className="text-xs text-ink-faint">{label}</p>
+                  <p className="text-sm font-bold text-white leading-none">{value}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</p>
                 </div>
               </div>
             ))}
@@ -528,8 +560,11 @@ export default function TrackerPage() {
                 <button
                   key={s}
                   onClick={() => setSectorFilter(s)}
-                  className={cn("px-3 py-1.5 rounded-full text-xs font-medium transition-all", sectorFilter === s ? "text-white" : "bg-surface-muted text-ink-muted hover:text-ink")}
-                  style={sectorFilter === s ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" } : {}}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                  style={sectorFilter === s
+                    ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)", color: "#ffffff" }
+                    : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)" }
+                  }
                 >
                   {s}
                 </button>
@@ -549,16 +584,17 @@ export default function TrackerPage() {
         {/* Board */}
         {!loaded ? (
           <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-ink-faint" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
         ) : apps.length === 0 ? (
           /* Empty state */
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-            <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5" style={{ background: "linear-gradient(135deg,#EEE9FF,#E0EEFF)" }}>
+            <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
+              style={{ background: "linear-gradient(135deg, rgba(109,94,243,0.2), rgba(91,141,239,0.2))", border: "1px solid rgba(109,94,243,0.3)" }}>
               <Target className="w-10 h-10" style={{ color: "#6D5EF3" }} />
             </div>
-            <h2 className="text-xl font-bold text-ink mb-2">Your application pipeline starts here</h2>
-            <p className="text-sm text-ink-muted max-w-md mb-6 leading-relaxed">
+            <h2 className="text-xl font-bold text-white mb-2">Your application pipeline starts here</h2>
+            <p className="text-sm max-w-md mb-6 leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
               Add your first opportunity to track your progress, get AI-powered preparation plans, company insights, and land more offers.
             </p>
             <button
@@ -590,11 +626,11 @@ export default function TrackerPage() {
 
             {/* Outcomes strip */}
             {outcomes.some(o => o.apps.length > 0) && (
-              <div className="flex-shrink-0 px-6 pb-5 pt-2 border-t border-surface-border">
-                <p className="text-xs font-semibold text-ink-faint uppercase tracking-wider mb-3">Closed Applications</p>
+              <div className="flex-shrink-0 px-6 pb-5 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>Closed Applications</p>
                 <div className="flex flex-wrap gap-3">
                   {outcomes.filter(o => o.apps.length > 0).map(({ stage, apps: outApps }) => (
-                    <div key={stage.id} className="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium" style={{ backgroundColor: stage.bg, color: stage.text, borderColor: stage.border }}>
+                    <div key={stage.id} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium" style={{ backgroundColor: stage.bg, color: stage.text, borderColor: stage.border, border: `1px solid ${stage.border}` }}>
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.color }} />
                       {stage.label} ({outApps.length})
                     </div>

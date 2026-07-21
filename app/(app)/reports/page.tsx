@@ -41,7 +41,7 @@ function ScoreBadge({ score }: { score: number }) {
 
 function EmptyState({ icon: Icon, message }: { icon: any; message: string }) {
   return (
-    <div className="text-center py-10 text-ink-faint">
+    <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.4)" }}>
       <Icon className="w-8 h-8 mx-auto mb-2 opacity-30" />
       <p className="text-sm">{message}</p>
       <p className="text-xs mt-1 opacity-70">Complete a session to see your data here</p>
@@ -51,10 +51,10 @@ function EmptyState({ icon: Icon, message }: { icon: any; message: string }) {
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub: string; color?: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-surface-border p-5 text-center">
-      <p className="text-2xl font-bold text-ink" style={color ? { color } : {}}>{value}</p>
-      <p className="text-xs font-medium text-ink mt-1">{label}</p>
-      <p className="text-xs text-ink-faint">{sub}</p>
+    <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <p className="text-2xl font-bold text-white" style={color ? { color } : {}}>{value}</p>
+      <p className="text-xs font-medium mt-1 text-white">{label}</p>
+      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{sub}</p>
     </div>
   )
 }
@@ -65,28 +65,32 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
   const r = session.report
   if (!r) return null
   return (
-    <div className="bg-white rounded-2xl border border-surface-border overflow-hidden">
+    <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
       <button onClick={() => setExpanded(e => !e)}
-        className="w-full flex items-center gap-4 p-4 hover:bg-surface-muted transition-colors text-left">
+        className="w-full flex items-center gap-4 p-4 text-left transition-colors"
+        style={{ background: "transparent" }}
+        onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+        onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+      >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: "#EEE9FF" }}>
-          <Video className="w-5 h-5" style={{ color: "#6D5EF3" }} />
+          style={{ background: "rgba(139,92,246,0.15)" }}>
+          <Video className="w-5 h-5" style={{ color: "#8B5CF6" }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-ink">{session.setup.sector} · {session.setup.mode}</p>
-          <p className="text-xs text-ink-faint">{fmtDate(new Date(session.timestamp).toISOString())} · {session.setup.difficulty} · {session.answers.length} questions</p>
+          <p className="text-sm font-semibold text-white">{session.setup.sector} · {session.setup.mode}</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(new Date(session.timestamp).toISOString())} · {session.setup.difficulty} · {session.answers.length} questions</p>
         </div>
         <div className="text-right flex-shrink-0 flex items-center gap-3">
           <div>
             <span className="text-xl font-bold" style={{ color: scoreColor(r.overallScore) }}>{r.overallScore}</span>
-            <span className="text-xs text-ink-faint">/100</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</span>
           </div>
-          {expanded ? <ChevronUp className="w-4 h-4 text-ink-faint" /> : <ChevronDown className="w-4 h-4 text-ink-faint" />}
+          {expanded ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />}
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-surface-border px-4 pb-4 pt-3 space-y-4">
+        <div className="px-4 pb-4 pt-3 space-y-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
           {/* Score breakdown */}
           <div className="grid grid-cols-5 gap-2">
             {[
@@ -96,15 +100,15 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
               { label: "Commercial", score: r.commercialScore },
               { label: "Comms", score: r.communicationScore },
             ].map(({ label, score }) => (
-              <div key={label} className="text-center p-2 rounded-xl bg-surface-muted border border-surface-border">
-                <p className="text-xs text-ink-faint mb-0.5">{label}</p>
+              <div key={label} className="text-center p-2 rounded-xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <p className="text-xs mb-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</p>
                 <p className="text-sm font-bold" style={{ color: scoreColor(score) }}>{score}</p>
               </div>
             ))}
           </div>
 
           {/* Stats */}
-          <div className="flex gap-4 text-xs text-ink-muted">
+          <div className="flex gap-4 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
             <span>⏱ {fmtTime(r.totalDurationSeconds || 0)}</span>
             <span>💬 {r.totalFillerWords} fillers</span>
             <span>🎯 {r.avgWordsPerMinute} wpm avg</span>
@@ -112,8 +116,8 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
 
           {/* Recruiter feedback */}
           {r.recruiterFeedback && (
-            <div className="rounded-xl p-3 text-sm text-ink-muted leading-relaxed"
-              style={{ backgroundColor: "rgba(238,233,255,0.5)", border: "1px solid rgba(109,94,243,0.1)" }}>
+            <div className="rounded-xl p-3 text-sm leading-relaxed"
+              style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", color: "rgba(255,255,255,0.65)" }}>
               {r.recruiterFeedback}
             </div>
           )}
@@ -121,22 +125,22 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
           {/* Strengths / Improvements */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs font-semibold text-ink mb-2">Strengths</p>
+              <p className="text-xs font-semibold text-white mb-2">Strengths</p>
               <ul className="space-y-1">
                 {(r.strengths || []).map((s: string, i: number) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-ink-muted">
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
                     {s}
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <p className="text-xs font-semibold text-ink mb-2">Improvements</p>
+              <p className="text-xs font-semibold text-white mb-2">Improvements</p>
               <ul className="space-y-1">
                 {(r.improvements || []).map((s: string, i: number) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-ink-muted">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
                     {s}
                   </li>
                 ))}
@@ -147,16 +151,16 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
           {/* Per-answer breakdown */}
           {session.answers.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-ink mb-2">Answer Breakdown</p>
+              <p className="text-xs font-semibold text-white mb-2">Answer Breakdown</p>
               <div className="space-y-1.5">
                 {session.answers.map((a, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2.5 bg-surface-muted rounded-xl border border-surface-border">
+                  <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <span className="w-6 h-6 rounded-lg text-xs font-bold text-white flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: scoreColor(a.overallScore) }}>
                       {a.overallScore}
                     </span>
-                    <p className="flex-1 text-xs text-ink truncate">{a.questionText}</p>
-                    <span className="text-xs text-ink-faint flex-shrink-0">{a.fillerWords?.total || 0} fillers</span>
+                    <p className="flex-1 text-xs text-white truncate">{a.questionText}</p>
+                    <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>{a.fillerWords?.total || 0} fillers</span>
                   </div>
                 ))}
               </div>
@@ -232,11 +236,15 @@ export default function ReportsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-surface-muted rounded-2xl p-1 overflow-x-auto">
+        <div className="flex gap-1 rounded-2xl p-1 overflow-x-auto" style={{ background: "rgba(255,255,255,0.04)" }}>
           {TABS.map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-              className={cn("flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0",
-                activeTab === tab.id ? "bg-white text-ink shadow-sm" : "text-ink-muted hover:text-ink")}>
+              className={cn("flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0")}
+              style={activeTab === tab.id
+                ? { background: "rgba(255,255,255,0.08)", color: "#ffffff" }
+                : { color: "rgba(255,255,255,0.5)" }
+              }
+            >
               <tab.icon className="w-3.5 h-3.5" />
               {tab.label}
             </button>
@@ -247,17 +255,17 @@ export default function ReportsPage() {
         {activeTab === "overview" && (
           <div className="space-y-6">
             {totalSessions === 0 ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
-                <Activity className="w-12 h-12 mx-auto mb-3 text-ink-faint opacity-40" />
-                <h3 className="text-base font-semibold text-ink mb-1">No data yet</h3>
-                <p className="text-sm text-ink-muted">Complete a CV analysis, STAR practice, interview, or psychometric test to see your analytics here.</p>
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <Activity className="w-12 h-12 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.2)" }} />
+                <h3 className="text-base font-semibold text-white mb-1">No data yet</h3>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Complete a CV analysis, STAR practice, interview, or psychometric test to see your analytics here.</p>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Radar */}
-                  <div className="bg-white rounded-2xl border border-surface-border p-6">
-                    <h3 className="text-sm font-semibold text-ink mb-4">Skill Coverage Radar</h3>
+                  <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <h3 className="text-sm font-semibold text-white mb-4">Skill Coverage Radar</h3>
                     {radarData.some(d => d.score > 0)
                       ? <ReadinessRadar data={radarData} />
                       : <EmptyState icon={Target} message="Complete modules to build your radar" />
@@ -265,8 +273,8 @@ export default function ReportsPage() {
                   </div>
 
                   {/* Module bars */}
-                  <div className="bg-white rounded-2xl border border-surface-border p-6">
-                    <h3 className="text-sm font-semibold text-ink mb-4">Module Score Breakdown</h3>
+                  <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <h3 className="text-sm font-semibold text-white mb-4">Module Score Breakdown</h3>
                     {moduleData.length > 0
                       ? <ModuleBars data={moduleData} />
                       : <EmptyState icon={BarChart3} message="Complete modules to see scores" />
@@ -275,21 +283,21 @@ export default function ReportsPage() {
                 </div>
 
                 {/* Recent activity */}
-                <div className="bg-white rounded-2xl border border-surface-border p-6">
-                  <h3 className="text-sm font-semibold text-ink mb-4">Recent Activity</h3>
+                <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <h3 className="text-sm font-semibold text-white mb-4">Recent Activity</h3>
                   {scores.recentSessions.length === 0 ? (
                     <EmptyState icon={Calendar} message="No sessions recorded yet" />
                   ) : (
                     <div className="space-y-2">
                       {scores.recentSessions.map((s, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 bg-surface-muted rounded-xl border border-surface-border">
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: s.score >= 75 ? "#D1FAE5" : s.score >= 60 ? "#DBEAFE" : "#FEF3C7" }}>
+                            style={{ backgroundColor: s.score >= 75 ? "rgba(52,211,153,0.15)" : s.score >= 60 ? "rgba(91,140,255,0.15)" : "rgba(251,191,36,0.15)" }}>
                             <span className="text-xs font-bold" style={{ color: scoreColor(s.score) }}>{s.score}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-ink truncate">{s.label}</p>
-                            <p className="text-xs text-ink-faint">{fmtDate(s.date)}</p>
+                            <p className="text-sm font-medium text-white truncate">{s.label}</p>
+                            <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(s.date)}</p>
                           </div>
                           <span className="text-xs font-semibold" style={{ color: scoreColor(s.score) }}>{s.score}/100</span>
                         </div>
@@ -302,23 +310,23 @@ export default function ReportsPage() {
                 {(scores.weakest || scores.strongest) && (
                   <div className="grid grid-cols-2 gap-4">
                     {scores.weakest && (
-                      <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5">
-                        <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1.5">
+                      <div className="rounded-2xl p-5" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                        <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: "#FBBF24" }}>
                           <AlertCircle className="w-3.5 h-3.5" /> Priority Focus
                         </p>
-                        <p className="text-base font-bold text-ink">{scores.weakest.label}</p>
-                        <p className="text-2xl font-bold text-amber-600 mt-1">{scores.weakest.score}/100</p>
-                        <p className="text-xs text-amber-700 mt-1">Your biggest improvement opportunity</p>
+                        <p className="text-base font-bold text-white">{scores.weakest.label}</p>
+                        <p className="text-2xl font-bold mt-1" style={{ color: "#FBBF24" }}>{scores.weakest.score}/100</p>
+                        <p className="text-xs mt-1" style={{ color: "rgba(251,191,36,0.8)" }}>Your biggest improvement opportunity</p>
                       </div>
                     )}
                     {scores.strongest && (
-                      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-                        <p className="text-xs font-semibold text-emerald-700 mb-1 flex items-center gap-1.5">
+                      <div className="rounded-2xl p-5" style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.2)" }}>
+                        <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: "#34D399" }}>
                           <CheckCircle className="w-3.5 h-3.5" /> Biggest Strength
                         </p>
-                        <p className="text-base font-bold text-ink">{scores.strongest.label}</p>
-                        <p className="text-2xl font-bold text-emerald-600 mt-1">{scores.strongest.score}/100</p>
-                        <p className="text-xs text-emerald-700 mt-1">Keep building on this</p>
+                        <p className="text-base font-bold text-white">{scores.strongest.label}</p>
+                        <p className="text-2xl font-bold mt-1" style={{ color: "#34D399" }}>{scores.strongest.score}/100</p>
+                        <p className="text-xs mt-1" style={{ color: "rgba(52,211,153,0.8)" }}>Keep building on this</p>
                       </div>
                     )}
                   </div>
@@ -332,7 +340,7 @@ export default function ReportsPage() {
         {activeTab === "interviews" && (
           <div className="space-y-4">
             {interviewSessions.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <EmptyState icon={Video} message="No completed interview sessions yet" />
               </div>
             ) : (
@@ -369,7 +377,7 @@ export default function ReportsPage() {
         {activeTab === "cv" && (
           <div className="space-y-4">
             {(!scores.cvLog || scores.cvLog.length === 0) ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <EmptyState icon={FileText} message="No CV analyses yet — go to CV Tailoring to get started" />
               </div>
             ) : (
@@ -389,15 +397,15 @@ export default function ReportsPage() {
                   />
                   <StatCard label="Analyses" value={String(scores.cvLog.length)} sub="Total runs" />
                 </div>
-                <div className="bg-white rounded-2xl border border-surface-border divide-y divide-surface-border">
+                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {scores.cvLog.map((entry: CVScoreEntry, i: number) => (
-                    <div key={i} className="flex items-center gap-4 p-4">
-                      <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-ink-faint" />
+                    <div key={i} className="flex items-center gap-4 p-4" style={{ borderBottom: i < scores.cvLog!.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <FileText className="w-5 h-5" style={{ color: "rgba(255,255,255,0.4)" }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-ink">CV Analysis</p>
-                        <p className="text-xs text-ink-faint truncate">{entry.jobSpec || "General analysis"} · {fmtDate(entry.date)}</p>
+                        <p className="text-sm font-medium text-white">CV Analysis</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{entry.jobSpec || "General analysis"} · {fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>
@@ -412,7 +420,7 @@ export default function ReportsPage() {
         {activeTab === "star" && (
           <div className="space-y-4">
             {(!scores.starLog || scores.starLog.length === 0) ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <EmptyState icon={Mic2} message="No STAR answers yet — go to STAR Builder to practise" />
               </div>
             ) : (
@@ -433,22 +441,22 @@ export default function ReportsPage() {
                         <StatCard label="Answers Recorded" value={String(scores.starLog.length)} sub="Total practice" />
                         <StatCard label="Competencies" value={String(Object.keys(byComp).length)} sub="Areas covered" />
                       </div>
-                      <div className="bg-white rounded-2xl border border-surface-border p-6">
-                        <h3 className="text-sm font-semibold text-ink mb-4">Score by Competency</h3>
+                      <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        <h3 className="text-sm font-semibold text-white mb-4">Score by Competency</h3>
                         <ModuleBars data={compData} horizontal />
                       </div>
                     </>
                   )
                 })()}
-                <div className="bg-white rounded-2xl border border-surface-border divide-y divide-surface-border">
+                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {scores.starLog.map((entry: STARScoreEntry, i: number) => (
-                    <div key={i} className="flex items-center gap-4 p-4">
-                      <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0">
-                        <Mic2 className="w-5 h-5 text-ink-faint" />
+                    <div key={i} className="flex items-center gap-4 p-4" style={{ borderBottom: i < scores.starLog!.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <Mic2 className="w-5 h-5" style={{ color: "rgba(255,255,255,0.4)" }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-ink">{entry.competency}</p>
-                        <p className="text-xs text-ink-faint truncate">{entry.experienceText?.slice(0, 60)}… · {fmtDate(entry.date)}</p>
+                        <p className="text-sm font-medium text-white">{entry.competency}</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{entry.experienceText?.slice(0, 60)}… · {fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>
@@ -463,7 +471,7 @@ export default function ReportsPage() {
         {activeTab === "psychometric" && (
           <div className="space-y-4">
             {(!scores.psychLog || scores.psychLog.length === 0) ? (
-              <div className="bg-white rounded-2xl border border-surface-border p-12 text-center">
+              <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <EmptyState icon={Brain} message="No psychometric tests yet — go to Psychometric Tests to start" />
               </div>
             ) : (
@@ -473,15 +481,15 @@ export default function ReportsPage() {
                   <StatCard label="Tests Taken" value={String(scores.psychLog.length)} sub="Total sessions" />
                   <StatCard label="Best Score" value={`${Math.max(...scores.psychLog.map((e: any) => e.score))}/100`} sub="All time high" color="#059669" />
                 </div>
-                <div className="bg-white rounded-2xl border border-surface-border divide-y divide-surface-border">
+                <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {scores.psychLog.map((entry: any, i: number) => (
-                    <div key={i} className="flex items-center gap-4 p-4">
-                      <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0">
-                        <Brain className="w-5 h-5 text-ink-faint" />
+                    <div key={i} className="flex items-center gap-4 p-4" style={{ borderBottom: i < scores.psychLog!.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <Brain className="w-5 h-5" style={{ color: "rgba(255,255,255,0.4)" }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-ink">{entry.testName || "Psychometric Test"}</p>
-                        <p className="text-xs text-ink-faint">{fmtDate(entry.date)}</p>
+                        <p className="text-sm font-medium text-white">{entry.testName || "Psychometric Test"}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>

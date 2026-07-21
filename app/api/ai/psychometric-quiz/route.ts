@@ -51,7 +51,7 @@ Return ONLY this JSON (no markdown, no explanation):
       "passage": "<for verbal only — unique passage for this question, omit this field for other types>",
       "question": "<the full question text>",
       "options": ["<option A text>", "<option B text>", "<option C text>", "<option D text>"],
-      "correct": <0, 1, 2 or 3>,
+      "correct": <MUST vary across all questions — use 0, 1, 2 AND 3 roughly equally, do NOT default to 1>,
       "explanation": "<clear explanation of the correct answer — show full working for numerical questions>",
       "timeLimit": <recommended seconds to answer, 45-90 for easy, 75-120 for hard>
     }
@@ -65,6 +65,23 @@ Return ONLY this JSON (no markdown, no explanation):
     // Strip markdown code fences if Claude wraps the response
     const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim()
     const result = JSON.parse(text)
+
+    // Shuffle options server-side to remove LLM position bias (answers cluster at index 1)
+    // Fisher-Yates shuffle on each question's options, keeping correct answer tracked by content
+    if (Array.isArray(result.questions)) {
+      result.questions = result.questions.map((q: any) => {
+        if (!Array.isArray(q.options) || typeof q.correct !== "number") return q
+        const correctText = q.options[q.correct]
+        // Fisher-Yates
+        const shuffled = [...q.options]
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        }
+        return { ...q, options: shuffled, correct: shuffled.indexOf(correctText) }
+      })
+    }
+
     return NextResponse.json(result)
   } catch (error: any) {
     console.error("Psychometric quiz error:", error)

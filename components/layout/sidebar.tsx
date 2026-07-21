@@ -6,42 +6,49 @@ import { cn } from "@/lib/utils"
 import { loadGamification, GamificationState, getLevelInfo, getLevelProgress } from "@/lib/gamification"
 import {
   LayoutDashboard, FileText, Mic2, Video, Brain,
-  BookOpen, ClipboardList, BarChart3, Settings,
-  Command, Flame, Zap, ChevronRight, Target,
+  BookOpen, ClipboardList, BarChart3, Settings, CreditCard,
+  Command, Flame, Zap, Target,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { LogoFull } from "@/components/brand/logo"
 
 const navItems = [
-  { href: "/dashboard",        label: "Dashboard",           icon: LayoutDashboard, color: "text-brand-purple" },
-  { href: "/tracker",          label: "Application Tracker", icon: Target,          color: "text-emerald-500" },
-  { href: "/cv-tailoring",     label: "CV Tailoring",        icon: FileText,        color: "text-brand-blue" },
-  { href: "/star-builder", label: "STAR Builder", icon: Mic2, color: "text-amber-500" },
-  { href: "/video-interview", label: "Video Interview", icon: Video, color: "text-rose-400" },
-  { href: "/psychometric", label: "Psychometric Tests", icon: Brain, color: "text-purple-500" },
-  { href: "/industry-hub", label: "Industry Hub", icon: BookOpen, color: "text-teal-500" },
-  { href: "/full-process-exam", label: "Full Process Exam", icon: ClipboardList, color: "text-orange-400" },
-  { href: "/reports", label: "Reports", icon: BarChart3, color: "text-blue-400" },
-  { href: "/settings", label: "Settings", icon: Settings, color: "text-gray-400" },
+  { href: "/dashboard",         label: "Dashboard",           icon: LayoutDashboard, color: "#5B8CFF" },
+  { href: "/tracker",           label: "Application Tracker", icon: Target,          color: "#10B981" },
+  { href: "/cv-tailoring",      label: "CV Tailoring",        icon: FileText,        color: "#38BDF8" },
+  { href: "/star-builder",      label: "STAR Builder",        icon: Mic2,            color: "#FBBF24" },
+  { href: "/video-interview",   label: "Video Interview",     icon: Video,           color: "#F472B6" },
+  { href: "/psychometric",      label: "Psychometric Tests",  icon: Brain,           color: "#A78BFA" },
+  { href: "/industry-hub",      label: "Industry Hub",        icon: BookOpen,        color: "#34D399" },
+  { href: "/full-process-exam", label: "Full Process Exam",   icon: ClipboardList,   color: "#FB923C" },
+  { href: "/reports",           label: "Reports",             icon: BarChart3,       color: "#5B8CFF" },
+  { href: "/billing",            label: "Billing",             icon: CreditCard,      color: "#34D399" },
+  { href: "/settings",          label: "Settings",            icon: Settings,        color: "#94A3B8" },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const [gam, setGam] = useState<GamificationState | null>(null)
 
-  useEffect(() => {
-    setGam(loadGamification())
-  }, [])
+  useEffect(() => { setGam(loadGamification()) }, [])
 
-  const progress = gam ? getLevelProgress(gam.xp) : 0
+  const progress  = gam ? getLevelProgress(gam.xp) : 0
   const levelInfo = gam ? getLevelInfo(gam.xp) : null
 
   return (
-    <aside className="w-60 bg-white min-h-screen flex flex-col border-r border-surface-border flex-shrink-0">
+    <aside
+      className="w-60 min-h-screen flex flex-col flex-shrink-0 relative z-20"
+      style={{
+        background: "rgba(7,11,20,0.88)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderRight: "1px solid rgba(255,255,255,0.07)",
+      }}
+    >
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-surface-border">
+      <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <Link href="/dashboard">
-          <LogoFull iconSize={32} />
+          <LogoFull iconSize={30} dark />
         </Link>
       </div>
 
@@ -49,15 +56,31 @@ export function Sidebar() {
       <div className="px-3 pt-3 pb-1">
         <button
           onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))}
-          className="w-full flex items-center gap-2 bg-surface-muted hover:bg-surface-border/60 border border-surface-border rounded-xl px-3 py-2 text-xs text-ink-faint hover:text-ink-muted transition-all"
+          className="w-full flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs transition-all"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            color: "#475569",
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = "rgba(91,140,255,0.06)"
+            e.currentTarget.style.borderColor = "rgba(91,140,255,0.18)"
+            e.currentTarget.style.color = "#64748B"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"
+            e.currentTarget.style.color = "#475569"
+          }}
         >
-          <Command className="w-3 h-3" />
+          <Command className="w-3 h-3 flex-shrink-0" />
           <span className="flex-1 text-left">Quick actions</span>
-          <kbd className="text-ink-faint font-mono text-xs">⌘K</kbd>
+          <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+            style={{ background: "rgba(255,255,255,0.05)", color: "#334155" }}>⌘K</kbd>
         </button>
       </div>
 
-      {/* Nav */}
+      {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon, color }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/")
@@ -66,51 +89,78 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
-                isActive
-                  ? "nav-active font-semibold"
-                  : "text-ink-muted hover:text-ink hover:bg-surface-muted"
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border group relative",
+                isActive ? "nav-active" : "border-transparent"
               )}
+              style={!isActive ? { color: "#475569" } : undefined}
+              onMouseEnter={e => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+                  e.currentTarget.style.color = "#94A3B8"
+                }
+              }}
+              onMouseLeave={e => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "transparent"
+                  e.currentTarget.style.color = "#475569"
+                }
+              }}
             >
-              <Icon className={cn("w-4 h-4 flex-shrink-0 transition-colors", isActive ? color : "text-ink-faint group-hover:" + color.replace("text-", "text-"))} />
-              <span>{label}</span>
-              {isActive && <ChevronRight className="w-3 h-3 ml-auto text-brand-purple/50" />}
+              <Icon
+                className="w-4 h-4 flex-shrink-0 transition-colors duration-200"
+                style={{ color: isActive ? color : undefined }}
+              />
+              <span className="truncate">{label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active-dot"
+                  className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: color, boxShadow: `0 0 6px ${color}` }}
+                />
+              )}
             </Link>
           )
         })}
       </nav>
 
-      {/* Gamification + Upgrade */}
-      <div className="px-3 pb-4 space-y-3 border-t border-surface-border pt-3">
+      {/* Footer */}
+      <div className="px-3 pb-4 pt-3 space-y-3" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+
+        {/* XP / Level */}
         {gam && gam.xp > 0 && (
-          <div className="bg-surface-muted rounded-2xl p-3 space-y-2">
-            {/* Level + streak */}
+          <div className="rounded-2xl p-3 space-y-2.5"
+            style={{
+              background: "rgba(11,16,32,0.7)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-ink">{levelInfo?.name}</p>
-                <p className="text-xs text-ink-faint">Level {gam.level}</p>
+                <p className="text-xs font-semibold" style={{ color: "#E2E8F0" }}>{levelInfo?.name}</p>
+                <p className="text-xs" style={{ color: "#475569" }}>Level {gam.level}</p>
               </div>
               {gam.streakDays > 0 && (
-                <div className="flex items-center gap-1 bg-orange-50 border border-orange-100 rounded-lg px-2 py-1">
-                  <Flame className="w-3 h-3 text-orange-400" />
-                  <span className="text-xs font-bold text-orange-500">{gam.streakDays}d</span>
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg"
+                  style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                  <Flame className="w-3 h-3" style={{ color: "#FBBF24" }} />
+                  <span className="text-xs font-bold" style={{ color: "#FBBF24" }}>{gam.streakDays}d</span>
                 </div>
               )}
             </div>
-            {/* XP bar */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-ink-faint flex items-center gap-1">
-                  <Zap className="w-2.5 h-2.5 text-amber-400" />{gam.xp} XP
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] flex items-center gap-1" style={{ color: "#475569" }}>
+                  <Zap className="w-2.5 h-2.5" style={{ color: "#FBBF24" }} />
+                  {gam.xp} XP
                 </span>
-                <span className="text-xs text-ink-faint">{levelInfo?.nextXP} XP</span>
+                <span className="text-[10px]" style={{ color: "#334155" }}>{levelInfo?.nextXP} XP</span>
               </div>
-              <div className="h-1.5 bg-surface-border rounded-full overflow-hidden">
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                 <motion.div
-                  className="h-full bg-gradient-to-r from-brand-purple to-brand-blue rounded-full"
+                  className="h-full rounded-full"
+                  style={{ background: "linear-gradient(90deg, #5B8CFF, #8B5CF6)" }}
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
                 />
               </div>
             </div>
@@ -118,11 +168,19 @@ export function Sidebar() {
         )}
 
         {/* Upgrade card */}
-        <div className="bg-gradient-to-br from-brand-purple-light to-brand-blue-light border border-brand-purple/15 rounded-2xl p-3.5">
-          <p className="text-xs font-bold text-ink mb-0.5">Upgrade to Pro</p>
-          <p className="text-xs text-ink-muted leading-relaxed mb-2.5">Unlock AI video scoring and full process simulations</p>
-          <button className="w-full py-2 text-xs font-bold text-white bg-gradient-to-r from-brand-purple to-brand-blue rounded-xl hover:opacity-90 transition-opacity shadow-purple">
-            Upgrade — £19/mo
+        <div className="relative overflow-hidden rounded-2xl p-4"
+          style={{
+            background: "linear-gradient(135deg, rgba(91,140,255,0.12), rgba(139,92,246,0.10))",
+            border: "1px solid rgba(91,140,255,0.20)",
+          }}>
+          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none"
+            style={{ background: "rgba(91,140,255,0.15)" }} />
+          <p className="text-xs font-bold text-white mb-0.5 relative">Upgrade to Pro</p>
+          <p className="text-xs leading-relaxed mb-3 relative" style={{ color: "#64748B" }}>
+            Unlock AI video scoring and full process reports
+          </p>
+          <button className="w-full py-2 text-xs font-bold text-white rounded-xl btn-gradient relative">
+            Upgrade — £19.99/mo
           </button>
         </div>
       </div>

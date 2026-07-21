@@ -1,86 +1,79 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
-import { LogoFull, LogoMark } from "@/components/brand/logo"
+import { LogoFull } from "@/components/brand/logo"
 
 function MarketingNav() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", handler)
+    const handler = () => setScrolled(window.scrollY > 60)
+    window.addEventListener("scroll", handler, { passive: true })
     return () => window.removeEventListener("scroll", handler)
   }, [])
 
   return (
-    <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      scrolled ? "bg-white shadow-sm border-b border-gray-100" : "bg-transparent"
-    )}>
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+      style={scrolled
+        ? { background: "rgba(7,11,20,0.94)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }
+        : { background: "transparent" }
+      }
+    >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/">
-          {scrolled
-            ? <LogoFull iconSize={30} />
-            : <LogoFull iconSize={30} dark />
-          }
-        </Link>
+        <Link href="/"><LogoFull iconSize={28} dark /></Link>
 
         <div className="hidden md:flex items-center gap-8">
           {[
             { href: "/features", label: "Features" },
-            { href: "/pricing", label: "Pricing" },
-            { href: "/sectors", label: "Sectors" },
+            { href: "/pricing",  label: "Pricing" },
+            { href: "/sectors",  label: "Sectors" },
           ].map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn("text-sm font-medium transition-colors hover:opacity-80", scrolled ? "text-gray-600" : "text-gray-200")}
-            >
+            <Link key={href} href={href}
+              className="text-sm font-medium transition-colors"
+              style={{ color: "rgba(255,255,255,0.55)" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}>
               {label}
             </Link>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className={cn("text-sm font-medium transition-colors", scrolled ? "text-gray-700" : "text-gray-200")}
-          >
+          <Link href="/login"
+            className="text-sm font-medium transition-colors px-3 py-2"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}>
             Log in
           </Link>
-          <Link
-            href="/signup"
-            className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
-          >
-            Get Started Free
+          <Link href="/signup"
+            className="text-sm font-bold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+            Get Started
           </Link>
         </div>
 
-        <button
-          className="md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
+        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen
-            ? <X className={cn("w-5 h-5", scrolled ? "text-gray-700" : "text-white")} />
-            : <Menu className={cn("w-5 h-5", scrolled ? "text-gray-700" : "text-white")} />
-          }
+            ? <X className="w-5 h-5" style={{ color: "rgba(255,255,255,0.8)" }} />
+            : <Menu className="w-5 h-5" style={{ color: "rgba(255,255,255,0.8)" }} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 px-6 py-4 space-y-3">
-          {["/features", "/pricing", "/sectors"].map(href => (
-            <Link key={href} href={href} className="block text-sm text-gray-700 font-medium py-2">
-              {href.slice(1).charAt(0).toUpperCase() + href.slice(2)}
-            </Link>
+        <div className="md:hidden px-6 py-4 space-y-1 border-b"
+          style={{ background: "rgba(7,11,20,0.97)", borderColor: "rgba(255,255,255,0.07)" }}>
+          {[["Features", "/features"], ["Pricing", "/pricing"], ["Sectors", "/sectors"]].map(([l, h]) => (
+            <Link key={h} href={h} className="block text-sm font-medium py-2.5" style={{ color: "rgba(255,255,255,0.6)" }}>{l}</Link>
           ))}
-          <div className="pt-2 flex gap-3">
-            <Link href="/login" className="flex-1 text-center py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700">Log in</Link>
-            <Link href="/signup" className="flex-1 text-center py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold">Get Started</Link>
+          <div className="pt-3 flex gap-3 mt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <Link href="/login" className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium"
+              style={{ border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>Log in</Link>
+            <Link href="/signup" className="flex-1 text-center py-2.5 rounded-xl text-sm font-bold text-white"
+              style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}>Get Started</Link>
           </div>
         </div>
       )}
@@ -90,50 +83,44 @@ function MarketingNav() {
 
 function MarketingFooter() {
   return (
-    <footer className="bg-[#0a0f1e] border-t border-white/5 pt-16 pb-8">
+    <footer style={{ background: "#070B14", borderTop: "1px solid rgba(255,255,255,0.07)" }} className="pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <LogoFull iconSize={28} dark />
-            </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <div className="mb-4"><LogoFull iconSize={26} dark /></div>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>
               AI-powered graduate recruitment preparation for the UK&apos;s top schemes.
             </p>
           </div>
-          <div>
-            <h4 className="text-white text-sm font-semibold mb-3">Product</h4>
-            <ul className="space-y-2">
-              {["Features", "Pricing", "Sectors", "Demo"].map(l => (
-                <li key={l}><Link href="#" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">{l}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white text-sm font-semibold mb-3">Resources</h4>
-            <ul className="space-y-2">
-              {["Blog", "Graduate Guide", "CV Templates", "FAQ"].map(l => (
-                <li key={l}><Link href="#" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">{l}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white text-sm font-semibold mb-3">Company</h4>
-            <ul className="space-y-2">
-              <li><Link href="#" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">About</Link></li>
-              <li><Link href="#" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">Careers</Link></li>
-              <li><Link href="/privacy" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">Terms</Link></li>
-              <li><Link href="/ai-disclosure" className="text-gray-500 text-sm hover:text-gray-300 transition-colors">AI Disclosure</Link></li>
-            </ul>
-          </div>
+          {[
+            { title: "Product",   links: ["Features", "Pricing", "Sectors", "Demo"] },
+            { title: "Resources", links: ["Blog", "Graduate Guide", "CV Templates", "FAQ"] },
+            { title: "Company",   links: ["About", "Careers", "Privacy Policy", "Terms"] },
+          ].map(col => (
+            <div key={col.title}>
+              <h4 className="text-white text-sm font-semibold mb-4">{col.title}</h4>
+              <ul className="space-y-2.5">
+                {col.links.map(l => (
+                  <li key={l}>
+                    <Link href="#" className="text-sm transition-colors"
+                      style={{ color: "rgba(255,255,255,0.3)" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
+                      onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-600 text-sm">© 2026 GradProcess AI Ltd. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-gray-600 text-sm">
-            <span>Twitter</span>
-            <span>LinkedIn</span>
-            <span>Instagram</span>
+        <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.2)" }}>© 2026 GradProcess AI Ltd. All rights reserved.</p>
+          <div className="flex items-center gap-5 text-sm" style={{ color: "rgba(255,255,255,0.2)" }}>
+            {["Twitter", "LinkedIn", "Instagram"].map(s => (
+              <span key={s} className="cursor-pointer transition-colors"
+                onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}>{s}</span>
+            ))}
           </div>
         </div>
       </div>
@@ -143,7 +130,7 @@ function MarketingFooter() {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white">
+    <div style={{ background: "#070B14" }}>
       <MarketingNav />
       <main>{children}</main>
       <MarketingFooter />

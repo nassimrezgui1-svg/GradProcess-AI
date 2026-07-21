@@ -48,7 +48,7 @@ const featureBlocks = [
       "Model answer generation for every question",
     ],
     metric: "Graduates report 40% improvement in delivery confidence after 3 sessions",
-    color: "teal",
+    color: "cyan",
     right: false,
   },
   {
@@ -64,7 +64,7 @@ const featureBlocks = [
       "Accuracy and speed tracking over time",
     ],
     metric: "85% of users pass psychometric tests that previously failed them",
-    color: "orange",
+    color: "violet",
     right: true,
   },
   {
@@ -80,7 +80,7 @@ const featureBlocks = [
       "Knowledge score tracking per sector",
     ],
     metric: "Users score 78%+ on commercial awareness after sector prep module",
-    color: "green",
+    color: "emerald",
     right: false,
   },
   {
@@ -96,95 +96,170 @@ const featureBlocks = [
       "Apply vs keep preparing recommendation",
     ],
     metric: "Know your pass likelihood before a single application is submitted",
-    color: "rose",
+    color: "amber",
     right: true,
   },
 ]
 
-const colorMap: Record<string, { bg: string; text: string; border: string; light: string }> = {
-  blue: { bg: "bg-blue-600", text: "text-blue-600", border: "border-blue-200", light: "bg-blue-50" },
-  purple: { bg: "bg-purple-600", text: "text-purple-600", border: "border-purple-200", light: "bg-purple-50" },
-  teal: { bg: "bg-teal-600", text: "text-teal-600", border: "border-teal-200", light: "bg-teal-50" },
-  orange: { bg: "bg-orange-600", text: "text-orange-600", border: "border-orange-200", light: "bg-orange-50" },
-  green: { bg: "bg-green-600", text: "text-green-600", border: "border-green-200", light: "bg-green-50" },
-  rose: { bg: "bg-rose-600", text: "text-rose-600", border: "border-rose-200", light: "bg-rose-50" },
+const colorMap: Record<string, { hex: string; glow: string; dot: string }> = {
+  blue:    { hex: "#818CF8", glow: "rgba(129,140,248,0.12)", dot: "rgba(129,140,248,0.7)" },
+  purple:  { hex: "#C084FC", glow: "rgba(192,132,252,0.12)", dot: "rgba(192,132,252,0.7)" },
+  cyan:    { hex: "#22D3EE", glow: "rgba(34,211,238,0.12)",  dot: "rgba(34,211,238,0.7)"  },
+  violet:  { hex: "#A78BFA", glow: "rgba(167,139,250,0.12)", dot: "rgba(167,139,250,0.7)" },
+  emerald: { hex: "#34D399", glow: "rgba(52,211,153,0.12)",  dot: "rgba(52,211,153,0.7)"  },
+  amber:   { hex: "#FBBF24", glow: "rgba(251,191,36,0.12)",  dot: "rgba(251,191,36,0.7)"  },
 }
 
 export default function FeaturesPage() {
   return (
-    <div className="bg-white">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#0a0f1e] to-[#1e293b] pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">Every feature you need to land your graduate scheme.</h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+    <div>
+      {/* ── Hero ── */}
+      <section className="relative pt-36 pb-20 px-6 text-center overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.1), transparent 70%)" }} />
+        <div className="relative max-w-4xl mx-auto">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>
+            The platform
+          </p>
+          <h1 className="text-5xl md:text-6xl font-black text-white mb-6 leading-tight">
+            Every feature you need to{" "}
+            <span style={{
+              background: "linear-gradient(90deg, #818CF8, #22D3EE)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              land the role.
+            </span>
+          </h1>
+          <p className="text-lg max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.5)" }}>
             Six integrated modules. One platform. The complete graduate recruitment preparation system.
           </p>
         </div>
       </section>
 
-      {/* Feature blocks */}
+      {/* ── Feature blocks ── */}
       {featureBlocks.map((feature) => {
-        const colors = colorMap[feature.color]
+        const c = colorMap[feature.color]
         return (
-          <section key={feature.title} className="py-20 px-6 border-b border-gray-100">
+          <section
+            key={feature.title}
+            className="py-20 px-6"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          >
             <div className="max-w-7xl mx-auto">
               <div className={cn(
                 "grid grid-cols-1 lg:grid-cols-2 gap-16 items-center",
                 feature.right && "lg:grid-flow-col-dense"
               )}>
+
+                {/* ── Text column ── */}
                 <div className={cn(feature.right && "lg:col-start-2")}>
-                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6", colors.light)}>
-                    <feature.icon className={cn("w-7 h-7", colors.text)} />
+                  {/* Icon */}
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                    style={{ background: c.glow, border: `1px solid ${c.hex}25` }}
+                  >
+                    <feature.icon className="w-7 h-7" style={{ color: c.hex }} />
                   </div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">{feature.title}</h2>
-                  <p className="text-gray-500 text-lg mb-6 leading-relaxed">{feature.description}</p>
+
+                  <h2 className="text-3xl font-black text-white mb-4">{feature.title}</h2>
+                  <p className="text-base mb-8 leading-relaxed" style={{ color: "rgba(255,255,255,0.52)" }}>
+                    {feature.description}
+                  </p>
+
+                  {/* Capability list */}
                   <ul className="space-y-3 mb-8">
                     {feature.capabilities.map(cap => (
-                      <li key={cap} className="flex items-start gap-3 text-sm text-gray-700">
-                        <CheckCircle className={cn("w-4 h-4 flex-shrink-0 mt-0.5", colors.text)} />
+                      <li key={cap} className="flex items-start gap-3 text-sm" style={{ color: "rgba(255,255,255,0.72)" }}>
+                        <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: c.hex }} />
                         {cap}
                       </li>
                     ))}
                   </ul>
-                  <div className={cn("inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl", colors.light, colors.text)}>
+
+                  {/* Metric pill */}
+                  <div
+                    className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl"
+                    style={{
+                      background: c.glow,
+                      border: `1px solid ${c.hex}25`,
+                      color: c.hex,
+                    }}
+                  >
                     {feature.metric}
                   </div>
                 </div>
+
+                {/* ── Card column ── */}
                 <div className={cn(feature.right && "lg:col-start-1 lg:row-start-1")}>
-                  <div className={cn("rounded-2xl p-8 border-2", colors.border, colors.light)}>
+                  <div
+                    className="rounded-2xl p-7"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: `1px solid ${c.hex}20`,
+                      boxShadow: `0 0 40px ${c.glow}`,
+                    }}
+                  >
+                    {/* Card header */}
                     <div className="flex items-center gap-3 mb-6">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", colors.bg)}>
-                        <feature.icon className="w-5 h-5 text-white" />
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ background: c.glow, border: `1px solid ${c.hex}30` }}
+                      >
+                        <feature.icon className="w-5 h-5" style={{ color: c.hex }} />
                       </div>
-                      <span className="font-semibold text-gray-900">{feature.title}</span>
+                      <span className="font-semibold text-white text-sm">{feature.title}</span>
                     </div>
-                    <div className="space-y-3">
-                      {feature.capabilities.slice(0, 4).map((cap, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-white rounded-xl p-3 border border-gray-100 text-sm text-gray-700">
-                          <div className={cn("w-2 h-2 rounded-full flex-shrink-0", colors.bg)} />
+
+                    {/* Capability rows */}
+                    <div className="space-y-2.5">
+                      {feature.capabilities.slice(0, 5).map((cap, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm"
+                          style={{
+                            background: "rgba(255,255,255,0.04)",
+                            border: "1px solid rgba(255,255,255,0.07)",
+                            color: "rgba(255,255,255,0.72)",
+                          }}
+                        >
+                          <div
+                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            style={{ background: c.hex, boxShadow: `0 0 6px ${c.hex}` }}
+                          />
                           {cap}
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </section>
         )
       })}
 
-      {/* CTA */}
-      <section className="py-24 px-6 bg-gradient-to-br from-[#0a0f1e] to-[#1e293b]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Start preparing today</h2>
-          <p className="text-gray-300 mb-8">Free tier available. No credit card required.</p>
+      {/* ── CTA ── */}
+      <section
+        className="relative py-28 px-6 overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #0EA5E9 100%)" }}
+      >
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.1), transparent 60%)" }} />
+        <div className="relative max-w-3xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+            Start preparing today.
+          </h2>
+          <p className="text-lg mb-10 text-indigo-100">
+            £19.99/mo · Full access · Cancel any time.
+          </p>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-3 text-base font-bold px-10 py-5 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: "#FFFFFF", color: "#6366F1", boxShadow: "0 12px 48px rgba(0,0,0,0.2)" }}
           >
-            Get started free <ArrowRight className="w-5 h-5" />
+            Get started <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
