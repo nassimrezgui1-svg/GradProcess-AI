@@ -34,7 +34,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
-  typescript: { ignoreBuildErrors: true },
 
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }]

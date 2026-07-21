@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   target_companies TEXT[],
   confidence_level INTEGER CHECK (confidence_level BETWEEN 1 AND 5),
   avatar_url      TEXT,
+  plan            TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free','pro','team')),
   onboarding_complete BOOLEAN DEFAULT false,
   created_at      TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at      TIMESTAMPTZ DEFAULT NOW() NOT NULL
@@ -81,19 +82,27 @@ CREATE POLICY "consent_insert_own" ON public.consent_records FOR INSERT WITH CHE
 -- SUBSCRIPTIONS
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.subscriptions (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id             UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  stripe_customer_id  TEXT,
-  stripe_sub_id       TEXT,
-  plan                TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free','pro','team')),
-  status              TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','trialing','past_due','cancelled','paused')),
-  current_period_end  TIMESTAMPTZ,
-  created_at          TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  updated_at          TIMESTAMPTZ DEFAULT NOW() NOT NULL
+  id                       UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id                  UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  stripe_customer_id       TEXT,
+  stripe_subscription_id   TEXT,
+  plan                     TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free','pro','team')),
+  -- Includes Stripe's raw subscription statuses so webhook writes never violate the constraint.
+  status                   TEXT NOT NULL DEFAULT 'active' CHECK (status IN (
+    'active','trialing','past_due','cancelled','paused',
+    'canceled','incomplete','incomplete_expired','unpaid'
+  )),
+  cancel_at_period_end     BOOLEAN DEFAULT false,
+  current_period_end       TIMESTAMPTZ,
+  created_at               TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at               TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE OR REPLACE TRIGGER t_subs_updated_at BEFORE UPDATE ON public.subscriptions FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE POLICY "subs_select_own" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);
+-- Allow the authed checkout route to create/update the caller's own row (Stripe customer id).
+CREATE POLICY "subs_insert_own" ON public.subscriptions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "subs_update_own" ON public.subscriptions FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- CVs
