@@ -75,4 +75,12 @@ describe("Stripe webhook ↔ schema consistency", () => {
     expect(sigIndex).toBeGreaterThan(-1)
     expect(dbIndex).toBeGreaterThan(sigIndex)
   })
+
+  it("stripe client is lazily initialized so builds succeed without STRIPE_SECRET_KEY", () => {
+    // Regression: `export const stripe = new Stripe(...)` at module scope crashed
+    // the Vercel build during page-data collection when the env var was unset.
+    const stripeLib = readFileSync(join(root, "lib", "stripe.ts"), "utf8")
+    expect(stripeLib).not.toMatch(/export const stripe\s*=\s*new Stripe/)
+    expect(stripeLib).toContain("export function getStripe")
+  })
 })
