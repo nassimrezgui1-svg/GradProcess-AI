@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { Topbar } from "@/components/layout/topbar"
 import { ReadinessRadar } from "@/components/charts/readiness-radar"
 import { ModuleBars } from "@/components/charts/module-bars"
@@ -180,8 +181,13 @@ export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "interviews" | "cv" | "star" | "psychometric">("overview")
 
   useEffect(() => {
-    setScores(loadDashboardScores())
-    setInterviewSessions(loadSessions().filter(s => s.report !== null))
+    const refresh = () => {
+      setScores(loadDashboardScores())
+      setInterviewSessions(loadSessions().filter(s => s.report !== null))
+    }
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
 
   if (!scores) return null

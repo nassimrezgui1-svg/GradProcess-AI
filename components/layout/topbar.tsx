@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { Sparkles } from "lucide-react"
 import { loadProfile, getInitials } from "@/lib/profile"
 import { loadDashboardScores } from "@/lib/scores"
@@ -18,11 +19,15 @@ export function Topbar({ title }: { title: string }) {
   const [overallScore, setOverallScore] = useState<number | null>(null)
 
   useEffect(() => {
-    const profile = loadProfile()
-    setName(profile.name)
-    setInitials(getInitials(profile.name))
-    const scores = loadDashboardScores()
-    setOverallScore(scores.overall)
+    const refresh = () => {
+      const profile = loadProfile()
+      setName(profile.name)
+      setInitials(getInitials(profile.name))
+      setOverallScore(loadDashboardScores().overall)
+    }
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
 
   const openAva = () => window.dispatchEvent(new CustomEvent("open-ava"))

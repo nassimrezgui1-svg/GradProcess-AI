@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { CommandPalette } from "@/components/ui/command-palette"
+import { DataSync } from "@/components/data-sync"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       <CommandPalette />
+      <DataSync />
     </div>
   )
 }

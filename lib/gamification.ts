@@ -1,5 +1,8 @@
 // Gamification engine — XP, levels, streaks, badges, daily challenges
 
+import { readLocal, writeLocal } from "@/lib/db/local"
+import { pushGamification } from "@/lib/db/cloud"
+
 export interface GamificationState {
   xp: number
   level: number
@@ -98,19 +101,14 @@ function getLevel(xp: number): { level: number; name: string; nextXP: number; pr
 }
 
 export function loadGamification(): GamificationState {
-  if (typeof window === "undefined") return getDefaultState()
-  try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return getDefaultState()
-    const state: GamificationState = JSON.parse(raw)
-    // Reset daily challenges if new day
-    if (state.lastActivityDate !== getTodayString()) {
-      state.completedChallenges = []
-    }
-    return state
-  } catch {
-    return getDefaultState()
+  const stored = readLocal<GamificationState | null>("gradprocess_gamification", null)
+  if (!stored) return getDefaultState()
+  const state: GamificationState = { ...getDefaultState(), ...stored }
+  // Reset daily challenges if new day
+  if (state.lastActivityDate !== getTodayString()) {
+    state.completedChallenges = []
   }
+  return state
 }
 
 function getDefaultState(): GamificationState {
@@ -128,8 +126,8 @@ function getDefaultState(): GamificationState {
 }
 
 function saveGamification(state: GamificationState) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(KEY, JSON.stringify(state))
+  writeLocal("gradprocess_gamification", state)
+  void pushGamification(state)
 }
 
 export function awardXP(amount: number, category: string): { newState: GamificationState; leveledUp: boolean; newBadges: string[] } {

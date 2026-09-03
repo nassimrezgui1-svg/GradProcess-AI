@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { motion } from "framer-motion"
 import { Topbar } from "@/components/layout/topbar"
 import { ReadinessRadar } from "@/components/charts/readiness-radar"
@@ -204,9 +205,14 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState({ name: "" })
 
   useEffect(() => {
-    setScores(loadDashboardScores())
-    setGam(loadGamification())
-    setProfile(loadProfile())
+    const refresh = () => {
+      setScores(loadDashboardScores())
+      setGam(loadGamification())
+      setProfile(loadProfile())
+    }
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
 
   if (!scores || !gam) {

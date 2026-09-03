@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Topbar } from "@/components/layout/topbar"
@@ -493,8 +494,11 @@ export default function TrackerPage() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
+    const refresh = () => setApps(loadApps())
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
     setApps(loadApps())
     setLoaded(true)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
 
   const filtered = sectorFilter === "All" ? apps : apps.filter(a => a.sector === sectorFilter)

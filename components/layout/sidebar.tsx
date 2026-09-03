@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -29,7 +30,12 @@ export function Sidebar() {
   const pathname = usePathname()
   const [gam, setGam] = useState<GamificationState | null>(null)
 
-  useEffect(() => { setGam(loadGamification()) }, [])
+  useEffect(() => {
+    const refresh = () => setGam(loadGamification())
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
+  }, [])
 
   const progress  = gam ? getLevelProgress(gam.xp) : 0
   const levelInfo = gam ? getLevelInfo(gam.xp) : null
