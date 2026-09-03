@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { FileText, Mic2, Video, Brain, BookOpen, ClipboardList, CheckCircle, ArrowRight } from "lucide-react"
+import { FileText, Mic2, Video, Brain, BookOpen, CheckCircle, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const featureBlocks = [
@@ -15,7 +15,7 @@ const featureBlocks = [
       "Formatting and structure analysis",
       "Missing items checklist (certs, skills, terminology)",
     ],
-    metric: "Average ATS score improvement: +18 points in first week",
+    metric: "Scores your CV against the exact job spec you paste in",
     color: "blue",
     right: false,
   },
@@ -31,7 +31,7 @@ const featureBlocks = [
       "Interviewer risk flags (sounds rehearsed, missing ownership, etc.)",
       "Side-by-side improved version comparison",
     ],
-    metric: "Average STAR completeness score after 5 scenarios: 89%",
+    metric: "Covers 23 competencies with 60-second, 90-second and 2-minute versions",
     color: "purple",
     right: true,
   },
@@ -47,7 +47,7 @@ const featureBlocks = [
       "Sector-specific question banks for 13 sectors",
       "Model answer generation for every question",
     ],
-    metric: "Graduates report 40% improvement in delivery confidence after 3 sessions",
+    metric: "Live transcription with filler-word counts and pacing for every answer",
     color: "cyan",
     right: false,
   },
@@ -63,7 +63,7 @@ const featureBlocks = [
       "Weak topic identification and targeted drills",
       "Accuracy and speed tracking over time",
     ],
-    metric: "85% of users pass psychometric tests that previously failed them",
+    metric: "Timed numerical, verbal, logical and abstract sets with worked explanations",
     color: "violet",
     right: true,
   },
@@ -79,25 +79,9 @@ const featureBlocks = [
       "Sector-specific interview questions",
       "Knowledge score tracking per sector",
     ],
-    metric: "Users score 78%+ on commercial awareness after sector prep module",
+    metric: "Live sector news from the FT, Economist, BBC and City A.M.",
     color: "emerald",
     right: false,
-  },
-  {
-    icon: ClipboardList,
-    title: "Full Process Exam",
-    description: "Stop preparing in isolation. Experience the entire graduate recruitment process from CV submission to final interview — and find out exactly where you would fail.",
-    capabilities: [
-      "9-stage complete recruitment simulation",
-      "CV screening, motivational, psychometric, video, competency, sector, SJT, case study, and final interview",
-      "Stage-by-stage scoring with pass/fail indication",
-      "Strongest and weakest stage highlights",
-      "Personalised improvement roadmap with timelines",
-      "Apply vs keep preparing recommendation",
-    ],
-    metric: "Know your pass likelihood before a single application is submitted",
-    color: "amber",
-    right: true,
   },
 ]
 

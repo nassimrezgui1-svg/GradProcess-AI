@@ -11,7 +11,7 @@ import {
 } from "@/lib/gamification"
 import { cn, getScoreBand } from "@/lib/utils"
 import {
-  FileText, Mic2, Video, Brain, BookOpen, ClipboardList,
+  FileText, Mic2, Video, Brain, BookOpen,
   ArrowRight, Flame, Zap, ChevronRight, Sparkles,
   TrendingUp, CheckCircle2, Circle, Clock, BarChart3,
   Trophy, Target, Activity,
@@ -175,7 +175,6 @@ const MODULES: ModuleDef[] = [
   { href: "/video-interview",   label: "Video Interview",     description: "AI recruiter practice with live performance score", icon: Video,       color: "#F472B6", glow: "rgba(244,114,182,0.12)",  xp: 60  },
   { href: "/psychometric",      label: "Psychometric Tests",  description: "Sharpen numerical, verbal & logical reasoning",    icon: Brain,       color: "#A78BFA", glow: "rgba(167,139,250,0.12)",  xp: 40  },
   { href: "/industry-hub",      label: "Industry Hub",        description: "Live sector insights and market intelligence",      icon: BookOpen,    color: "#34D399", glow: "rgba(52,211,153,0.12)",   xp: 20  },
-  { href: "/full-process-exam", label: "Full Process Exam",   description: "Complete 9-stage graduate hiring simulation",      icon: ClipboardList, color: "#FB923C", glow: "rgba(251,146,60,0.12)", xp: 100 },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -237,7 +236,6 @@ export default function DashboardPage() {
     "/video-interview":   scores.video,
     "/psychometric":      scores.psychometric,
     "/industry-hub":      null,
-    "/full-process-exam": null,
   }
 
   const firstName = profile.name ? profile.name.split(" ")[0] : null
@@ -336,11 +334,11 @@ export default function DashboardPage() {
 
               {/* CTAs */}
               <div className="flex flex-wrap items-center gap-3">
-                <Link href="/full-process-exam"
+                <Link href="/cv-tailoring"
                   className="flex items-center gap-2 text-sm font-bold text-white rounded-xl px-5 py-2.5 transition-all hover:opacity-90 active:scale-[0.98]"
                   style={{ background: "linear-gradient(135deg, #5B8CFF 0%, #8B5CF6 100%)", boxShadow: "0 4px 24px rgba(91,140,255,0.4)" }}>
                   <Target className="w-4 h-4" />
-                  Full Process Exam
+                  Analyse my CV
                 </Link>
                 <Link href="/reports"
                   className="flex items-center gap-2 text-sm font-semibold rounded-xl px-4 py-2.5 transition-all hover:border-white/20"
