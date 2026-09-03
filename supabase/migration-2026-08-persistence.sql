@@ -26,8 +26,12 @@ CREATE TABLE IF NOT EXISTS public.module_results (
   client_id  TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
+-- Full (not partial) unique index: PostgREST/Supabase upsert with
+-- onConflict "user_id,client_id" cannot target a partial index (SQLSTATE 42P10).
+-- NULL client_ids never collide, so rows without one are unaffected.
+DROP INDEX IF EXISTS public.module_results_client_unique;
 CREATE UNIQUE INDEX IF NOT EXISTS module_results_client_unique
-  ON public.module_results (user_id, client_id) WHERE client_id IS NOT NULL;
+  ON public.module_results (user_id, client_id);
 CREATE INDEX IF NOT EXISTS module_results_user_module_idx
   ON public.module_results (user_id, module, created_at DESC);
 
@@ -93,8 +97,9 @@ CREATE TRIGGER t_applications_updated_at
 -- requirements, stage history, AI role breakdown, interview dates).
 ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS detail JSONB NOT NULL DEFAULT '{}';
 ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS client_id TEXT;
+DROP INDEX IF EXISTS public.applications_client_unique;
 CREATE UNIQUE INDEX IF NOT EXISTS applications_client_unique
-  ON public.applications (user_id, client_id) WHERE client_id IS NOT NULL;
+  ON public.applications (user_id, client_id);
 
 -- The tracker writes and deletes its own rows; the base schema only granted SELECT.
 DROP POLICY IF EXISTS "applications_own" ON public.applications;
