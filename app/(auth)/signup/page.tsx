@@ -33,7 +33,7 @@ export default function SignupPage() {
         password,
         options: {
           data: { name: name.trim() },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/api/auth/callback`,
         },
       })
       if (signupError) { setError(signupError.message || "Signup failed. Please try again."); return }
@@ -46,7 +46,7 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/api/auth/callback` },
     })
   }
 
