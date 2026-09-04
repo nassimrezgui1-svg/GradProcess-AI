@@ -290,15 +290,32 @@ CREATE INDEX IF NOT EXISTS idx_consent_user_type        ON public.consent_record
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.user_profiles (user_id, name, email)
-  VALUES (
-    NEW.id,
-    COALESCE(NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''), NEW.email),
-    NEW.email
-  )
-  ON CONFLICT (user_id) DO NOTHING;
-  INSERT INTO public.user_settings (user_id) VALUES (NEW.id) ON CONFLICT DO NOTHING;
-  INSERT INTO public.subscriptions (user_id, plan, status) VALUES (NEW.id, 'free', 'active') ON CONFLICT DO NOTHING;
+  -- Each insert is isolated: account creation must never fail because a
+  -- supporting row could not be written (see migration-2026-08-signup-trigger-fix).
+  BEGIN
+    INSERT INTO public.user_profiles (user_id, name, email)
+    VALUES (
+      NEW.id,
+      COALESCE(NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''), NEW.email),
+      NEW.email
+    )
+    ON CONFLICT (user_id) DO NOTHING;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user: user_profiles insert failed: %', SQLERRM;
+  END;
+
+  BEGIN
+    INSERT INTO public.user_settings (user_id) VALUES (NEW.id) ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user: user_settings insert failed: %', SQLERRM;
+  END;
+
+  BEGIN
+    INSERT INTO public.subscriptions (user_id, plan, status) VALUES (NEW.id, 'free', 'active') ON CONFLICT DO NOTHING;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user: subscriptions insert failed: %', SQLERRM;
+  END;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
