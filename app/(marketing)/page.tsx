@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { cn, getScoreBg } from "@/lib/utils"
 import {
-  FileText, Mic2, Video, Brain, BookOpen, ClipboardList,
+  FileText, Mic2, Video, Brain, BookOpen,
   ArrowRight, CheckCircle, Zap, Star, BarChart3, Target,
   TrendingUp, ChevronDown,
 } from "lucide-react"
@@ -16,35 +16,44 @@ const features = [
   { icon: Video,         title: "AI Video Interview Simulator", color: "#F472B6", description: "Practice with an AI interviewer across 6 modes. Get scored on content, delivery, and structure." },
   { icon: Brain,         title: "Psychometric Practice",        color: "#A78BFA", description: "Full-length timed tests across numerical, verbal, logical, abstract, SJT, and attention to detail." },
   { icon: BookOpen,      title: "Industry & Sector Hub",        color: "#34D399", description: "Deep-dive content for 13 sectors — trends, client segments, technical areas, and interview questions." },
-  { icon: ClipboardList, title: "Full Process Exam",            color: "#FB923C", description: "End-to-end recruitment simulation: CV screening, psychometric, video, assessment centre, final interview." },
 ]
 
 const steps = [
   { num: "01", title: "Upload your CV and job spec", desc: "Paste your CV and the role you're applying for to begin your readiness assessment." },
-  { num: "02", title: "Get your readiness score",    desc: "An instant score across 6 modules — CV, STAR, Video, Psychometric, Industry, and Full Process." },
+  { num: "02", title: "Get your readiness score",    desc: "An instant score across 5 modules — CV & ATS, STAR, Video Interview, Psychometric and Industry." },
   { num: "03", title: "Complete your preparation",   desc: "Work through each module systematically, tracking your improvement week by week." },
-  { num: "04", title: "Apply with confidence",       desc: "Submit applications knowing your score is above the recommended threshold for your target firms." },
+  { num: "04", title: "Apply with evidence",         desc: "Submit applications knowing which parts of your preparation are strong and which still need work." },
 ]
 
-const universities = ["University of Edinburgh", "LSE", "UCL", "Durham", "Exeter", "Warwick", "Bristol", "King's College London"]
+// Stages of UK graduate recruitment the platform gives you practice for.
+const stagesCovered = ["CV & ATS screening", "Psychometric tests", "Video interviews", "Competency interviews", "Commercial awareness"]
 
-const testimonials = [
-  { name: "Sophie M.", role: "Now at Deloitte",      text: "My ATS score went from 51 to 84 in two weeks. GradProcess AI caught keywords I had completely missed and rewrote my bullet points to actually sound like a consultant." },
-  { name: "James K.",  role: "Now at Goldman Sachs", text: "I'd been failing numerical tests at every firm. After 3 weeks of daily practice with GradProcess AI, I passed every test first time." },
-  { name: "Priya A.",  role: "Now at McKinsey",      text: "The STAR builder identified that none of my answers had quantified results — something I'd never noticed — and rebuilt them completely." },
+const methodCards = [
+  {
+    title: "Scored against the real criteria",
+    text: "ATS keyword matching, STAR completeness, filler-word rate and pacing are measured the way screening software and interviewers assess them — not by vibes.",
+  },
+  {
+    title: "Feedback on your own words",
+    text: "Every score comes with the specific line that triggered it: the bullet that lacks a metric, the answer that skipped its Result, the filler word you repeated eleven times.",
+  },
+  {
+    title: "Practice, then re-measure",
+    text: "Scores update as you work, so you can see whether a rewrite actually improved anything before you spend it on a real application.",
+  },
 ]
 
 const sectorTags = ["Banking", "Investment Banking", "Consulting", "Asset Management", "Wealth Management", "Insurance", "Technology", "Law", "Engineering", "FMCG", "Energy", "Healthcare", "Public Sector"]
 
 const heroStats = [
-  { value: "9",   label: "Assessment stages" },
+  { value: "5",   label: "Practice modules" },
   { value: "100", label: "Point readiness score" },
   { value: "AI",  label: "Instant feedback" },
-  { value: "6",   label: "Practice modules" },
+  { value: "13",  label: "Sectors covered" },
 ]
 
 const whyCards = [
-  { icon: Target,     color: "#818CF8", glow: "rgba(129,140,248,0.15)", title: "Practise every stage",   desc: "CV screening, psychometrics, competency interviews, video interviews, case studies, SJT and final rounds — all in one place." },
+  { icon: Target,     color: "#818CF8", glow: "rgba(129,140,248,0.15)", title: "Practise every stage",   desc: "CV screening, psychometric tests, competency answers, video interviews and commercial awareness — all in one place." },
   { icon: BarChart3,  color: "#22D3EE", glow: "rgba(34,211,238,0.15)",  title: "Get readiness clarity",  desc: "A 100-point score across every module tells you exactly where you stand before applications open — not after rejections." },
   { icon: TrendingUp, color: "#34D399", glow: "rgba(52,211,153,0.15)",  title: "Improve with structure", desc: "Stage-by-stage feedback, priority weaknesses and a personalised improvement plan so every practice session has a purpose." },
 ]
@@ -160,11 +169,11 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] mb-5"
             style={{ color: "rgba(255,255,255,0.2)" }}>
-            Trusted by graduates from
+            Practice for every stage you&apos;ll actually face
           </p>
           <div className="flex flex-wrap justify-center gap-6">
-            {universities.map(u => (
-              <span key={u} className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>{u}</span>
+            {stagesCovered.map(s => (
+              <span key={s} className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>{s}</span>
             ))}
           </div>
         </div>
@@ -246,23 +255,25 @@ export default function LandingPage() {
               <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.42)" }}>
                 GradProcess AI gives you a quantified readiness score for every part of the recruitment process, so you know exactly what to fix and when you&apos;re ready.
               </p>
-              <p className="text-xs font-bold mb-5" style={{ color: "#818CF8" }}>This could be your score after just 2 weeks of practice:</p>
-              <div className="space-y-4 mb-8">
+              <p className="text-xs font-bold mb-5" style={{ color: "#818CF8" }}>Example — how a readiness score breaks down by module:</p>
+              <div className="space-y-4 mb-4">
                 {[
-                  { label: "CV & ATS Score", score: 84, note: "+16 pts" },
-                  { label: "STAR Answers",   score: 88, note: "+13 pts" },
-                  { label: "Psychometric",   score: 82, note: "+4 pts" },
-                ].map(({ label, score, note }) => (
+                  { label: "CV & ATS Score", score: 84 },
+                  { label: "STAR Answers",   score: 88 },
+                  { label: "Psychometric",   score: 82 },
+                ].map(({ label, score }) => (
                   <div key={label} className="flex items-center gap-3">
                     <span className="text-xs font-medium w-32 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</span>
                     <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                       <div className={cn("h-full rounded-full", getScoreBg(score))} style={{ width: `${score}%` }} />
                     </div>
                     <span className="text-sm font-bold w-6 tabular-nums text-white">{score}</span>
-                    <span className="text-xs font-semibold w-14" style={{ color: "#34D399" }}>{note}</span>
                   </div>
                 ))}
               </div>
+              <p className="text-xs mb-8" style={{ color: "rgba(255,255,255,0.28)" }}>
+                Illustrative figures. Your own scores depend entirely on your CV, answers and test results.
+              </p>
               <Link href="/signup"
                 className="inline-flex items-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all hover:opacity-90"
                 style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
@@ -271,18 +282,18 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "ATS Keywords Matched",  value: "84%", color: "#34D399" },
-                { label: "Psychometric Accuracy", value: "82%", color: "#22D3EE" },
-                { label: "STAR Completeness",      value: "91%", color: "#A78BFA" },
-                { label: "Commercial Awareness",   value: "78%", color: "#818CF8" },
+                { label: "Keyword match against the job spec",  value: "ATS", color: "#34D399" },
+                { label: "Accuracy and timing per question",    value: "Tests", color: "#22D3EE" },
+                { label: "Situation, Task, Action, Result",     value: "STAR", color: "#A78BFA" },
+                { label: "Filler words, pacing and confidence", value: "Delivery", color: "#818CF8" },
               ].map(stat => (
                 <div key={stat.label}
                   className="rounded-2xl p-6 text-center transition-all duration-200 hover:-translate-y-1"
                   style={glassCard}
                   onMouseEnter={e => { e.currentTarget.style.background = glassCardHover.background; e.currentTarget.style.borderColor = stat.color + "30" }}
                   onMouseLeave={e => { Object.assign(e.currentTarget.style, glassCard) }}>
-                  <p className="text-4xl font-black mb-1.5" style={{ color: stat.color }}>{stat.value}</p>
-                  <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.38)" }}>{stat.label}</p>
+                  <p className="text-2xl font-black mb-2" style={{ color: stat.color }}>{stat.value}</p>
+                  <p className="text-xs font-medium leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -310,39 +321,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══ TESTIMONIALS ══ */}
+      {/* ══ HOW SCORING WORKS ══ */}
       <section className="relative z-10 py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>Success stories</p>
-            <h2 className="text-3xl md:text-4xl font-black text-white">Graduates who landed offers</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>How the scoring works</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white">Measured, not guessed</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {testimonials.map(t => (
-              <div key={t.name}
+            {methodCards.map(c => (
+              <div key={c.title}
                 className="rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1"
                 style={glassCard}
                 onMouseEnter={e => { Object.assign(e.currentTarget.style, { background: glassCardHover.background, borderColor: "rgba(139,92,246,0.25)" }) }}
                 onMouseLeave={e => { Object.assign(e.currentTarget.style, glassCard) }}>
-                <div className="flex gap-1 mb-5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(255,255,255,0.55)" }}>&ldquo;{t.text}&rdquo;</p>
-                <div className="flex items-center gap-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}>
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">{t.name}</p>
-                    <p className="text-xs font-semibold" style={{ color: "#34D399" }}>{t.role}</p>
-                  </div>
-                </div>
+                <h3 className="text-base font-bold text-white mb-3">{c.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{c.text}</p>
               </div>
             ))}
           </div>
+          <p className="text-center text-xs mt-10" style={{ color: "rgba(255,255,255,0.25)" }}>
+            Scores are AI-generated estimates to guide your preparation — not predictions of hiring outcomes.
+          </p>
         </div>
       </section>
 

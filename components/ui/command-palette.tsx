@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import {
-  Search, FileText, Mic2, Video, Brain, BookOpen, ClipboardList,
+  Search, FileText, Mic2, Video, Brain, BookOpen,
   BarChart3, Settings, Sparkles, Zap, TrendingUp, ArrowRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -28,7 +28,6 @@ export function CommandPalette() {
     { id: "video",       label: "Start a mock interview",     description: "Record and review a video interview response",      icon: <Video className="w-4 h-4" />,      action: () => go("/video-interview"),    category: "Modules" },
     { id: "psych",       label: "Practise psychometric test", description: "Numerical, verbal, logical and more",               icon: <Brain className="w-4 h-4" />,      action: () => go("/psychometric"),       category: "Modules" },
     { id: "industry",    label: "Read market briefing",       description: "Live sector news and commercial awareness",         icon: <BookOpen className="w-4 h-4" />,   action: () => go("/industry-hub"),       category: "Modules" },
-    { id: "fullprocess", label: "Simulate full process",      description: "End-to-end graduate application simulation",        icon: <ClipboardList className="w-4 h-4" />, action: () => go("/full-process-exam"), category: "Modules" },
     { id: "dashboard",   label: "Go to Dashboard",            description: "Your progress overview",                            icon: <TrendingUp className="w-4 h-4" />, action: () => go("/dashboard"),          category: "Navigate" },
     { id: "reports",     label: "View my progress",           description: "Detailed analytics and score trends",               icon: <BarChart3 className="w-4 h-4" />,  action: () => go("/reports"),            category: "Navigate" },
     { id: "settings",    label: "Settings",                   description: "Update your profile and target companies",          icon: <Settings className="w-4 h-4" />,   action: () => go("/settings"),           category: "Navigate" },

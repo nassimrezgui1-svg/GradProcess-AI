@@ -1,3 +1,6 @@
+import { readLocal, writeLocal } from "@/lib/db/local"
+import { pushProfile } from "@/lib/db/cloud"
+
 export interface UserProfile {
   name: string
   email: string
@@ -8,8 +11,6 @@ export interface UserProfile {
   targetRole: string
   targetCompanies: string
 }
-
-const KEY = "gradprocess_profile"
 
 const defaults: UserProfile = {
   name: "",
@@ -23,18 +24,12 @@ const defaults: UserProfile = {
 }
 
 export function loadProfile(): UserProfile {
-  if (typeof window === "undefined") return defaults
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? { ...defaults, ...JSON.parse(raw) } : defaults
-  } catch {
-    return defaults
-  }
+  return { ...defaults, ...readLocal<Partial<UserProfile>>("gradprocess_profile", {}) }
 }
 
 export function saveProfile(profile: UserProfile) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(KEY, JSON.stringify(profile))
+  writeLocal("gradprocess_profile", profile)
+  void pushProfile(profile)
 }
 
 export function getInitials(name: string): string {

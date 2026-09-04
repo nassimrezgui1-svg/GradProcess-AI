@@ -31,7 +31,6 @@ Scores:
 - Video Interview: ${scores?.videoInterview || 0}/100
 - Psychometric: ${scores?.psychometric || 0}/100
 - Industry Knowledge: ${scores?.industryKnowledge || 0}/100
-- Full Process Exam: ${scores?.fullProcessExam || 0}/100
 - Overall: ${scores?.overall || 0}/100
 
 Return ONLY this JSON:

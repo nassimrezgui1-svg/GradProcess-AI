@@ -20,7 +20,6 @@ export const demoReadinessScores = {
   videoInterview: 64,
   psychometric: 78,
   industryKnowledge: 70,
-  fullProcessExam: 69,
   trend: [
     { date: "Week 1", score: 52 },
     { date: "Week 2", score: 58 },

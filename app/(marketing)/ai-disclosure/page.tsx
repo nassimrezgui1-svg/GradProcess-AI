@@ -97,11 +97,6 @@ export default function AiDisclosurePage() {
                   what: "Your selected sector",
                   output: "Commercial themes, watchlist, talking points for interviews",
                 },
-                {
-                  feature: "Full Process Exam",
-                  what: "Your exam answers and the question set",
-                  output: "Score, model answer, explanations",
-                },
               ].map(r => (
                 <div key={r.feature} className="p-4 rounded-xl border border-gray-100 bg-gray-50">
                   <p className="font-semibold text-gray-800 text-xs mb-2">{r.feature}</p>

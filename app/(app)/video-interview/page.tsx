@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Topbar } from "@/components/layout/topbar"
 import { cn } from "@/lib/utils"
 import { detectFillerWords, getFillerFeedback } from "@/lib/interview/filler-words"
+import { pickAnswerText } from "@/lib/interview/answer-text"
 import { createSession, saveSession, addAnswerToSession, finalizeSession, loadSessions } from "@/lib/interview/session-store"
 import { saveVideoScore } from "@/lib/scores"
 import type { InterviewSetup, InterviewMode, Difficulty, InterviewQuestion, AnswerAnalysis, FinalReport, StoredSession, DeliveryMetrics, Phase } from "@/lib/interview/types"
@@ -143,6 +144,9 @@ export default function VideoInterviewPage() {
   const [hasCamera, setHasCamera] = useState(false)
   const [hasMic, setHasMic] = useState(false)
   const [permError, setPermError] = useState("")
+  // Web Speech API is Chrome/Edge-only. Detected on the client so SSR markup matches.
+  const [speechSupported, setSpeechSupported] = useState(true)
+  const [speechError, setSpeechError] = useState("")
 
   // Analysis
   const [analyzing, setAnalyzing] = useState(false)
@@ -178,6 +182,12 @@ export default function VideoInterviewPage() {
       if (recordedUrl) URL.revokeObjectURL(recordedUrl)
     }
   }, [recordedUrl])
+
+  // Detect live-transcription support once mounted (Chrome/Edge only)
+  useEffect(() => {
+    const w = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown }
+    setSpeechSupported(Boolean(w.SpeechRecognition || w.webkitSpeechRecognition))
+  }, [])
 
   // ── Camera preview (kept running during interview) ──
   useEffect(() => {
@@ -284,9 +294,15 @@ export default function VideoInterviewPage() {
       setWpmLive(Math.round(words / mins))
     }, 1000)
 
-    // SpeechRecognition
+    // SpeechRecognition — Chrome/Edge only. Without it the user still records
+    // and can type their answer; the UI says so rather than failing silently.
+    setSpeechError("")
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) return
+    if (!SR) {
+      setSpeechSupported(false)
+      setPhase("recording")
+      return
+    }
 
     const rec = new SR()
     rec.continuous = true
@@ -309,8 +325,19 @@ export default function VideoInterviewPage() {
       setFillerCountLive(fd.total)
     }
 
-    rec.onerror = () => {}
-    try { rec.start() } catch {}
+    rec.onerror = (e: { error?: string }) => {
+      // "no-speech" and "aborted" are routine; anything else means the
+      // transcript will be incomplete, so tell the user to type instead.
+      if (e?.error === "no-speech" || e?.error === "aborted") return
+      setSpeechError(
+        e?.error === "not-allowed"
+          ? "Microphone access was blocked, so live transcription is off. Type your answer below to still get feedback."
+          : "Live transcription stopped unexpectedly. Type your answer below to still get feedback."
+      )
+    }
+    try { rec.start() } catch {
+      setSpeechError("Live transcription could not start. Type your answer below to still get feedback.")
+    }
 
     setPhase("recording")
   }, [])
@@ -325,7 +352,7 @@ export default function VideoInterviewPage() {
       try { recognitionRef.current.stop() } catch {}
     }
 
-    const finalTranscript = (transcriptRef.current + liveText).trim() || typedAnswer
+    const finalTranscript = pickAnswerText(transcriptRef.current + liveText, typedAnswer)
     const duration = secondsRef.current
     const words = finalTranscript.trim().split(/\s+/).filter(Boolean).length
     const wpm = Math.round(words / Math.max(duration / 60, 0.1))
@@ -841,6 +868,29 @@ export default function VideoInterviewPage() {
                   </div>
                 )}
 
+                {!speechSupported && mediaRecorderSupported && (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2 rounded-xl p-3" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                      <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#FBBF24" }} />
+                      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
+                        <span className="font-semibold" style={{ color: "#FBBF24" }}>Live transcription isn&apos;t supported in this browser.</span>{" "}
+                        Recording, scoring and feedback all still work — type your answer below as you speak, or switch to Chrome or Edge for automatic transcription.
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>Your response (type here — used for scoring)</label>
+                      <textarea
+                        value={typedAnswer}
+                        onChange={e => setTypedAnswer(e.target.value)}
+                        rows={4}
+                        placeholder="Type your answer here…"
+                        className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                        style={inputStyle}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {!mediaRecorderSupported && (
                   <div className="space-y-3">
                     <div className="flex items-start gap-2 rounded-xl p-3" style={{ background: "rgba(91,140,255,0.08)", border: "1px solid rgba(91,140,255,0.2)" }}>
@@ -978,13 +1028,24 @@ export default function VideoInterviewPage() {
                       {transcript}
                       <span className="italic" style={{ color: "rgba(255,255,255,0.35)" }}>{liveText}</span>
                     </p>
+                  ) : !speechSupported ? (
+                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      Live transcription isn&apos;t available in this browser — type your answer below and it will be scored the same way.
+                    </p>
                   ) : (
                     <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.35)" }}>Start speaking — your words will appear here…</p>
                   )}
                 </div>
 
-                {/* Fallback typed answer for unsupported browsers */}
-                {!mediaRecorderSupported && (
+                {speechError && (
+                  <div className="flex items-start gap-2 rounded-xl p-3" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#FBBF24" }} />
+                    <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{speechError}</p>
+                  </div>
+                )}
+
+                {/* Fallback typed answer when transcription or recording is unavailable */}
+                {(!mediaRecorderSupported || !speechSupported || speechError) && (
                   <div>
                     <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>Type your response here</label>
                     <textarea

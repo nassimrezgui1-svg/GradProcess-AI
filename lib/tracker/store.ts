@@ -1,20 +1,13 @@
 import type { TrackerApp, Stage, RoleBreakdown } from "./types"
-
-const KEY = "gradprocess_tracker"
+import { readLocal, writeLocal } from "@/lib/db/local"
+import { pushApplication, deleteApplication } from "@/lib/db/cloud"
 
 function load(): TrackerApp[] {
-  if (typeof window === "undefined") return []
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
+  return readLocal<TrackerApp[]>("gradprocess_tracker", [])
 }
 
 function save(apps: TrackerApp[]) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(KEY, JSON.stringify(apps))
+  writeLocal("gradprocess_tracker", apps)
 }
 
 export function loadApps(): TrackerApp[] {
@@ -29,6 +22,7 @@ export function addApp(app: TrackerApp): void {
   const apps = load()
   apps.unshift(app)
   save(apps)
+  void pushApplication(app)
 }
 
 export function updateApp(id: string, updates: Partial<TrackerApp>): TrackerApp | null {
@@ -37,12 +31,14 @@ export function updateApp(id: string, updates: Partial<TrackerApp>): TrackerApp 
   if (idx === -1) return null
   apps[idx] = { ...apps[idx], ...updates, updatedAt: new Date().toISOString() }
   save(apps)
+  void pushApplication(apps[idx])
   return apps[idx]
 }
 
 export function deleteApp(id: string): void {
   const apps = load().filter(a => a.id !== id)
   save(apps)
+  void deleteApplication(id)
 }
 
 export function moveToStage(id: string, stage: Stage, note?: string): TrackerApp | null {
@@ -55,6 +51,7 @@ export function moveToStage(id: string, stage: Stage, note?: string): TrackerApp
   app.updatedAt = new Date().toISOString()
   apps[idx] = app
   save(apps)
+  void pushApplication(app)
   return app
 }
 

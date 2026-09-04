@@ -1,4 +1,6 @@
 "use client"
+import { savePsychScore } from "@/lib/scores"
+import { readLocal, DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { useState, useEffect, useCallback } from "react"
 import { Topbar } from "@/components/layout/topbar"
 import { psychometricTests } from "@/lib/mock-data"
@@ -49,7 +51,6 @@ interface TestSession {
 
 type Phase = "selection" | "loading" | "active" | "results"
 
-const STORAGE_KEY = "gradprocess_psych_log"
 
 const iconMap: Record<string, React.ReactNode> = {
   calculator: <Calculator className="w-6 h-6" />,
@@ -85,18 +86,17 @@ export default function PsychometricPage() {
   const [loadingError, setLoadingError] = useState("")
   const [activeTab, setActiveTab] = useState<"tests" | "history" | "stats">("tests")
 
-  // Load test log from localStorage
+  // Load test log from the synced cache (hydrated from the user's account)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) setTestLog(JSON.parse(stored))
-    } catch {}
+    const read = () => setTestLog(readLocal<TestSession[]>("gradprocess_psych_log", []))
+    read()
+    window.addEventListener(DATA_SYNCED_EVENT, read)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, read)
   }, [])
 
   const saveSession = (session: TestSession) => {
-    const updated = [session, ...testLog]
-    setTestLog(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    setTestLog(prev => [session, ...prev])
+    savePsychScore({ ...session, score: session.score, date: session.date, testName: session.testName })
   }
 
   // Timer

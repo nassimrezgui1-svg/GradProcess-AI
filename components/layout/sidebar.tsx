@@ -1,12 +1,13 @@
 "use client"
 import { useEffect, useState } from "react"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { loadGamification, GamificationState, getLevelInfo, getLevelProgress } from "@/lib/gamification"
 import {
   LayoutDashboard, FileText, Mic2, Video, Brain,
-  BookOpen, ClipboardList, BarChart3, Settings, CreditCard,
+  BookOpen, BarChart3, Settings, CreditCard,
   Command, Flame, Zap, Target,
 } from "lucide-react"
 import { motion } from "framer-motion"
@@ -20,7 +21,6 @@ const navItems = [
   { href: "/video-interview",   label: "Video Interview",     icon: Video,           color: "#F472B6" },
   { href: "/psychometric",      label: "Psychometric Tests",  icon: Brain,           color: "#A78BFA" },
   { href: "/industry-hub",      label: "Industry Hub",        icon: BookOpen,        color: "#34D399" },
-  { href: "/full-process-exam", label: "Full Process Exam",   icon: ClipboardList,   color: "#FB923C" },
   { href: "/reports",           label: "Reports",             icon: BarChart3,       color: "#5B8CFF" },
   { href: "/billing",            label: "Billing",             icon: CreditCard,      color: "#34D399" },
   { href: "/settings",          label: "Settings",            icon: Settings,        color: "#94A3B8" },
@@ -30,7 +30,12 @@ export function Sidebar() {
   const pathname = usePathname()
   const [gam, setGam] = useState<GamificationState | null>(null)
 
-  useEffect(() => { setGam(loadGamification()) }, [])
+  useEffect(() => {
+    const refresh = () => setGam(loadGamification())
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
+  }, [])
 
   const progress  = gam ? getLevelProgress(gam.xp) : 0
   const levelInfo = gam ? getLevelInfo(gam.xp) : null

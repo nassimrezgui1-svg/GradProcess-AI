@@ -40,40 +40,45 @@ export interface ScoreStore {
   video: VideoScoreEntry[]
 }
 
-const KEY = "gradprocess_scores"
-const PSYCH_KEY = "gradprocess_psych_log"
+import { readLocal, writeLocal } from "@/lib/db/local"
+import { pushModuleResult } from "@/lib/db/cloud"
+
+const EMPTY: ScoreStore = { cv: [], star: [], video: [] }
 
 function load(): ScoreStore {
-  if (typeof window === "undefined") return { cv: [], star: [], video: [] }
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : { cv: [], star: [], video: [] }
-  } catch {
-    return { cv: [], star: [], video: [] }
-  }
+  return readLocal<ScoreStore>("gradprocess_scores", EMPTY)
 }
 
 function save(store: ScoreStore) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(KEY, JSON.stringify(store))
+  writeLocal("gradprocess_scores", store)
 }
 
 export function saveCVScore(entry: CVScoreEntry) {
   const store = load()
   store.cv = [entry, ...store.cv].slice(0, 20)
   save(store)
+  void pushModuleResult("cv", { ...entry })
 }
 
 export function saveSTARScore(entry: STARScoreEntry) {
   const store = load()
   store.star = [entry, ...store.star].slice(0, 50)
   save(store)
+  void pushModuleResult("star", { ...entry, label: entry.competency })
 }
 
 export function saveVideoScore(entry: VideoScoreEntry) {
   const store = load()
   store.video = [entry, ...store.video].slice(0, 20)
   save(store)
+  void pushModuleResult("video", { ...entry, label: entry.topic })
+}
+
+/** Psychometric sessions are logged separately but share the results table. */
+export function savePsychScore(entry: { score: number; date: string; testName: string } & Record<string, unknown>) {
+  const log = readLocal<Record<string, unknown>[]>("gradprocess_psych_log", [])
+  writeLocal("gradprocess_psych_log", [entry, ...log].slice(0, 50))
+  void pushModuleResult("psychometric", { ...entry, label: entry.testName })
 }
 
 export interface DashboardScores {
@@ -96,11 +101,7 @@ export function loadDashboardScores(): DashboardScores {
   const store = load()
 
   // Psychometric: average of all sessions
-  let psychLog: any[] = []
-  try {
-    const raw = localStorage.getItem(PSYCH_KEY)
-    psychLog = raw ? JSON.parse(raw) : []
-  } catch {}
+  const psychLog = readLocal<any[]>("gradprocess_psych_log", [])
 
   const cv = store.cv.length > 0 ? store.cv[0].score : null
   const star = store.star.length > 0
