@@ -11,7 +11,6 @@ const PROTECTED_PATHS = [
   "/industry",
   "/industry-hub",
   "/interview",
-  "/full-process-exam",
   "/coach",
   "/reports",
   "/analytics",

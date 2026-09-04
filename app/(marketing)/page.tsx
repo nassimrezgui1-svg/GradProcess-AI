@@ -169,7 +169,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] mb-5"
             style={{ color: "rgba(255,255,255,0.2)" }}>
-            Practice for every stage you&apos;ll actually face
+            Practise for every stage you&apos;ll actually face
           </p>
           <div className="flex flex-wrap justify-center gap-6">
             {stagesCovered.map(s => (
