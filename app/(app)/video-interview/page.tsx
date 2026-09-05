@@ -5,6 +5,7 @@ import { Topbar } from "@/components/layout/topbar"
 import { cn, getScoreBand } from "@/lib/utils"
 import { detectFillerWords, getFillerFeedback } from "@/lib/interview/filler-words"
 import { pickAnswerText } from "@/lib/interview/answer-text"
+import { loadProfile } from "@/lib/profile"
 import { createSession, saveSession, addAnswerToSession, finalizeSession, loadSessions } from "@/lib/interview/session-store"
 import { saveVideoScore } from "@/lib/scores"
 import type { InterviewSetup, InterviewMode, Difficulty, InterviewQuestion, AnswerAnalysis, FinalReport, StoredSession, DeliveryMetrics, Phase } from "@/lib/interview/types"
@@ -113,6 +114,19 @@ function makeSlug(text: string) {
 export default function VideoInterviewPage() {
   // Setup
   const [setup, setSetup] = useState<InterviewSetup>({ sector: "Consulting", role: "Strategy Consultant", mode: "Competency", difficulty: "Intermediate", questionCount: 4 })
+
+  // Default the interview to the user's stated target rather than always
+  // opening on "Consulting / Strategy Consultant". Settings collects these
+  // fields; nothing used to read them.
+  useEffect(() => {
+    const { targetSector, targetRole } = loadProfile()
+    if (!targetSector && !targetRole) return
+    setSetup(prev => ({
+      ...prev,
+      sector: SECTORS.includes(targetSector) ? targetSector : prev.sector,
+      role: targetRole.trim() || prev.role,
+    }))
+  }, [])
 
   const setSector = (sector: string) => {
     const roles = SECTOR_ROLES[sector] || []

@@ -473,7 +473,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [profile, setProfile] = useState<UserProfile>({
     name: "", email: "", university: "", degree: "", graduationYear: "",
-    targetSector: "", targetRole: "", targetCompanies: "",
+    targetSector: "", targetRole: "", targetCompanies: "", onboardingComplete: false,
   })
 
   useEffect(() => {

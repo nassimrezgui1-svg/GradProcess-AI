@@ -152,7 +152,7 @@ export async function pushGamification(state: GamificationState): Promise<void> 
 export async function pullProfile(): Promise<Partial<UserProfile> | null> {
   const { data, error } = await createClient()
     .from("user_profiles")
-    .select("name, email, university, degree, graduation_year_text, target_sector, target_role, target_companies")
+    .select("name, email, university, degree, graduation_year_text, target_sector, target_role, target_companies, onboarding_complete")
     .maybeSingle()
 
   if (error) {
@@ -172,6 +172,7 @@ export async function pullProfile(): Promise<Partial<UserProfile> | null> {
     targetCompanies: Array.isArray(data.target_companies)
       ? data.target_companies.join(", ")
       : (data.target_companies ?? ""),
+    onboardingComplete: Boolean(data.onboarding_complete),
   }
 }
 
@@ -193,6 +194,7 @@ export async function pushProfile(profile: UserProfile): Promise<void> {
       target_sector: profile.targetSector || null,
       target_role: profile.targetRole || null,
       target_companies: companies,
+      onboarding_complete: profile.onboardingComplete,
     })
     .eq("user_id", userId)
 
