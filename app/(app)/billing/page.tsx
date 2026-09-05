@@ -95,9 +95,15 @@ export default function BillingPage() {
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                     {isActive
-                      ? sub?.cancel_at_period_end
-                        ? `Cancels ${periodEnd}`
-                        : `Renews ${periodEnd}`
+                      ? periodEnd
+                        // Only claim a date when Stripe has actually given us one —
+                        // otherwise this rendered the literal string "Renews null".
+                        ? sub?.cancel_at_period_end
+                          ? `Cancels ${periodEnd}`
+                          : `Renews ${periodEnd}`
+                        : sub?.cancel_at_period_end
+                          ? "Cancels at the end of the current period"
+                          : "Active subscription"
                       : "Subscribe to access all features"
                     }
                   </p>

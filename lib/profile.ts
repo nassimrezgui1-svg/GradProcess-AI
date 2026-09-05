@@ -10,6 +10,8 @@ export interface UserProfile {
   targetSector: string
   targetRole: string
   targetCompanies: string
+  /** Set once the onboarding questions have been answered or skipped. */
+  onboardingComplete: boolean
 }
 
 const defaults: UserProfile = {
@@ -21,6 +23,7 @@ const defaults: UserProfile = {
   targetSector: "",
   targetRole: "",
   targetCompanies: "",
+  onboardingComplete: false,
 }
 
 export function loadProfile(): UserProfile {
@@ -40,4 +43,15 @@ export function getInitials(name: string): string {
     .map(n => n[0].toUpperCase())
     .slice(0, 2)
     .join("") || "?"
+}
+
+/** Records that the user has been through onboarding, so we stop routing them there. */
+export function markOnboardingComplete() {
+  saveProfile({ ...loadProfile(), onboardingComplete: true })
+}
+
+/** True when a signed-in user has never answered the onboarding questions. */
+export function needsOnboarding(): boolean {
+  const p = loadProfile()
+  return !p.onboardingComplete && !p.targetSector && !p.targetRole
 }

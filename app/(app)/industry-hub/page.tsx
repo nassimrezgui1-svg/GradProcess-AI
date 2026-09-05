@@ -1,8 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from "react"
 import { Topbar } from "@/components/layout/topbar"
-import { demoIndustryScores, sectorContent, sectors } from "@/lib/mock-data"
-import { cn, getScoreColor, getScoreBg, getScoreLabel } from "@/lib/utils"
+import { sectorContent, sectors } from "@/lib/mock-data"
 import {
   BookOpen, TrendingUp, Users, Briefcase, Code, Award,
   HelpCircle, ChevronDown, ChevronUp, ExternalLink, RefreshCw,
@@ -99,10 +98,6 @@ export default function IndustryHubPage() {
     setSourceFilter("all")
   }
 
-  const sectorScore = demoIndustryScores.sectors.find(
-    s => s.sector.toLowerCase() === activeSector.toLowerCase()
-  )?.score || 50
-
   const allSources = ["all", ...Array.from(new Set(news.map(n => n.source)))]
   const filteredNews = sourceFilter === "all" ? news : news.filter(n => n.source === sourceFilter)
 
@@ -118,29 +113,12 @@ export default function IndustryHubPage() {
       <Topbar title="Industry & Sector Hub" />
       <div className="flex-1 p-6 space-y-6">
 
-        {/* Sector progress row */}
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {demoIndustryScores.sectors.map(s => (
-            <button
-              key={s.sector}
-              onClick={() => handleSectorChange(s.sector)}
-              className="flex-shrink-0 rounded-2xl p-4 text-left transition-all min-w-[140px]"
-              style={activeSector === s.sector
-                ? { border: "2px solid rgba(91,140,255,0.5)", background: "rgba(91,140,255,0.1)" }
-                : { border: "2px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)" }
-              }
-            >
-              <p className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{s.sector}</p>
-              <p className={cn("text-2xl font-bold", getScoreColor(s.score))}>{s.score}</p>
-              <div className="h-1 rounded-full mt-2 overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
-                <div className={cn("h-full rounded-full", getScoreBg(s.score))} style={{ width: `${s.score}%` }} />
-              </div>
-              <p className={cn("text-xs mt-1", getScoreColor(s.score))}>{getScoreLabel(s.score)}</p>
-            </button>
-          ))}
-        </div>
-
-        {/* All sector chips */}
+        {/* Sector selector.
+            A per-sector "score" row used to sit above these chips, but the Hub has
+            no assessment to score — those numbers were demo data presented as the
+            reader's own progress, which is why the Dashboard (correctly) showed
+            "Not started" while this page implied otherwise. The chips below already
+            do the real job: choosing which sector briefing to read. */}
         <div className="flex flex-wrap gap-2">
           {sectors.map(s => (
             <button
@@ -166,16 +144,11 @@ export default function IndustryHubPage() {
                   style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff" }}>
                   Sector Knowledge
                 </span>
-                <span className={cn("text-xs font-semibold", getScoreColor(sectorScore))}>
-                  Your score: {sectorScore}/100
-                </span>
               </div>
               <h2 className="text-2xl font-bold mb-2">{content?.name || activeSector}</h2>
               <p className="text-sm leading-relaxed max-w-2xl" style={{ color: "rgba(255,255,255,0.75)" }}>{content?.overview || `Explore sector-specific knowledge, trends, and interview preparation for ${activeSector}.`}</p>
             </div>
             <div className="flex-shrink-0 ml-6 text-right">
-              <div className={cn("text-5xl font-bold", getScoreColor(sectorScore))}>{sectorScore}</div>
-              <div className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>/100</div>
               <button
                 onClick={() => fetchAiInsight(activeSector, "current trends")}
                 className="mt-3 flex items-center gap-1.5 text-xs text-white px-3 py-1.5 rounded-lg transition-colors hover:opacity-90"

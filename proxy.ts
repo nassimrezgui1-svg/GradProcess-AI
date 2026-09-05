@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr"
 
 const PROTECTED_PATHS = [
   "/dashboard",
+  "/onboarding",
   "/cv-tailor",
   "/cv-tailoring",
   "/star-builder",
@@ -60,8 +61,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Production: enforce active subscription (allow /billing to manage plan)
-  if (!pathname.startsWith("/billing")) {
+  // Production: enforce active subscription (allow /billing to manage plan, and
+  // /onboarding so account setup can never be blocked by a billing state).
+  if (!pathname.startsWith("/billing") && !pathname.startsWith("/onboarding")) {
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("status")

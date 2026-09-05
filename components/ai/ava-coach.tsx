@@ -5,6 +5,7 @@ import { X, Send, Loader2, Sparkles, ChevronDown, Lightbulb, TrendingUp, Zap } f
 import { loadDashboardScores } from "@/lib/scores"
 import { loadProfile } from "@/lib/profile"
 import { cn } from "@/lib/utils"
+import { MarkdownText } from "@/components/ui/markdown-text"
 
 interface Message { role: "ava" | "user"; text: string }
 
@@ -145,7 +146,9 @@ export function AvaCoach() {
                       ? "bg-surface-muted border border-surface-border text-ink rounded-tl-sm"
                       : "bg-gradient-to-br from-brand-purple to-brand-blue text-white rounded-tr-sm"
                   )}>
-                    {msg.text}
+                    {msg.role === "ava"
+                      ? <MarkdownText>{msg.text}</MarkdownText>
+                      : msg.text}
                   </div>
                 </motion.div>
               ))}
@@ -154,13 +157,18 @@ export function AvaCoach() {
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-brand-purple to-brand-blue flex items-center justify-center flex-shrink-0 shadow-purple">
                     <Sparkles className="w-3 h-3 text-white" />
                   </div>
-                  <div className="bg-surface-muted border border-surface-border rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex gap-1">
-                    {[0,1,2].map(i => (
-                      <motion.div key={i} className="w-1.5 h-1.5 bg-ink-faint rounded-full"
-                        animate={{ y: [0, -4, 0] }}
-                        transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.14 }}
-                      />
-                    ))}
+                  {/* Naming the wait makes a ~8s reply feel intentional rather
+                      than stalled — the dots alone gave no reassurance. */}
+                  <div className="bg-surface-muted border border-surface-border rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {[0,1,2].map(i => (
+                        <motion.div key={i} className="w-1.5 h-1.5 bg-ink-faint rounded-full"
+                          animate={{ y: [0, -4, 0] }}
+                          transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.14 }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-ink-faint">Ava is thinking…</span>
                   </div>
                 </div>
               )}

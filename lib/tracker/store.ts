@@ -3,7 +3,35 @@ import { readLocal, writeLocal } from "@/lib/db/local"
 import { pushApplication, deleteApplication } from "@/lib/db/cloud"
 
 function load(): TrackerApp[] {
-  return readLocal<TrackerApp[]>("gradprocess_tracker", [])
+  return dedupe(readLocal<TrackerApp[]>("gradprocess_tracker", []))
+}
+
+/**
+ * Collapses duplicate applications.
+ *
+ * Rows saved before `client_id` existed sync back with the database UUID as
+ * their id, so the same application could round-trip into a second row and
+ * show as two identical cards. Keep the first of each id, then the first of
+ * each company+role+stage triple, preserving order.
+ */
+export function dedupe(apps: TrackerApp[]): TrackerApp[] {
+  const seenIds = new Set<string>()
+  const seenKeys = new Set<string>()
+  const out: TrackerApp[] = []
+
+  for (const app of apps) {
+    if (app.id && seenIds.has(app.id)) continue
+    const key = [
+      (app.company ?? "").trim().toLowerCase(),
+      (app.role ?? "").trim().toLowerCase(),
+      app.stage,
+    ].join("::")
+    if (seenKeys.has(key)) continue
+    if (app.id) seenIds.add(app.id)
+    seenKeys.add(key)
+    out.push(app)
+  }
+  return out
 }
 
 function save(apps: TrackerApp[]) {

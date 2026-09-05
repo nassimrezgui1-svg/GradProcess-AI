@@ -19,20 +19,26 @@ export function getScoreBg(score: number): string {
   return "bg-rose-400"
 }
 
-export function getScoreLabel(score: number): string {
-  if (score >= 90) return "Application Ready ✨"
-  if (score >= 75) return "Strong Progress 🚀"
-  if (score >= 60) return "Developing Well"
-  if (score >= 40) return "Keep Improving"
-  return "Just Getting Started"
-}
-
+/**
+ * The single source of truth for readiness banding.
+ *
+ * Every surface that labels a score must derive it from here. Four separate
+ * implementations previously disagreed — the same 65/100 read as "Developing
+ * Well" on the Dashboard and "Strong Foundation" on Reports, with different
+ * thresholds again in the Video Interview and ReadinessRing — which made the
+ * scoring itself look arbitrary.
+ */
 export function getScoreBand(score: number): { label: string; color: string; emoji: string } {
   if (score >= 90) return { label: "Application Ready", color: "text-emerald-600", emoji: "✨" }
   if (score >= 75) return { label: "Strong Progress", color: "text-blue-600", emoji: "🚀" }
   if (score >= 60) return { label: "Developing Well", color: "text-blue-500", emoji: "📈" }
   if (score >= 40) return { label: "Keep Improving", color: "text-amber-600", emoji: "💪" }
   return { label: "Just Getting Started", color: "text-rose-500", emoji: "🌱" }
+}
+
+export function getScoreLabel(score: number): string {
+  const { label, emoji } = getScoreBand(score)
+  return score >= 75 ? `${label} ${emoji}` : label
 }
 
 export function getScoreRingColor(score: number): string {

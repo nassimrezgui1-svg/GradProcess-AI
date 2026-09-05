@@ -1,7 +1,9 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { loadProfile, saveProfile, markOnboardingComplete } from "@/lib/profile"
 import { sectors, competencies } from "@/lib/mock-data"
 import { CheckCircle, ArrowRight, GraduationCap, ChevronDown } from "lucide-react"
 
@@ -18,6 +20,8 @@ interface OnboardingData {
 }
 
 export default function OnboardingPage() {
+  const router = useRouter()
+  const [saving, setSaving] = useState(false)
   const [step, setStep] = useState<Step>(1)
   const [data, setData] = useState<OnboardingData>({
     targetSector: "",
@@ -31,6 +35,28 @@ export default function OnboardingPage() {
 
   const update = (key: keyof OnboardingData, value: string) => {
     setData(prev => ({ ...prev, [key]: value }))
+  }
+
+  // These answers used to be discarded — the final step was a plain link to
+  // /dashboard — which left every profile blank and gave the modules nothing
+  // to personalise from.
+  const handleFinish = async () => {
+    setSaving(true)
+    try {
+      saveProfile({
+        ...loadProfile(),
+        targetSector: data.targetSector.trim(),
+        targetRole: data.targetRole.trim(),
+        targetCompanies: data.targetCompanies.trim(),
+        university: data.university.trim(),
+        degree: data.degree.trim(),
+        graduationYear: data.graduationYear.trim(),
+      })
+      markOnboardingComplete()
+      router.push("/dashboard")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const steps = [
@@ -215,12 +241,13 @@ export default function OnboardingPage() {
               Continue <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors"
+            <button
+              onClick={handleFinish}
+              disabled={saving}
+              className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60"
             >
-              Start my preparation <ArrowRight className="w-4 h-4" />
-            </Link>
+              {saving ? "Saving…" : "Start my preparation"} <ArrowRight className="w-4 h-4" />
+            </button>
           )}
         </div>
       </div>
