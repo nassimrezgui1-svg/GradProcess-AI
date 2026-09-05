@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Topbar } from "@/components/layout/topbar"
-import { cn } from "@/lib/utils"
+import { cn, getScoreBand } from "@/lib/utils"
 import { detectFillerWords, getFillerFeedback } from "@/lib/interview/filler-words"
 import { pickAnswerText } from "@/lib/interview/answer-text"
 import { createSession, saveSession, addAnswerToSession, finalizeSession, loadSessions } from "@/lib/interview/session-store"
@@ -56,12 +56,8 @@ function scoreBgStyle(s: number): React.CSSProperties {
   return { background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)" }
 }
 
-function scoreLabel(s: number) {
-  if (s >= 75) return "Interview Ready"
-  if (s >= 60) return "Strong Foundation"
-  if (s >= 40) return "Developing"
-  return "Needs Practice"
-}
+// Banding comes from lib/utils so every surface agrees (see getScoreBand).
+const scoreLabel = (s: number) => getScoreBand(s).label
 
 function fmtTime(s: number) {
   const m = Math.floor(s / 60)

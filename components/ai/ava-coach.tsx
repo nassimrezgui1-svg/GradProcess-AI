@@ -5,6 +5,7 @@ import { X, Send, Loader2, Sparkles, ChevronDown, Lightbulb, TrendingUp, Zap } f
 import { loadDashboardScores } from "@/lib/scores"
 import { loadProfile } from "@/lib/profile"
 import { cn } from "@/lib/utils"
+import { MarkdownText } from "@/components/ui/markdown-text"
 
 interface Message { role: "ava" | "user"; text: string }
 
@@ -145,7 +146,9 @@ export function AvaCoach() {
                       ? "bg-surface-muted border border-surface-border text-ink rounded-tl-sm"
                       : "bg-gradient-to-br from-brand-purple to-brand-blue text-white rounded-tr-sm"
                   )}>
-                    {msg.text}
+                    {msg.role === "ava"
+                      ? <MarkdownText>{msg.text}</MarkdownText>
+                      : msg.text}
                   </div>
                 </motion.div>
               ))}

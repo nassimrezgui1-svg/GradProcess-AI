@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { getScoreBand } from "@/lib/utils"
 
 function ringColor(score: number) {
   if (score >= 75) return "#4ADE80"
@@ -9,13 +10,8 @@ function ringColor(score: number) {
   return "#FB7185"
 }
 
-function ringLabel(score: number) {
-  if (score >= 85) return "Application Ready"
-  if (score >= 75) return "Strong Candidate"
-  if (score >= 60) return "Developing Well"
-  if (score >= 40) return "Early Stage"
-  return "Getting Started"
-}
+// Banding comes from lib/utils so every surface agrees (see getScoreBand).
+const ringLabel = (score: number) => getScoreBand(score).label
 
 interface ReadinessRingProps {
   score: number

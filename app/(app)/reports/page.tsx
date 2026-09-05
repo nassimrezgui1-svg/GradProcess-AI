@@ -7,7 +7,7 @@ import { ModuleBars } from "@/components/charts/module-bars"
 import { loadDashboardScores, DashboardScores, VideoScoreEntry, CVScoreEntry, STARScoreEntry } from "@/lib/scores"
 import { loadSessions } from "@/lib/interview/session-store"
 import type { StoredSession } from "@/lib/interview/types"
-import { cn } from "@/lib/utils"
+import { cn, getScoreBand } from "@/lib/utils"
 import {
   FileText, Mic2, Video, Brain, BarChart3, TrendingUp,
   CheckCircle, AlertCircle, Clock, Target, Zap, MessageSquare,
@@ -20,12 +20,8 @@ function scoreColor(s: number) {
   if (s >= 40) return "#F59E0B"
   return "#F43F5E"
 }
-function scoreBand(s: number) {
-  if (s >= 75) return "Interview Ready"
-  if (s >= 60) return "Strong Foundation"
-  if (s >= 40) return "Developing"
-  return "Needs Practice"
-}
+// Banding comes from lib/utils so every surface agrees (see getScoreBand).
+const scoreBand = (s: number) => getScoreBand(s).label
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
 }

@@ -1,17 +1,18 @@
 "use client"
 import { useEffect, useState } from "react"
-import { DATA_SYNCED_EVENT } from "@/lib/db/local"
+import { DATA_SYNCED_EVENT, setActiveUser } from "@/lib/db/local"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { loadGamification, GamificationState, getLevelInfo, getLevelProgress } from "@/lib/gamification"
 import {
   LayoutDashboard, FileText, Mic2, Video, Brain,
   BookOpen, BarChart3, Settings, CreditCard,
-  Command, Flame, Zap, Target,
+  Command, Flame, Zap, Target, LogOut,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { LogoFull } from "@/components/brand/logo"
+import { createClient } from "@/lib/supabase/client"
 
 const navItems = [
   { href: "/dashboard",         label: "Dashboard",           icon: LayoutDashboard, color: "#5B8CFF" },
@@ -28,7 +29,9 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [gam, setGam] = useState<GamificationState | null>(null)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
     const refresh = () => setGam(loadGamification())
@@ -36,6 +39,21 @@ export function Sidebar() {
     window.addEventListener(DATA_SYNCED_EVENT, refresh)
     return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      // Local scope: sign out of this device only, leaving other sessions alone.
+      await createClient().auth.signOut({ scope: "local" })
+      // Cached data is namespaced per account; releasing the pointer stops the
+      // signed-out user's numbers showing during the redirect.
+      setActiveUser(null)
+      router.push("/login")
+      router.refresh()
+    } finally {
+      setLoggingOut(false)
+    }
+  }
 
   const progress  = gam ? getLevelProgress(gam.xp) : 0
   const levelInfo = gam ? getLevelInfo(gam.xp) : null
@@ -188,6 +206,20 @@ export function Sidebar() {
             Upgrade — £19.99/mo
           </button>
         </div>
+
+        {/* Single-device sign out — the only other option was "sign out of all
+            devices", buried in Settings, which is far too blunt for a shared computer. */}
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-60"
+          style={{ color: "#64748B" }}
+          onMouseEnter={e => { e.currentTarget.style.color = "#F87171"; e.currentTarget.style.background = "rgba(248,113,113,0.08)" }}
+          onMouseLeave={e => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.background = "transparent" }}
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          {loggingOut ? "Signing out…" : "Log out"}
+        </button>
       </div>
     </aside>
   )
