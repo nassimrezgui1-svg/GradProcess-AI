@@ -61,10 +61,10 @@ export async function POST(req: Request) {
     // when we resolved a code, otherwise the manual entry box.
     const discount = await resolvePromotionCode(stripe, promoCode)
 
-    const session = await stripe.checkout.sessions.create({
+    const baseParams = {
       customer: customerId,
-      mode: "subscription",
-      payment_method_types: ["card"],
+      mode: "subscription" as const,
+      payment_method_types: ["card" as const],
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl ?? `${appUrl}/dashboard?checkout=success`,
       cancel_url: cancelUrl ?? `${appUrl}/pricing?checkout=cancelled`,
@@ -72,16 +72,41 @@ export async function POST(req: Request) {
         metadata: { supabase_user_id: user.id, plan_key: plan },
       },
       metadata: { supabase_user_id: user.id, plan_key: plan },
-      ...(discount
-        ? { discounts: [{ promotion_code: discount }] }
-        : { allow_promotion_codes: true }),
-    })
+    }
 
-    return NextResponse.json({ url: session.url })
+    try {
+      const session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        ...(discount
+          ? { discounts: [{ promotion_code: discount }] }
+          : { allow_promotion_codes: true }),
+      })
+      return NextResponse.json({ url: session.url })
+    } catch (err) {
+      // A code restricted to another plan (our half-price code is monthly-only)
+      // makes Stripe reject the whole session. Tell the customer which plan the
+      // code is for instead of failing with a generic error.
+      if (discount && isCouponNotApplicable(err)) {
+        return NextResponse.json(
+          {
+            error:
+              "That discount code doesn't apply to this plan. It's valid on the monthly subscription — switch to monthly, or clear the code to continue.",
+          },
+          { status: 400 }
+        )
+      }
+      throw err
+    }
   } catch (err) {
     console.error("[stripe/checkout]", err)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
+}
+
+/** True when Stripe refused the session because the coupon matched nothing in it. */
+function isCouponNotApplicable(err: unknown): boolean {
+  const message = (err as { message?: string })?.message ?? ""
+  return /coupon|promotion code/i.test(message) && /cannot be redeemed|does not apply|not applicable/i.test(message)
 }
 
 /**
