@@ -34,11 +34,18 @@ export async function POST(req: Request) {
       if (!userId) break
 
       const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
+
+      // Read the interval off the subscription itself rather than trusting
+      // metadata, so a plan switched inside Stripe's billing portal is still
+      // recorded correctly.
+      const interval = sub.items?.data?.[0]?.price?.recurring?.interval ?? null
+
       const { error } = await supabase.from("subscriptions").upsert({
         user_id: userId,
         stripe_customer_id: sub.customer as string,
         stripe_subscription_id: sub.id,
         plan: "pro",
+        billing_interval: interval === "year" ? "year" : interval === "month" ? "month" : null,
         status: sub.status,
         current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         cancel_at_period_end: sub.cancel_at_period_end,
@@ -62,6 +69,7 @@ export async function POST(req: Request) {
         user_id: userId,
         stripe_subscription_id: sub.id,
         plan: "free",
+        billing_interval: null,
         status: "cancelled",
         cancel_at_period_end: false,
         updated_at: new Date().toISOString(),

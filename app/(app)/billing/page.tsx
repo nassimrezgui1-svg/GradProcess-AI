@@ -2,10 +2,12 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { CreditCard, CheckCircle, AlertCircle, Loader2, ExternalLink, Calendar, ArrowRight } from "lucide-react"
+import { PLANS, ANNUAL_SAVING, ANNUAL_SAVING_PCT, formatPrice, type PlanKey } from "@/lib/plans"
 
 type Sub = {
   plan: string
   status: string
+  billing_interval: "month" | "year" | null
   current_period_end: string | null
   cancel_at_period_end: boolean
   stripe_subscription_id: string | null
@@ -15,7 +17,8 @@ export default function BillingPage() {
   const [sub, setSub] = useState<Sub | null>(null)
   const [loading, setLoading] = useState(true)
   const [portalLoading, setPortalLoading] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanKey | null>(null)
+  const [checkoutError, setCheckoutError] = useState("")
 
   useEffect(() => {
     const supabase = createClient()
@@ -23,7 +26,7 @@ export default function BillingPage() {
       if (!user) return
       supabase
         .from("subscriptions")
-        .select("plan, status, current_period_end, cancel_at_period_end, stripe_subscription_id")
+        .select("plan, status, billing_interval, current_period_end, cancel_at_period_end, stripe_subscription_id")
         .eq("user_id", user.id)
         .single()
         .then(({ data }) => {
@@ -45,19 +48,26 @@ export default function BillingPage() {
     else setPortalLoading(false)
   }
 
-  async function startCheckout() {
-    setCheckoutLoading(true)
+  async function startCheckout(plan: PlanKey) {
+    setCheckoutLoading(plan)
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: "student_pro" }),
+      body: JSON.stringify({ plan }),
     })
-    const { url } = await res.json()
+    const { url, error } = await res.json()
     if (url) window.location.href = url
-    else setCheckoutLoading(false)
+    else {
+      setCheckoutError(error || "Could not start checkout. Please try again.")
+      setCheckoutLoading(null)
+    }
   }
 
   const isActive = sub?.status === "active" || sub?.status === "trialing"
+  const intervalLabel =
+    sub?.billing_interval === "year" ? " · billed annually"
+    : sub?.billing_interval === "month" ? " · billed monthly"
+    : ""
   const periodEnd = sub?.current_period_end
     ? new Date(sub.current_period_end).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     : null
@@ -100,10 +110,10 @@ export default function BillingPage() {
                         // otherwise this rendered the literal string "Renews null".
                         ? sub?.cancel_at_period_end
                           ? `Cancels ${periodEnd}`
-                          : `Renews ${periodEnd}`
+                          : `Renews ${periodEnd}${intervalLabel}`
                         : sub?.cancel_at_period_end
                           ? "Cancels at the end of the current period"
-                          : "Active subscription"
+                          : `Active subscription${intervalLabel}`
                       : "Subscribe to access all features"
                     }
                   </p>
@@ -171,12 +181,56 @@ export default function BillingPage() {
                 Open billing portal
               </button>
             ) : (
-              <button onClick={startCheckout} disabled={checkoutLoading}
-                className="flex items-center gap-2.5 text-sm font-black px-6 py-3.5 rounded-xl transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#fff", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
-                {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                Subscribe — £19.99/mo
-              </button>
+              <div className="space-y-3">
+                {(["annual", "monthly"] as PlanKey[]).map(key => {
+                  const p = PLANS[key]
+                  const isAnnual = key === "annual"
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => startCheckout(key)}
+                      disabled={checkoutLoading !== null}
+                      className="w-full flex items-center justify-between gap-3 text-left px-5 py-4 rounded-xl transition-all hover:opacity-90 disabled:opacity-50"
+                      style={isAnnual
+                        ? { background: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#fff", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }
+                        : { background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}
+                    >
+                      <span>
+                        <span className="flex items-center gap-2">
+                          <span className="text-sm font-black">
+                            {formatPrice(p.perMonth)}<span className="font-semibold opacity-70">/month</span>
+                          </span>
+                          {isAnnual && (
+                            <span className="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
+                              style={{ background: "rgba(255,255,255,0.22)" }}>
+                              Save {ANNUAL_SAVING_PCT}%
+                            </span>
+                          )}
+                        </span>
+                        <span className="block text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.65)" }}>
+                          {isAnnual
+                            ? `Billed ${formatPrice(p.amount)} a year — saves ${formatPrice(ANNUAL_SAVING)}`
+                            : "Billed monthly"}
+                        </span>
+                      </span>
+                      {checkoutLoading === key
+                        ? <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                        : <ArrowRight className="w-4 h-4 flex-shrink-0" />}
+                    </button>
+                  )
+                })}
+                {checkoutError && (
+                  <div className="flex items-start gap-2 rounded-xl px-4 py-3"
+                    style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)" }}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#F87171" }} />
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.75)" }}>{checkoutError}</p>
+                  </div>
+                )}
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  Have a discount code? Enter it at checkout, or on the{" "}
+                  <a href="/pricing" className="underline" style={{ color: "#818CF8" }}>pricing page</a>.
+                </p>
+              </div>
             )}
 
             <p className="mt-3 text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>

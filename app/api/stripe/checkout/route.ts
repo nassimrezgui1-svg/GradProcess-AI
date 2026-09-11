@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { getStripe, PLANS } from "@/lib/stripe"
+import { getStripe, priceIdFor } from "@/lib/stripe"
+import { isPlanKey } from "@/lib/plans"
 
 export async function POST(req: Request) {
   try {
@@ -12,11 +13,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { plan = "student_pro", successUrl, cancelUrl } = await req.json()
-    const planConfig = PLANS[plan as keyof typeof PLANS]
+    const { plan = "monthly", promoCode, successUrl, cancelUrl } = await req.json()
 
-    if (!planConfig) {
+    if (!isPlanKey(plan)) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 })
+    }
+    const priceId = priceIdFor(plan)
+
+    // A missing Price ID means the environment was never configured. Say so
+    // plainly rather than letting Stripe reject an empty price.
+    if (!priceId) {
+      console.error(`[stripe/checkout] no Price ID configured for the ${plan} plan`)
+      return NextResponse.json(
+        { error: "This plan is not available yet. Please try again later." },
+        { status: 503 }
+      )
     }
 
     // Get or create Stripe customer
@@ -44,22 +55,55 @@ export async function POST(req: Request) {
     // Fall back to the request origin so redirects work even if NEXT_PUBLIC_APP_URL is unset
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin
 
+    // A code arriving from our own pricing page is pre-applied so the discount
+    // is visible before the card is entered. Stripe rejects `discounts` and
+    // `allow_promotion_codes` together, so it is one or the other: pre-applied
+    // when we resolved a code, otherwise the manual entry box.
+    const discount = await resolvePromotionCode(stripe, promoCode)
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
-      line_items: [{ price: planConfig.priceId, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl ?? `${appUrl}/dashboard?checkout=success`,
       cancel_url: cancelUrl ?? `${appUrl}/pricing?checkout=cancelled`,
       subscription_data: {
-        metadata: { supabase_user_id: user.id },
+        metadata: { supabase_user_id: user.id, plan_key: plan },
       },
-      allow_promotion_codes: true,
+      metadata: { supabase_user_id: user.id, plan_key: plan },
+      ...(discount
+        ? { discounts: [{ promotion_code: discount }] }
+        : { allow_promotion_codes: true }),
     })
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
     console.error("[stripe/checkout]", err)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+/**
+ * Looks up an active promotion code by its customer-facing string.
+ * Returns the promotion code ID, or null so checkout falls back to letting the
+ * customer type a code themselves. An unknown or expired code must never block
+ * the purchase.
+ */
+async function resolvePromotionCode(
+  stripe: ReturnType<typeof getStripe>,
+  code: unknown
+): Promise<string | null> {
+  if (typeof code !== "string" || !code.trim()) return null
+  try {
+    const { data } = await stripe.promotionCodes.list({
+      code: code.trim(),
+      active: true,
+      limit: 1,
+    })
+    return data[0]?.id ?? null
+  } catch (err) {
+    console.error("[stripe/checkout] promotion code lookup failed", err)
+    return null
   }
 }

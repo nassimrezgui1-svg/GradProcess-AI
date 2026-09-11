@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { CheckCircle, ArrowRight, Zap, Loader2, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { PLANS, ANNUAL_SAVING, ANNUAL_SAVING_PCT, formatPrice, type PlanKey } from "@/lib/plans"
 
 const features = [
   "Unlimited CV scans with ATS scoring",
@@ -27,12 +28,24 @@ const faqs = [
     a: "Yes. £19.99/month is our initial launch fee. We may increase pricing after the launch period — subscribers locked in now keep their current rate.",
   },
   {
+    q: "What is the difference between monthly and annual?",
+    a: "Both give you exactly the same full access — only the billing period differs. Annual is £215.88 up front, which works out at £17.99 a month and saves you £24.00 against paying monthly for a year.",
+  },
+  {
+    q: "Do you have a discount code?",
+    a: "If you have a code, enter it on this page or at checkout and the discount is shown before you pay. Our launch code gives 50% off your first month on the monthly plan.",
+  },
+  {
+    q: "Can I switch between monthly and annual later?",
+    a: "Yes. Open the billing portal from your account and change plan there — Stripe prorates the difference automatically.",
+  },
+  {
     q: "Do you offer refunds?",
     a: "We offer a full refund within 7 days of your first payment if you're not satisfied — no questions asked.",
   },
   {
     q: "Is there a university or careers service plan?",
-    a: "Yes — contact us at hello@gradprocess.ai and we'll put together a cohort package for your careers service.",
+    a: "Yes — contact us at support@gradprocessai.com and we'll put together a cohort package for your careers service.",
   },
 ]
 
@@ -44,6 +57,11 @@ function PricingContent() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<{ id: string } | null>(null)
   const [subActive, setSubActive] = useState(false)
+  const [plan, setPlan] = useState<PlanKey>(params.get("plan") === "annual" ? "annual" : "monthly")
+  const [promo, setPromo] = useState("")
+  const [checkoutError, setCheckoutError] = useState("")
+
+  const selected = PLANS[plan]
 
   useEffect(() => {
     const supabase = createClient()
@@ -61,7 +79,8 @@ function PricingContent() {
 
   async function handleCheckout() {
     if (!user) {
-      window.location.href = "/signup?next=/pricing"
+      // Carry the chosen plan through signup so it survives the round trip.
+      window.location.href = `/signup?next=${encodeURIComponent(`/pricing?plan=${plan}`)}`
       return
     }
     if (subActive) {
@@ -69,14 +88,23 @@ function PricingContent() {
       return
     }
     setLoading(true)
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan: "student_pro" }),
-    })
-    const { url } = await res.json()
-    if (url) window.location.href = url
-    else setLoading(false)
+    setCheckoutError("")
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, promoCode: promo.trim() || undefined }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+      setCheckoutError(data.error || "Could not start checkout. Please try again.")
+    } catch {
+      setCheckoutError("Could not reach the payment service. Please try again.")
+    }
+    setLoading(false)
   }
 
   const ctaLabel = subActive ? "Go to Dashboard" : user ? "Subscribe now" : "Get started"
@@ -149,14 +177,38 @@ function PricingContent() {
                 Initial Launch Offer
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8 mb-10">
+              {/* Billing period toggle */}
+              <div className="inline-flex p-1 rounded-2xl mb-7"
+                style={{ background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.14)" }}>
+                {([
+                  { key: "monthly" as const, label: "Monthly" },
+                  { key: "annual" as const, label: `Annual · save ${ANNUAL_SAVING_PCT}%` },
+                ]).map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setPlan(opt.key)}
+                    aria-pressed={plan === opt.key}
+                    className="px-5 py-2 rounded-xl text-sm font-bold transition-all"
+                    style={plan === opt.key
+                      ? { background: "#FFFFFF", color: "#6366F1" }
+                      : { background: "transparent", color: "rgba(255,255,255,0.7)" }}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8 mb-8">
                 <div>
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-6xl font-black text-white tracking-tight">£19.99</span>
+                    <span className="text-6xl font-black text-white tracking-tight">
+                      {formatPrice(selected.perMonth)}
+                    </span>
                     <span className="text-xl font-semibold" style={{ color: "rgba(196,181,253,0.8)" }}>/month</span>
                   </div>
                   <p style={{ color: "rgba(196,181,253,0.7)" }} className="text-sm">
-                    Cancel any time · No hidden fees
+                    {plan === "annual"
+                      ? `Billed ${formatPrice(selected.amount)} a year — saves ${formatPrice(ANNUAL_SAVING)} against monthly`
+                      : "Billed monthly · Cancel any time · No hidden fees"}
                   </p>
                 </div>
                 <button
@@ -170,6 +222,41 @@ function PricingContent() {
                   }
                 </button>
               </div>
+
+              {/* Discount code */}
+              {!subActive && (
+                <div className="mb-8">
+                  <label htmlFor="promo" className="block text-xs font-semibold mb-2"
+                    style={{ color: "rgba(196,181,253,0.85)" }}>
+                    Discount code (optional)
+                  </label>
+                  <input
+                    id="promo"
+                    value={promo}
+                    onChange={e => setPromo(e.target.value.toUpperCase())}
+                    placeholder="e.g. HALFPRICE"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    className="w-full sm:w-72 px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide outline-none transition-colors"
+                    style={{
+                      background: "rgba(0,0,0,0.2)",
+                      border: "1px solid rgba(255,255,255,0.18)",
+                      color: "#FFFFFF",
+                    }}
+                  />
+                  <p className="text-xs mt-2" style={{ color: "rgba(196,181,253,0.6)" }}>
+                    Applied at checkout — you will see the discount before you pay.
+                  </p>
+                </div>
+              )}
+
+              {checkoutError && (
+                <div className="flex items-start gap-2.5 rounded-xl px-4 py-3 mb-8"
+                  style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-white" />
+                  <p className="text-sm text-white">{checkoutError}</p>
+                </div>
+              )}
 
               <div className="mb-8" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }} />
 
@@ -185,7 +272,9 @@ function PricingContent() {
           </div>
 
           <p className="text-center mt-5 text-xs" style={{ color: "rgba(255,255,255,0.22)" }}>
-            Price may increase after the initial launch period · Existing subscribers keep their rate
+            {plan === "annual"
+              ? `${formatPrice(PLANS.annual.amount)} billed once a year · Existing subscribers keep their rate`
+              : "Price may increase after the initial launch period · Existing subscribers keep their rate"}
           </p>
         </div>
       </section>
@@ -218,7 +307,7 @@ function PricingContent() {
             Start practising today.
           </h2>
           <p className="text-lg text-indigo-100 mb-10">
-            £19.99/mo · Full access · Cancel any time.
+            {formatPrice(selected.perMonth)}/mo · Full access · Cancel any time.
           </p>
           <button
             onClick={handleCheckout}
