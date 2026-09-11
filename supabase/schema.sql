@@ -311,7 +311,7 @@ BEGIN
   END;
 
   BEGIN
-    INSERT INTO public.subscriptions (user_id, plan, status) VALUES (NEW.id, 'free', 'active') ON CONFLICT DO NOTHING;
+    INSERT INTO public.subscriptions (user_id, plan, status) VALUES (NEW.id, 'free', 'incomplete') ON CONFLICT DO NOTHING;
   EXCEPTION WHEN OTHERS THEN
     RAISE WARNING 'handle_new_user: subscriptions insert failed: %', SQLERRM;
   END;

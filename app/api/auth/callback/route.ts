@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { hasProductAccess, PAYWALL_REDIRECT } from "@/lib/access"
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -42,21 +43,33 @@ export async function GET(request: NextRequest) {
       // Ensure redirect stays on the same origin
       let safeNext = next.startsWith("/") ? next : "/dashboard"
 
-      // First arrival (email confirmation or Google sign-in) goes to onboarding
-      // when the profile has no target set. Those questions were previously
-      // unreachable, so every account started blank and nothing personalised.
       if (safeNext === "/dashboard") {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-          const { data: profile } = await supabase
-            .from("user_profiles")
-            .select("onboarding_complete, target_sector, target_role")
-            .eq("user_id", user.id)
-            .maybeSingle()
+          const [{ data: profile }, { data: sub }] = await Promise.all([
+            supabase
+              .from("user_profiles")
+              .select("onboarding_complete, target_sector, target_role")
+              .eq("user_id", user.id)
+              .maybeSingle(),
+            supabase
+              .from("subscriptions")
+              .select("status")
+              .eq("user_id", user.id)
+              .maybeSingle(),
+          ])
 
-          const unstarted =
-            !profile?.onboarding_complete && !profile?.target_sector && !profile?.target_role
-          if (unstarted) safeNext = "/onboarding"
+          if (!hasProductAccess(sub?.status)) {
+            // Unpaid: go straight to pricing. Sending them through onboarding
+            // first would spend their effort on a product they cannot open.
+            safeNext = PAYWALL_REDIRECT
+          } else {
+            // Paid: first arrival goes to onboarding when no target is set, so
+            // the modules have something to personalise from.
+            const unstarted =
+              !profile?.onboarding_complete && !profile?.target_sector && !profile?.target_role
+            if (unstarted) safeNext = "/onboarding"
+          }
         }
       }
 

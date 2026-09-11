@@ -164,8 +164,16 @@ export default function SignupPage() {
 
           <button type="submit" disabled={loading || !name || !email || !isPasswordValid || !agreed}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white btn-gradient">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : "Create free account"}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : "Create account"}
           </button>
+
+          {/* Access needs a subscription, so saying "free account" here would be
+              a promise the product does not keep. */}
+          <p className="text-center text-xs" style={{ color: "#64748B" }}>
+            A subscription is required to use GradProcess AI. You&apos;ll choose a
+            plan straight after verifying your email — from {" "}
+            <span className="font-semibold" style={{ color: "#94A3B8" }}>£17.99/month</span>.
+          </p>
         </form>
 
         <p className="text-center text-xs mt-6" style={{ color: "#475569" }}>

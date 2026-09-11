@@ -1,13 +1,13 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Migration: stop storing the email address as a user's display name
+-- Migration: require payment before the product can be used
 --
--- handle_new_user() fell back to NEW.email when signup metadata had no "name",
--- so Settings → Full Name showed the account's email. Google SSO also puts the
--- display name under "full_name", which the old COALESCE never looked at.
+-- New accounts were created with status 'active' on the free plan, and the
+-- access check only looks at status — so every free signup passed the paywall
+-- and got the full product. New subscriptions now start 'incomplete', which
+-- fails that check until Stripe reports a payment.
 --
--- Now: try name, then full_name, then the Google "given_name family_name"
--- pair, and otherwise leave the field empty so the UI can prompt for it
--- rather than presenting an email as if it were a name.
+-- Existing rows are deliberately left alone: anyone who signed up before this
+-- runs already carries 'active' and keeps their access (grandfathered).
 --
 -- Idempotent — safe to run more than once.
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ BEGIN
       NULLIF(TRIM(NEW.raw_user_meta_data->>'given_name'), ''),
       NULLIF(TRIM(NEW.raw_user_meta_data->>'family_name'), '')
     )), ''),
-    ''  -- never the email: an empty name lets the UI ask for a real one
+    ''
   );
 
   BEGIN
@@ -43,8 +43,8 @@ BEGIN
   END;
 
   BEGIN
-    -- 'incomplete' = account created, nothing paid for yet. Access requires a
-    -- payment; see migration-2026-09-paywall.sql.
+    -- 'incomplete' = account created, nothing paid for yet. The access check
+    -- treats anything other than active/trialing as no access.
     INSERT INTO public.subscriptions (user_id, plan, status)
     VALUES (NEW.id, 'free', 'incomplete')
     ON CONFLICT DO NOTHING;
@@ -61,18 +61,15 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Repair existing rows: where the stored name is just the email, recover a real
--- name from auth metadata if one exists, otherwise blank it so the UI prompts.
-UPDATE public.user_profiles p
-SET name = COALESCE(
-  NULLIF(TRIM(u.raw_user_meta_data->>'name'), ''),
-  NULLIF(TRIM(u.raw_user_meta_data->>'full_name'), ''),
-  NULLIF(TRIM(CONCAT_WS(' ',
-    NULLIF(TRIM(u.raw_user_meta_data->>'given_name'), ''),
-    NULLIF(TRIM(u.raw_user_meta_data->>'family_name'), '')
-  )), ''),
-  ''
-)
+-- Change the column default too, so a row inserted by any other path is also
+-- unpaid until proven otherwise.
+ALTER TABLE public.subscriptions ALTER COLUMN status SET DEFAULT 'incomplete';
+
+-- Safety net: an account with no subscription row at all would be blocked by
+-- the fail-closed check, which is correct but confusing. Give every existing
+-- account a row, marked active so nobody already using the product loses it.
+INSERT INTO public.subscriptions (user_id, plan, status)
+SELECT u.id, 'free', 'active'
 FROM auth.users u
-WHERE u.id = p.user_id
-  AND LOWER(TRIM(p.name)) = LOWER(TRIM(p.email));
+LEFT JOIN public.subscriptions s ON s.user_id = u.id
+WHERE s.user_id IS NULL;

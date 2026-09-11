@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
+import { hasProductAccess, requiresSubscription, PAYWALL_REDIRECT } from "@/lib/access"
 
 const PROTECTED_PATHS = [
   "/dashboard",
@@ -61,18 +62,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Production: enforce active subscription (allow /billing to manage plan, and
-  // /onboarding so account setup can never be blocked by a billing state).
-  if (!pathname.startsWith("/billing") && !pathname.startsWith("/onboarding")) {
+  // Paywall. Signing up creates the account but grants nothing until Stripe
+  // reports a payment; billing and onboarding stay reachable so a blocked user
+  // can actually pay. Rules live in lib/access.ts so they can be tested.
+  if (requiresSubscription(pathname)) {
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("status")
       .eq("user_id", user.id)
-      .single()
+      .maybeSingle()
 
-    const isActive = sub?.status === "active" || sub?.status === "trialing"
-    if (!isActive) {
-      return NextResponse.redirect(new URL("/pricing?gate=1", request.url))
+    if (!hasProductAccess(sub?.status)) {
+      return NextResponse.redirect(new URL(PAYWALL_REDIRECT, request.url))
     }
   }
 

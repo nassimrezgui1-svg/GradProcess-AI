@@ -74,8 +74,10 @@ BEGIN
   END;
 
   BEGIN
+    -- 'incomplete' = account created, nothing paid for yet. Access requires a
+    -- payment; see migration-2026-09-paywall.sql.
     INSERT INTO public.subscriptions (user_id, plan, status)
-    VALUES (NEW.id, 'free', 'active')
+    VALUES (NEW.id, 'free', 'incomplete')
     ON CONFLICT DO NOTHING;
   EXCEPTION WHEN OTHERS THEN
     RAISE WARNING 'handle_new_user: subscriptions insert failed: %', SQLERRM;
