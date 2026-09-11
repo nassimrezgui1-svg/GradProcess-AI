@@ -10,7 +10,7 @@ const features = [
   "All psychometric test types — numerical, verbal, logical, abstract, SJT, attention to detail",
   "AI video interview practice & full delivery scoring",
   "STAR answer builder — all 23 competencies",
-  "Full 9-stage process simulation exam",
+  "Progress saved to your account and synced across devices",
   "13 sector industry hubs with commercial awareness drills",
   "Weekly readiness reports & progress analytics",
   "AI coach Ava — available 24/7",

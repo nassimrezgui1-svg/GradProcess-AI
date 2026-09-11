@@ -5,6 +5,17 @@ import { isPlanKey } from "@/lib/plans"
 
 export async function POST(req: Request) {
   try {
+    // Check configuration before anything else, and name what is missing.
+    // Building the client inside the main try block turned an unset key into a
+    // bare "Internal server error", which says nothing about the cause.
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("[stripe/checkout] STRIPE_SECRET_KEY is not set in this environment")
+      return NextResponse.json(
+        { error: "Payments are not configured yet. Please try again shortly." },
+        { status: 503 }
+      )
+    }
+
     const stripe = getStripe()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
