@@ -2,6 +2,7 @@
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, Tooltip,
 } from "recharts"
+import { ChartFrame } from "./chart-frame"
 
 interface ReadinessRadarProps {
   data: { module: string; score: number; fullMark: number }[]
@@ -11,7 +12,7 @@ interface ReadinessRadarProps {
 
 export function ReadinessRadar({ data, className, dark }: ReadinessRadarProps) {
   return (
-    <div className={className} style={{ width: "100%", height: 260 }}>
+    <ChartFrame className={className} height={260}>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data}>
           <PolarGrid stroke={dark ? "rgba(255,255,255,0.08)" : "#e2e8f0"} />
@@ -39,6 +40,6 @@ export function ReadinessRadar({ data, className, dark }: ReadinessRadarProps) {
           />
         </RadarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   )
 }

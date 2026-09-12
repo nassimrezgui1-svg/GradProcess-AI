@@ -502,13 +502,28 @@ export default function TrackerPage() {
   }, [])
 
   const filtered = sectorFilter === "All" ? apps : apps.filter(a => a.sector === sectorFilter)
-  const pipeline = PIPELINE_STAGES.map(s => ({ stage: s, apps: filtered.filter(a => a.stage === s.id) }))
-  const outcomes = TERMINAL_STAGES.map(s => ({ stage: s, apps: filtered.filter(a => a.stage === s.id) }))
 
+  // An application whose stage is not a known id would otherwise vanish: it
+  // matches no column, but getStage() resolves it to "saved" (non-terminal), so
+  // it still counted towards Active. The board then totalled one fewer than the
+  // stats bar. Normalise once, up front, so every application lands in exactly
+  // one column and is counted exactly once.
+  const normalised = filtered.map(a =>
+    STAGES.some(s => s.id === a.stage) ? a : { ...a, stage: "saved" as Stage }
+  )
+
+  const pipeline = PIPELINE_STAGES.map(s => ({ stage: s, apps: normalised.filter(a => a.stage === s.id) }))
+  const outcomes = TERMINAL_STAGES.map(s => ({ stage: s, apps: normalised.filter(a => a.stage === s.id) }))
+
+  // Counted from the same list the board draws, so the bar can never disagree
+  // with the columns beneath it. These previously read from the unfiltered
+  // `apps`, so choosing a sector left the totals describing a different set of
+  // applications than the one on screen.
+  const INTERVIEW_STAGES = ["video_interview", "first_interview", "assessment_centre", "final_interview"]
   const stats = {
-    active: apps.filter(a => !getStage(a.stage).terminal).length,
-    interviews: apps.filter(a => ["first_interview", "assessment_centre", "final_interview", "video_interview"].includes(a.stage)).length,
-    offers: apps.filter(a => a.stage === "offer").length,
+    active: normalised.filter(a => !getStage(a.stage).terminal).length,
+    interviews: normalised.filter(a => INTERVIEW_STAGES.includes(a.stage)).length,
+    offers: normalised.filter(a => a.stage === "offer").length,
   }
 
   const handleAdd = (app: TrackerApp) => {

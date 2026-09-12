@@ -15,6 +15,8 @@ import {
 interface Experience {
   id: string
   text: string
+  /** Seeded illustration, not something the user did. Never presented as theirs. */
+  example?: boolean
 }
 
 interface GeneratedScenario {
@@ -26,10 +28,14 @@ interface GeneratedScenario {
 }
 
 export default function STARBuilderPage() {
+  // These are illustrations of the right level of detail, not the user's own
+  // experiences. They were previously indistinguishable from entries the user
+  // had added, so someone could generate a polished STAR answer from an
+  // achievement they never had and take it into a real interview.
   const [experiences, setExperiences] = useState<Experience[]>([
-    { id: "e1", text: "Led a team of 5 students to organise a charity fundraiser that raised £3,000" },
-    { id: "e2", text: "Resolved a conflict between two team members during a group project deadline" },
-    { id: "e3", text: "Identified an error in a client report 2 hours before a board presentation at my internship" },
+    { id: "e1", text: "Led a team of 5 students to organise a charity fundraiser that raised £3,000", example: true },
+    { id: "e2", text: "Resolved a conflict between two team members during a group project deadline", example: true },
+    { id: "e3", text: "Identified an error in a client report 2 hours before a board presentation at my internship", example: true },
   ])
   const [newExperience, setNewExperience] = useState("")
   const [selectedExperienceId, setSelectedExperienceId] = useState<string | null>(null)
@@ -156,6 +162,14 @@ export default function STARBuilderPage() {
                 </button>
               </div>
 
+              {experiences.some(e => e.example) && (
+                <p className="text-xs mb-2 leading-relaxed" style={{ color: "rgba(251,191,36,0.75)" }}>
+                  The entries marked <strong>Example</strong> are samples showing the level of
+                  detail that works well. Replace them with your own experiences — an answer
+                  built from a sample is not yours to tell in an interview.
+                </p>
+              )}
+
               {/* Experience list */}
               <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                 {experiences.map(exp => {
@@ -171,7 +185,13 @@ export default function STARBuilderPage() {
                         background: isActive ? "rgba(91,140,255,0.08)" : "rgba(255,255,255,0.03)",
                       }}
                     >
-                      <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.65)" }}>{exp.text}</p>
+                      {exp.example && (
+                        <span className="inline-block mb-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                          style={{ background: "rgba(251,191,36,0.15)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.3)" }}>
+                          Example
+                        </span>
+                      )}
+                      <p className="text-sm leading-relaxed mb-3" style={{ color: exp.example ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.65)" }}>{exp.text}</p>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleGenerate(exp)}

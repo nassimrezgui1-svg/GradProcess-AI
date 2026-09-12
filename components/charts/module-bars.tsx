@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts"
+import { ChartFrame } from "./chart-frame"
 
 interface ModuleBarsProps {
   data: { name: string; score: number }[]
@@ -33,7 +34,7 @@ export function ModuleBars({ data, className, horizontal = false, dark = false }
 
   if (horizontal) {
     return (
-      <div className={className} style={{ width: "100%", height: Math.max(200, data.length * 45) }}>
+      <ChartFrame className={className} height={Math.max(200, data.length * 45)}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 20, left: 80, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
@@ -47,12 +48,12 @@ export function ModuleBars({ data, className, horizontal = false, dark = false }
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </ChartFrame>
     )
   }
 
   return (
-    <div className={className} style={{ width: "100%", height: 220 }}>
+    <ChartFrame className={className} height={220}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
@@ -66,6 +67,6 @@ export function ModuleBars({ data, className, horizontal = false, dark = false }
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   )
 }

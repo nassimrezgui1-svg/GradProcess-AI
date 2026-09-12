@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts"
+import { ChartFrame } from "./chart-frame"
 
 interface ScoreTrendProps {
   data: { date: string; score: number }[]
@@ -17,7 +18,7 @@ interface ScoreTrendProps {
 
 export function ScoreTrend({ data, className }: ScoreTrendProps) {
   return (
-    <div className={className} style={{ width: "100%", height: 200 }}>
+    <ChartFrame className={className} height={200}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -53,6 +54,6 @@ export function ScoreTrend({ data, className }: ScoreTrendProps) {
           />
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   )
 }
