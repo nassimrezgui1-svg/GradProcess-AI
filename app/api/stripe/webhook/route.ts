@@ -40,7 +40,8 @@ export async function POST(req: Request) {
       // recorded correctly.
       const interval = sub.items?.data?.[0]?.price?.recurring?.interval ?? null
 
-      const { error } = await supabase.from("subscriptions").upsert({
+      // Everything we know about the subscription.
+      const full = {
         user_id: userId,
         stripe_customer_id: sub.customer as string,
         stripe_subscription_id: sub.id,
@@ -50,12 +51,47 @@ export async function POST(req: Request) {
         current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         cancel_at_period_end: sub.cancel_at_period_end,
         updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" })
-      if (error) console.error("[webhook] subscriptions upsert failed", error.message)
+      }
 
-      // Sync plan field on user_profiles table too
+      const { error } = await supabase
+        .from("subscriptions")
+        .upsert(full, { onConflict: "user_id" })
+
+      if (error) {
+        // A customer has paid. If the full write is refused — a CHECK
+        // constraint on plan once did exactly this, leaving a paying customer
+        // locked out — fall back to the fields that actually grant access.
+        // Better a row missing its descriptive columns than a paid account
+        // that cannot get in.
+        console.error("[webhook] subscriptions upsert failed:", error.message, "— retrying with access fields only")
+
+        const { error: retryError } = await supabase
+          .from("subscriptions")
+          .upsert({
+            user_id: userId,
+            stripe_customer_id: full.stripe_customer_id,
+            stripe_subscription_id: full.stripe_subscription_id,
+            status: full.status,
+            current_period_end: full.current_period_end,
+            cancel_at_period_end: full.cancel_at_period_end,
+            updated_at: full.updated_at,
+          }, { onConflict: "user_id" })
+
+        if (retryError) {
+          // Both writes failed: the customer is paying and cannot get in.
+          // Return non-2xx so Stripe retries this event automatically.
+          console.error("[webhook] CRITICAL: paid subscription could not be recorded for", userId, retryError.message)
+          return NextResponse.json({ error: "Could not record subscription" }, { status: 500 })
+        }
+      }
+
+      // Descriptive only — never allow it to affect whether access was granted.
       if (sub.status === "active") {
-        await supabase.from("user_profiles").update({ plan: "pro" }).eq("user_id", userId)
+        const { error: profileError } = await supabase
+          .from("user_profiles")
+          .update({ plan: "pro" })
+          .eq("user_id", userId)
+        if (profileError) console.error("[webhook] user_profiles plan sync failed:", profileError.message)
       }
       break
     }
