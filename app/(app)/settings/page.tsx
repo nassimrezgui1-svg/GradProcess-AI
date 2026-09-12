@@ -167,7 +167,7 @@ function SecurityTab() {
                 style={{ "--tw-ring-color": "#6D5EF3" } as React.CSSProperties}
               />
               <button type="button" onClick={() => setShowCurrent(s => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900">
                 {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -185,7 +185,7 @@ function SecurityTab() {
                 style={{ "--tw-ring-color": "#6D5EF3" } as React.CSSProperties}
               />
               <button type="button" onClick={() => setShowNew(s => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900">
                 {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -244,7 +244,7 @@ function SecurityTab() {
                 <p className="text-xs font-medium text-gray-700">
                   {i === 0 ? "Current session" : "Other session"}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">
+                <p className="text-xs text-gray-600 mt-0.5 truncate max-w-xs">
                   {s.user_agent ? s.user_agent.slice(0, 60) + "…" : "Unknown device"}
                 </p>
               </div>
@@ -376,7 +376,7 @@ function PrivacyTab() {
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
             <div>
               <p className="text-sm font-medium text-gray-700">Essential cookies</p>
-              <p className="text-xs text-gray-400 mt-0.5">Authentication, security, and session management — always on</p>
+              <p className="text-xs text-gray-600 mt-0.5">Authentication, security, and session management — always on</p>
             </div>
             <div className="w-10 h-5 rounded-full bg-emerald-500 flex items-center justify-end pr-0.5 flex-shrink-0">
               <span className="w-4 h-4 bg-white rounded-full shadow" />
@@ -387,7 +387,7 @@ function PrivacyTab() {
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
             <div>
               <p className="text-sm font-medium text-gray-700">Analytics cookies</p>
-              <p className="text-xs text-gray-400 mt-0.5">Understand how features are used so we can improve</p>
+              <p className="text-xs text-gray-600 mt-0.5">Understand how features are used so we can improve</p>
             </div>
             <Toggle on={analytics} onToggle={() => setAnalytics(a => !a)} />
           </div>
@@ -396,7 +396,7 @@ function PrivacyTab() {
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
             <div>
               <p className="text-sm font-medium text-gray-700">Marketing cookies</p>
-              <p className="text-xs text-gray-400 mt-0.5">Personalised content and advertising</p>
+              <p className="text-xs text-gray-600 mt-0.5">Personalised content and advertising</p>
             </div>
             <Toggle on={marketing} onToggle={() => setMarketing(m => !m)} />
           </div>
@@ -430,14 +430,14 @@ function PrivacyTab() {
               <Download className="w-4 h-4 text-gray-500" />
               <div className="text-left">
                 <p className="font-medium text-gray-700">Export my data</p>
-                <p className="text-xs text-gray-400 mt-0.5">Download all your GradProcess data as JSON</p>
+                <p className="text-xs text-gray-600 mt-0.5">Download all your GradProcess data as JSON</p>
               </div>
             </div>
             {exportDone
               ? <Check className="w-4 h-4 text-emerald-500" />
               : dataExportLoading
-                ? <span className="text-xs text-gray-400">Preparing…</span>
-                : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                ? <span className="text-xs text-gray-600">Preparing…</span>
+                : <ChevronRight className="w-4 h-4 text-gray-600" />}
           </button>
         </div>
       </div>
@@ -459,7 +459,7 @@ function PrivacyTab() {
               className="flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-gray-100 transition-colors text-sm text-gray-700 font-medium"
             >
               {label}
-              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <ChevronRight className="w-4 h-4 text-gray-600" />
             </a>
           ))}
         </div>
@@ -508,17 +508,21 @@ export default function SettingsPage() {
       <div className="flex-1 p-6">
         <div className="max-w-3xl">
           {/* Tab strip */}
-          <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 mb-6 overflow-x-auto">
+          {/* The strip was a light bg-gray-100 island in an otherwise dark app,
+              and its inactive labels (gray-500 on gray-100) measured 4.39:1 —
+              under the 4.5:1 WCAG AA floor for small text. */}
+          <div className="flex gap-1 rounded-2xl p-1 mb-6 overflow-x-auto"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 flex-shrink-0 py-2 px-3 rounded-xl text-sm font-medium transition-all",
-                  activeTab === tab.id
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-500 hover:text-gray-700"
-                )}
+                aria-current={activeTab === tab.id ? "page" : undefined}
+                className="flex items-center gap-2 flex-shrink-0 py-2 px-3 rounded-xl text-sm font-medium transition-all"
+                style={activeTab === tab.id
+                  ? { background: "rgba(91,140,255,0.15)", color: "#8FB4FF", border: "1px solid rgba(91,140,255,0.3)" }
+                  : { color: "rgba(255,255,255,0.72)", border: "1px solid transparent" }
+                }
               >
                 {tab.icon}
                 <span className="hidden sm:block">{tab.label}</span>
@@ -569,7 +573,7 @@ export default function SettingsPage() {
                   <div key={n.label} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
                     <div>
                       <p className="text-sm font-medium text-gray-700">{n.label}</p>
-                      <p className="text-xs text-gray-400">{n.sub}</p>
+                      <p className="text-xs text-gray-600">{n.sub}</p>
                     </div>
                     <Toggle on={n.on} onToggle={() => {}} />
                   </div>

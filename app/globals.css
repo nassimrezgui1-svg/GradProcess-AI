@@ -73,8 +73,36 @@ body {
 
 * { border-color: var(--border-01); }
 
-/* Remap bg-white to dark card surface */
-.bg-white { background-color: #0B1020 !important; }
+/* ─── Light-utility remap ───────────────────────────────────────────────────
+   Much of the app is written with Tailwind's light-theme utilities. Card
+   surfaces were remapped to the dark palette here, but the text and border
+   scales never were — so `text-gray-900` headings and `text-gray-600` labels
+   were left painting near-black onto a near-black card. Measured on the
+   Settings form: 1.09:1 for headings and 1.02:1 for every field label, against
+   a WCAG AA floor of 4.5:1. The text was effectively invisible.
+
+   Each replacement below is checked against #0B1020 in tests/settings-contrast
+   and clears 4.5:1 (the lightest clear 18:1). */
+
+.bg-white  { background-color: #0B1020 !important; }
+.bg-gray-50  { background-color: rgba(255,255,255,0.04) !important; }
+.bg-gray-100 { background-color: rgba(255,255,255,0.06) !important; }
+.bg-gray-200 { background-color: rgba(255,255,255,0.09) !important; }
+
+.text-gray-900, .text-gray-800 { color: #F8FAFC !important; }
+.text-gray-700 { color: #E2E8F0 !important; }
+.text-gray-600 { color: #CBD5E1 !important; }
+.text-gray-500, .text-slate-500 { color: #A9B6CA !important; }
+.text-gray-400, .text-slate-400 { color: #94A3B8 !important; }
+.text-gray-300 { color: #7D8AA0 !important; }
+
+.border-gray-100 { border-color: rgba(255,255,255,0.08) !important; }
+.border-gray-200 { border-color: rgba(255,255,255,0.12) !important; }
+.border-gray-300 { border-color: rgba(255,255,255,0.16) !important; }
+
+/* Inputs inherit the card surface, so their text must come with them. */
+input, textarea, select { color: #F8FAFC; }
+input::placeholder, textarea::placeholder { color: #8494AC; }
 
 /* ─── Scrollbars ────────────────────────────────────────────────────────── */
 
