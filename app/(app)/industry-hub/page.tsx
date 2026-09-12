@@ -8,6 +8,7 @@ import {
   Loader2, Newspaper, Zap, CheckCircle, Clock, Globe,
   Brain, MessageSquare, Star, AlertCircle, ChevronRight
 } from "lucide-react"
+import { postAI } from "@/lib/ai/request"
 
 interface NewsItem {
   id: string
@@ -42,6 +43,7 @@ export default function IndustryHubPage() {
   const [newsError, setNewsError] = useState("")
   const [newsFetched, setNewsFetched] = useState(false)
   const [aiInsight, setAiInsight] = useState<any>(null)
+  const [insightError, setInsightError] = useState("")
   const [insightLoading, setInsightLoading] = useState(false)
   const [sourceFilter, setSourceFilter] = useState<string>("all")
 
@@ -68,14 +70,15 @@ export default function IndustryHubPage() {
   const fetchAiInsight = async (sector: string, topic: string) => {
     setInsightLoading(true)
     setAiInsight(null)
+    setInsightError("")
     try {
-      const res = await fetch("/api/ai/sector-insight", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sector, topic }),
-      })
-      const data = await res.json()
+      // This had no timeout and no catch: it stored whatever came back, so a
+      // gateway error was kept as though it were an insight, and a failure
+      // simply stopped the spinner with nothing shown.
+      const data = await postAI<any>("/api/ai/sector-insight", { sector, topic })
       setAiInsight(data)
+    } catch (e: any) {
+      setInsightError(e?.message || "Could not generate this insight. Please try again.")
     } finally {
       setInsightLoading(false)
     }
@@ -160,11 +163,16 @@ export default function IndustryHubPage() {
           </div>
 
           {/* AI insight panel */}
-          {(insightLoading || aiInsight) && (
+          {(insightLoading || aiInsight || insightError) && (
             <div className="mt-4 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
               {insightLoading ? (
                 <div className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
                   <Loader2 className="w-4 h-4 animate-spin" /> Generating AI insight for {activeSector}...
+                </div>
+              ) : insightError ? (
+                <div className="flex items-start gap-2 text-sm" style={{ color: "#FCA5A5" }}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{insightError}</span>
                 </div>
               ) : aiInsight && (
                 <div className="space-y-3">

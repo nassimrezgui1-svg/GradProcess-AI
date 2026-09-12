@@ -13,6 +13,7 @@ import {
   X, AlertCircle, MapPin, Building2, Tag, Link2, FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { postAI } from "@/lib/ai/request"
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -272,12 +273,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
     if (!text) return
     setExtracting(true); setExtractError("")
     try {
-      const res = await fetch("/api/ai/tracker/extract-role", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      const data = await postAI<any>("/api/ai/tracker/extract-role", { text })
       setForm({
         company: data.company ?? "",
         role: data.role ?? "",

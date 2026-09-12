@@ -11,10 +11,11 @@ import { saveVideoScore } from "@/lib/scores"
 import type { InterviewSetup, InterviewMode, Difficulty, InterviewQuestion, AnswerAnalysis, FinalReport, StoredSession, DeliveryMetrics, Phase } from "@/lib/interview/types"
 import {
   Video, Mic, MicOff, VideoOff, Play, Square,
-  CheckCircle, AlertCircle, Sparkles, ChevronRight, Timer,
+  CheckCircle, AlertCircle, Sparkles, ChevronRight, Timer, X,
   TrendingUp, MessageSquare, Target, Zap, Info, ArrowRight,
   BarChart3, Trophy, BookOpen, RefreshCw, Clock, Volume2, Download,
 } from "lucide-react"
+import { postAI } from "@/lib/ai/request"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -138,6 +139,7 @@ export default function VideoInterviewPage() {
   const [questions, setQuestions] = useState<InterviewQuestion[]>([])
   const [qIndex, setQIndex] = useState(0)
   const [generatingQs, setGeneratingQs] = useState(false)
+  const [aiError, setAiError] = useState("")
 
   // Recording
   const [isRecording, setIsRecording] = useState(false)
@@ -239,13 +241,9 @@ export default function VideoInterviewPage() {
   // ── Generate questions ────────────────────────────────
   const generateQuestions = async () => {
     setGeneratingQs(true)
+    setAiError("")
     try {
-      const res = await fetch("/api/ai/interview/generate-questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setup }),
-      })
-      const data = await res.json()
+      const data = await postAI<any>("/api/ai/interview/generate-questions", { setup })
       const qs: InterviewQuestion[] = (data.questions || []).map((q: any, i: number) => ({
         ...q,
         id: q.id || `q${i}`,
@@ -256,6 +254,9 @@ export default function VideoInterviewPage() {
       const sess = createSession(setup, qs)
       setSession(sess)
       return qs
+    } catch (e: any) {
+      setAiError(e?.message || "Could not generate interview questions. Please try again.")
+      return []
     } finally {
       setGeneratingQs(false)
     }
@@ -381,19 +382,15 @@ export default function VideoInterviewPage() {
       : questions[qIndex]
 
     setAnalyzing(true)
+    setAiError("")
     try {
-      const res = await fetch("/api/ai/interview/analyze-answer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: currentQ,
-          transcript: finalTranscript,
-          setup,
-          fillerData,
-          deliveryData,
-        }),
+      const analysis = await postAI<any>("/api/ai/interview/analyze-answer", {
+        question: currentQ,
+        transcript: finalTranscript,
+        setup,
+        fillerData,
+        deliveryData,
       })
-      const analysis = await res.json()
       const full: AnswerAnalysis = {
         questionId: currentQ.id,
         questionText: currentQ.text,
@@ -422,10 +419,16 @@ export default function VideoInterviewPage() {
         setSession(updated)
         saveSession(updated)
       }
+    } catch (e: any) {
+      // Previously try/finally with no catch: a failed analysis moved the user
+      // to the feedback screen with nothing on it and no explanation.
+      setAiError(e?.message || "Could not analyse that answer. Your recording is safe — please try again.")
+      setAnalyzing(false)
+      return
     } finally {
       setAnalyzing(false)
-      setPhase("feedback")
     }
+    setPhase("feedback")
   }, [liveText, typedAnswer, questions, qIndex, setup, answers, session, isFollowUp, currentAnalysis])
 
   const handleNextQuestion = () => {
@@ -447,14 +450,11 @@ export default function VideoInterviewPage() {
 
   const handleFinishInterview = async () => {
     setGeneratingReport(true)
+    setAiError("")
     setPhase("report")
     try {
-      const res = await fetch("/api/ai/interview/final-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setup, questions, answers, sessionId: session?.id }),
-      })
-      const { report } = await res.json()
+      const { report } = await postAI<any>("/api/ai/interview/final-report",
+        { setup, questions, answers, sessionId: session?.id })
       setFinalReport(report)
       if (session && report) {
         const finalized = finalizeSession(session, report)
@@ -483,6 +483,8 @@ export default function VideoInterviewPage() {
           sessionId: session?.id,
         })
       }
+    } catch (e: any) {
+      setAiError(e?.message || "Could not generate your report. Your answers are saved — please try again.")
     } finally {
       setGeneratingReport(false)
     }
@@ -582,6 +584,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title="Video Interview Simulator" />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -762,6 +765,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title="Video Interview — Setup" />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full rounded-2xl p-8 text-center space-y-6" style={cardStyle}>
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
@@ -809,6 +813,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title={`Video Interview — Q${qIndex + 1} of ${totalQs}`} />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-5">
             {/* Progress */}
@@ -962,6 +967,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title={`Recording — Q${qIndex + 1} of ${totalQs}`} />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -1101,6 +1107,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title="Analysing Your Answer…" />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center space-y-4">
             <motion.div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
@@ -1132,6 +1139,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title={`Answer Feedback — Q${qIndex + 1}`} />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-5">
             {/* Score row */}
@@ -1359,6 +1367,7 @@ export default function VideoInterviewPage() {
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title="Interview Report" />
+        <AiErrorBanner message={aiError} onDismiss={() => setAiError("")} />
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-5">
             {generatingReport || !finalReport ? (
@@ -1541,4 +1550,19 @@ export default function VideoInterviewPage() {
   }
 
   return null
+}
+
+function AiErrorBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  if (!message) return null
+  return (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-lg w-[calc(100%-2rem)] rounded-xl px-4 py-3 flex items-start gap-3"
+      style={{ background: "rgba(69,10,10,0.96)", border: "1px solid rgba(248,113,113,0.4)", boxShadow: "0 12px 40px rgba(0,0,0,0.5)" }}
+      role="alert">
+      <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#FCA5A5" }} />
+      <p className="text-sm flex-1" style={{ color: "#FECACA" }}>{message}</p>
+      <button onClick={onDismiss} aria-label="Dismiss" className="flex-shrink-0" style={{ color: "#FCA5A5" }}>
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  )
 }

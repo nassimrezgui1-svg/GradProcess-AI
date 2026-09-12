@@ -6,6 +6,7 @@ import { loadDashboardScores } from "@/lib/scores"
 import { loadProfile } from "@/lib/profile"
 import { cn } from "@/lib/utils"
 import { MarkdownText } from "@/components/ui/markdown-text"
+import { postAI } from "@/lib/ai/request"
 
 interface Message { role: "ava" | "user"; text: string }
 
@@ -67,12 +68,10 @@ export function AvaCoach() {
     setInput("")
     setLoading(true)
     try {
-      const res = await fetch("/api/ai/ava-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text.trim(), context: buildContext(), history: messages.slice(-6) }),
-      })
-      const data = await res.json()
+      const data = await postAI<{ reply?: string }>(
+        "/api/ai/ava-chat",
+        { message: text.trim(), context: buildContext(), history: messages.slice(-6) }
+      )
       setMessages(p => [...p, { role: "ava", text: data.reply || "Let me think on that." }])
     } catch {
       setMessages(p => [...p, { role: "ava", text: "I'm having trouble connecting right now — try again in a moment." }])

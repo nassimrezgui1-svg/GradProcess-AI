@@ -83,3 +83,80 @@ describe("server-side limits", () => {
     expect(service).not.toMatch(/await fetch\(/)
   })
 })
+
+/**
+ * The original version of this file only checked lib/ai/service.ts, so seven
+ * page-level call sites kept their own bare fetch and none of them were
+ * covered. The AI Breakdown tab was one: it had no timeout and called
+ * res.json() before checking res.ok, so when the function timed out and Vercel
+ * returned a plain-text 504, the user saw
+ *
+ *   Unexpected token 'A', "An error o"... is not valid JSON
+ *
+ * instead of anything actionable.
+ */
+describe("no page calls an AI endpoint without the helper", () => {
+  function tsxFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
+      if (e.name === "node_modules" || e.name.startsWith(".")) return []
+      const p = join(dir, e.name)
+      return e.isDirectory() ? tsxFiles(p) : /\.tsx?$/.test(e.name) ? [join(dir, e.name)] : []
+    })
+  }
+
+  const root = join(__dirname, "..")
+  const sources = [...tsxFiles(join(root, "app")), ...tsxFiles(join(root, "components"))]
+    .filter(f => !f.includes(`${"app"}/api/`))
+
+  it("every /api/ai call goes through postAI", () => {
+    const offenders: string[] = []
+    for (const f of sources) {
+      const src = readFileSync(f, "utf8")
+      for (const m of src.matchAll(/fetch\(\s*["'`]\/api\/ai\//g)) {
+        const line = src.slice(0, m.index).split("\n").length
+        offenders.push(`${f.replace(root + "/", "")}:${line}`)
+      }
+    }
+    expect(offenders, `bare fetch to an AI endpoint (no timeout, no error handling):\n${offenders.join("\n")}`).toEqual([])
+  })
+
+  it("a failed AI call is surfaced rather than swallowed", () => {
+    // try/finally with no catch stopped the spinner and showed nothing.
+    for (const name of ["video-interview", "industry-hub"]) {
+      const f = sources.find(s => s.includes(`${name}/page.tsx`))!
+      const src = readFileSync(f, "utf8")
+      const awaits = (src.match(/await postAI/g) || []).length
+      const catches = (src.match(/\} catch/g) || []).length
+      expect(catches, `${name} has ${awaits} postAI calls but only ${catches} catch blocks`).toBeGreaterThanOrEqual(awaits)
+    }
+  })
+})
+
+/**
+ * One request for all fourteen sections measured 65.7s for 3,114 output
+ * tokens, past the 60s function ceiling, so it failed every time. Split in
+ * two concurrent halves it measured 36.2s.
+ */
+describe("the tracker breakdown fits inside the function ceiling", () => {
+  const route = readFileSync(
+    join(__dirname, "..", "app", "api", "ai", "tracker", "breakdown", "route.ts"), "utf8")
+
+  it("issues its two halves concurrently", () => {
+    expect(route).toMatch(/Promise\.all/)
+    expect((route.match(/generateSection\(/g) || []).length).toBeGreaterThanOrEqual(3)
+  })
+
+  it("keeps each half well under the single-call budget", () => {
+    const budgets = [...route.matchAll(/generateSection\([A-Z_]+, context, (\d+)\)/g)].map(m => +m[1])
+    expect(budgets.length).toBe(2)
+    for (const b of budgets) expect(b).toBeLessThanOrEqual(2600)
+  })
+
+  it("still returns every field the UI reads", () => {
+    for (const field of ["roleSummary", "companyOverview", "interviewQuestions",
+                         "starSuggestions", "prepRoadmap", "readinessScore",
+                         "atsRecommendations", "assessmentCentreExpectations"]) {
+      expect(route, `breakdown no longer produces ${field}`).toContain(field)
+    }
+  })
+})

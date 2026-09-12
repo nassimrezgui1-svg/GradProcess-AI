@@ -12,6 +12,7 @@ import {
   TrendingUp, Zap, Shield, BarChart3, ChevronRight, RefreshCw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { postAI } from "@/lib/ai/request"
 
 type Tab = "overview" | "breakdown" | "interview" | "star" | "notes" | "timeline"
 
@@ -175,12 +176,15 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
   const generate = async () => {
     setGenerating(true); setError("")
     try {
-      const res = await fetch("/api/ai/tracker/breakdown", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company: app.company, role: app.role, sector: app.sector, jobDescription: app.jobDescription }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      // Bare fetch here had no timeout and called res.json() before checking
+      // res.ok, so a plain-text gateway error surfaced to the user as
+      // "Unexpected token 'A', \"An error o\"... is not valid JSON" rather
+      // than anything they could act on. postAI handles both.
+      const data = await postAI<RoleBreakdown>(
+        "/api/ai/tracker/breakdown",
+        { company: app.company, role: app.role, sector: app.sector, jobDescription: app.jobDescription },
+        { timeoutMs: 60_000 }
+      )
       onBreakdownGenerated(data)
     } catch (e: any) {
       setError(e.message || "Generation failed")
