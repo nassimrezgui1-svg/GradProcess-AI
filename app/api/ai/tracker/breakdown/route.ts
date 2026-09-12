@@ -47,13 +47,27 @@ const QUESTIONS_SHAPE = `{
   ]
 }`
 
+/**
+ * There is deliberately no readinessScore here.
+ *
+ * It used to be asked for as "integer 40-65, representing a realistic starting
+ * readiness", from a route that receives only company, role, sector and job
+ * description — nothing about the user. Measured: the same role returned 52
+ * twice, and different roles returned 42, 48 and 52. It varied by role and
+ * never by applicant, so every student tracking the same job saw the same
+ * "Application Readiness" figure presented as their own. The 40-65 clamp also
+ * meant it could never reach "Interview Ready" or fall to "Early Preparation
+ * Needed".
+ *
+ * The tracker now shows the readiness the app can actually measure: the user's
+ * own completed module scores.
+ */
 const PLAN_SHAPE = `{
   "prepRoadmap": [
     {"period": "Week 1 — Foundation", "tasks": [<4 specific tasks>]},
     {"period": "Week 2 — Application", "tasks": [<4 specific tasks>]},
     {"period": "Week 3-4 — Interview Prep", "tasks": [<4 specific tasks>]}
   ],
-  "readinessScore": <integer 40-65, representing a realistic starting readiness before preparation>,
   "gapAnalysis": [<5-6 common gaps graduates have when applying for this specific role>],
   "atsRecommendations": [<6-8 specific keywords and phrases to include in CV for this role's ATS>],
   "likelyInterviewStages": [<ordered list of likely recruitment stages for this specific company and role, e.g. Online application, Numerical reasoning test, HireVue video interview, Assessment centre, Final partner interview>],

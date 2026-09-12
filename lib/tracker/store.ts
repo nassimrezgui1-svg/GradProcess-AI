@@ -84,7 +84,9 @@ export function moveToStage(id: string, stage: Stage, note?: string): TrackerApp
 }
 
 export function saveBreakdown(id: string, breakdown: RoleBreakdown): TrackerApp | null {
-  return updateApp(id, { breakdown, readinessScore: breakdown.readinessScore })
+  // readinessScore is no longer part of a breakdown — it described the role,
+  // not the applicant. The tracker reads the user's real module scores instead.
+  return updateApp(id, { breakdown })
 }
 
 export function createApp(partial: {

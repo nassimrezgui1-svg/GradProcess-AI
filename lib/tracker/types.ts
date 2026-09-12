@@ -90,7 +90,6 @@ export interface RoleBreakdown {
   interviewQuestions: { competency: string; question: string }[]
   starSuggestions: { competency: string; suggestion: string }[]
   prepRoadmap: { period: string; tasks: string[] }[]
-  readinessScore: number
   gapAnalysis: string[]
   atsRecommendations: string[]
   cultureInsights: string

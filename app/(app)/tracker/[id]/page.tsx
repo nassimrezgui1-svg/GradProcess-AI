@@ -13,6 +13,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { postAI } from "@/lib/ai/request"
+import { loadDashboardScores } from "@/lib/scores"
+import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 
 type Tab = "overview" | "breakdown" | "interview" | "star" | "notes" | "timeline"
 
@@ -93,6 +95,17 @@ function BulletList({ items, icon: Icon = CheckCircle, color = "#6D5EF3" }: { it
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
 
 function OverviewTab({ app }: { app: TrackerApp }) {
+  // The user's own readiness, from the modules they have actually completed.
+  // Replaces a per-role figure the model invented, which was identical for
+  // every applicant to the same job.
+  const [moduleReadiness, setModuleReadiness] = useState<number | null>(null)
+  useEffect(() => {
+    const refresh = () => setModuleReadiness(loadDashboardScores().overall)
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
+  }, [])
+
   const days = daysUntil(app.deadline)
   const stage = getStage(app.stage)
 
@@ -102,7 +115,7 @@ function OverviewTab({ app }: { app: TrackerApp }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Stage", value: stage.label, color: stage.color, sub: null },
-          { label: "Readiness", value: app.readinessScore ? `${app.readinessScore}/100` : "—", color: app.readinessScore ? scoreColor(app.readinessScore) : "#9CA3AF", sub: null },
+          { label: "Your readiness", value: moduleReadiness !== null ? `${moduleReadiness}/100` : "—", color: moduleReadiness !== null ? scoreColor(moduleReadiness) : "#9CA3AF", sub: null },
           { label: "Deadline", value: days === null ? "—" : days < 0 ? "Closed" : days === 0 ? "Today!" : `${days} days`, color: days !== null && days <= 7 ? "#EF4444" : "#374151", sub: app.deadline ? fmtDate(app.deadline) : null },
           { label: "Sector", value: app.sector, color: "#94A3B8", sub: app.workType ?? null },
         ].map(({ label, value, color, sub }) => (
@@ -115,21 +128,7 @@ function OverviewTab({ app }: { app: TrackerApp }) {
       </div>
 
       {/* Readiness band */}
-      {app.readinessScore !== undefined && (() => {
-        const band = getReadinessBand(app.readinessScore)
-        return (
-          <div className="rounded-2xl p-4 flex items-center justify-between" style={{ backgroundColor: band.bg, border: `1px solid ${band.color}30` }}>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: band.color }}>Application Readiness</p>
-              <p className="text-sm font-medium text-ink">{band.label}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold" style={{ color: band.color }}>{app.readinessScore}</p>
-              <p className="text-xs text-ink-faint">/100</p>
-            </div>
-          </div>
-        )
-      })()}
+
 
       {/* Info grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -169,6 +168,14 @@ function OverviewTab({ app }: { app: TrackerApp }) {
 // ─── Breakdown Tab ────────────────────────────────────────────────────────────
 
 function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakdownGenerated: (b: RoleBreakdown) => void }) {
+  const [moduleReadiness, setModuleReadiness] = useState<number | null>(null)
+  useEffect(() => {
+    const refresh = () => setModuleReadiness(loadDashboardScores().overall)
+    refresh()
+    window.addEventListener(DATA_SYNCED_EVENT, refresh)
+    return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
+  }, [])
+
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState("")
   const b = app.breakdown
@@ -225,20 +232,32 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
         </button>
       </div>
 
-      {/* Readiness + band */}
+      {/* The breakdown used to carry a "Starting Readiness Estimate" generated
+          from the role alone, identical for every applicant. Readiness the app
+          can actually measure comes from the user's own completed modules. */}
       {(() => {
-        const band = getReadinessBand(b.readinessScore)
+        if (moduleReadiness === null) {
+          return (
+            <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "rgba(255,255,255,0.52)" }}>Your readiness</p>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                Complete a CV analysis, STAR answer, interview or psychometric test to see your readiness score.
+              </p>
+            </div>
+          )
+        }
+        const band = getReadinessBand(moduleReadiness)
         return (
           <div className="rounded-2xl p-4" style={{ backgroundColor: band.bg, border: `1px solid ${band.color}30` }}>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: band.color }}>Starting Readiness Estimate</p>
-                <p className="text-sm text-ink-muted">{band.label} · Preparation will improve this score</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: band.color }}>Your readiness</p>
+                <p className="text-sm text-ink-muted">{band.label} · from your completed modules, across all applications</p>
               </div>
-              <p className="text-4xl font-bold" style={{ color: band.color }}>{b.readinessScore}</p>
+              <p className="text-4xl font-bold" style={{ color: band.color }}>{moduleReadiness}</p>
             </div>
             <div className="h-2 bg-white/50 rounded-full overflow-hidden">
-              <div className="h-full rounded-full transition-all" style={{ width: `${b.readinessScore}%`, backgroundColor: band.color }} />
+              <div className="h-full rounded-full transition-all" style={{ width: `${moduleReadiness}%`, backgroundColor: band.color }} />
             </div>
           </div>
         )
