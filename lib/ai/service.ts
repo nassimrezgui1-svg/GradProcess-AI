@@ -58,14 +58,22 @@ export type InterviewScore = z.infer<typeof InterviewScoreSchema>
 
 // Every AI service call goes through here, so the timeout applies to all of
 // them. Without it a slow model left buttons spinning with no way back.
-async function post<T>(route: string, body: Record<string, unknown>): Promise<T> {
-  return postAI<T>(route, body)
+async function post<T>(
+  route: string,
+  body: Record<string, unknown>,
+  opts?: { timeoutMs?: number }
+): Promise<T> {
+  return postAI<T>(route, body, opts)
 }
 
 // ─── AI Service Functions ────────────────────────────────────────────────────
 
 export async function analyseCVAgainstJobSpec(cv: string, jobSpec: string): Promise<CVAnalysis> {
-  return post<CVAnalysis>("/api/ai/analyse-cv", { cv, jobSpec })
+  // Measured at ~27s for a one-page CV, and a long CV runs longer. The default
+  // 45s client ceiling is below the 60s the route itself is allowed, so a slow
+  // analysis was being abandoned by the browser while the server was still
+  // working on it.
+  return post<CVAnalysis>("/api/ai/analyse-cv", { cv, jobSpec }, { timeoutMs: 60_000 })
 }
 
 export async function generateSTARScenario(

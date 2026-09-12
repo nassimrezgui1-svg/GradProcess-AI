@@ -81,6 +81,7 @@ export default function CVTailoringPage() {
     breakdown: demoATSScore.breakdown as Record<string, number>,
   })
   const [showDemo, setShowDemo] = useState(true)
+  const [analysisError, setAnalysisError] = useState("")
   const [copiedSummary, setCopiedSummary] = useState(false)
   const [expandedSection, setExpandedSection] = useState<string | null>("keywords")
   const [dragOver, setDragOver] = useState(false)
@@ -126,6 +127,7 @@ export default function CVTailoringPage() {
   const handleAnalyse = async () => {
     if (!cvText.trim() || !jobSpec.trim()) return
     setLoading(true)
+    setAnalysisError("")
     try {
       const analysis = await analyseCVAgainstJobSpec(cvText, jobSpec)
       setResult({
@@ -142,6 +144,12 @@ export default function CVTailoringPage() {
       })
       saveCVScore({ score: analysis.overallScore, date: new Date().toISOString(), jobSpec: jobSpec.slice(0, 120) })
       setShowDemo(false)
+    } catch (e: any) {
+      // try/finally with no catch left the sample analysis on screen when the
+      // request failed: the spinner stopped, showDemo stayed true, and the
+      // demo 68/100 score and demo keywords sat there looking like a result.
+      // The user saw "Analysing your CV — this takes around 30 seconds" finish and nothing change.
+      setAnalysisError(e?.message || "Could not analyse your CV. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -184,8 +192,21 @@ export default function CVTailoringPage() {
       <Topbar title="CV Tailoring & ATS Scoring" />
       <div className="flex-1 p-6 space-y-5">
 
+        {analysisError && (
+          <div className="flex items-start gap-3 px-4 py-3 rounded-2xl" role="alert"
+            style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
+            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#F87171" }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "#FCA5A5" }}>Your CV was not analysed</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(252,165,165,0.85)" }}>
+                {analysisError} The scores below are still the sample analysis, not yours.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Demo banner */}
-        {showDemo && (
+        {showDemo && !analysisError && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
             style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)" }}>
             <Sparkles className="w-4 h-4 flex-shrink-0" style={{ color: "#818CF8" }} />
@@ -309,7 +330,7 @@ export default function CVTailoringPage() {
               }
             >
               {loading
-                ? <><Loader2 className="w-4 h-4 animate-spin" /> Analysing…</>
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> Analysing your CV — this takes around 30 seconds</>
                 : <><Sparkles className="w-4 h-4" /> Analyse CV Against Job Spec</>
               }
             </button>

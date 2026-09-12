@@ -59,6 +59,7 @@ describe("a failed generation is always visible to the user", () => {
     ["star-builder", join(__dirname, "..", "app", "(app)", "star-builder", "page.tsx")],
     ["video-interview", join(__dirname, "..", "app", "(app)", "video-interview", "page.tsx")],
     ["industry-hub", join(__dirname, "..", "app", "(app)", "industry-hub", "page.tsx")],
+    ["cv-tailoring", join(__dirname, "..", "app", "(app)", "cv-tailoring", "page.tsx")],
   ] as const
 
   for (const [name, path] of pages) {
@@ -72,4 +73,33 @@ describe("a failed generation is always visible to the user", () => {
       expect(reads, `${name} sets ${stateName} but never displays it`).toBe(true)
     })
   }
+})
+
+/**
+ * CV Tailoring seeds its result state with a sample analysis and hides the
+ * "Demo mode" banner only on success. With try/finally and no catch, a failed
+ * analysis left that sample on screen: the spinner stopped, the banner still
+ * said Demo mode, and the 68/100 sample score and sample keywords sat there
+ * looking like the user's own result. Reported as "it says analysing but
+ * doesn't show any changes or an accurate score".
+ */
+describe("a failed CV analysis never passes the sample off as a result", () => {
+  const page = readFileSync(
+    join(__dirname, "..", "app", "(app)", "cv-tailoring", "page.tsx"), "utf8")
+
+  it("catches the failure rather than only clearing the spinner", () => {
+    const handler = page.slice(page.indexOf("const handleAnalyse"))
+    const body = handler.slice(0, handler.indexOf("const handleCopySummary"))
+    expect(body).toMatch(/\} catch/)
+    expect(body).toMatch(/setAnalysisError/)
+  })
+
+  it("says the visible scores are not the user's when it fails", () => {
+    expect(page).toMatch(/not yours/)
+    expect(page).toMatch(/analysisError &&/)
+  })
+
+  it("does not show the demo banner and an error at the same time", () => {
+    expect(page).toMatch(/showDemo && !analysisError/)
+  })
 })
