@@ -5,6 +5,68 @@ import { NextRequest, NextResponse } from "next/server"
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
 export const maxDuration = 60
 
+
+/**
+ * Weights for the headline ATS score.
+ *
+ * The model was asked for `overallScore` directly and produced a number
+ * unrelated to its own findings: a CV matching 13 of the spec's requirements
+ * and one matching 8 both scored 62, and the same CV scored 62 on one run and
+ * 72 on the next. It was not even the mean of its own breakdown (61 vs 72).
+ *
+ * Its component judgements are sound and do discriminate — keywordMatch 82 vs
+ * 68, skillsAlignment 80 vs 70, measured keyword coverage 68% vs 50% — so the
+ * headline number is now derived from those instead of asked for. Applicant
+ * tracking systems are dominated by keyword and skills matching, which is what
+ * the weighting reflects.
+ */
+const SCORE_WEIGHTS: Record<string, number> = {
+  keywordMatch: 0.30,
+  skillsAlignment: 0.20,
+  experienceRelevance: 0.20,
+  educationAlignment: 0.10,
+  quantifiedImpact: 0.10,
+  formattingReadability: 0.05,
+  grammarClarity: 0.05,
+}
+
+function clamp(n: number) {
+  return Math.max(0, Math.min(100, Math.round(n)))
+}
+
+function computeOverallScore(result: any): number {
+  const breakdown = (result?.breakdown ?? {}) as Record<string, number>
+
+  // Measured straight from the two lists, so the keyword component is anchored
+  // to countable evidence rather than the model's impression alone.
+  const matched = Array.isArray(result?.matchedKeywords) ? result.matchedKeywords.length : 0
+  const missing = Array.isArray(result?.missingKeywords) ? result.missingKeywords.length : 0
+  const coverage = matched + missing > 0 ? (matched / (matched + missing)) * 100 : null
+
+  const keywordScore =
+    coverage === null
+      ? Number(breakdown.keywordMatch ?? 0)
+      : (Number(breakdown.keywordMatch ?? coverage) + coverage) / 2
+
+  let total = 0
+  let weightUsed = 0
+  for (const [dimension, weight] of Object.entries(SCORE_WEIGHTS)) {
+    const value = dimension === "keywordMatch" ? keywordScore : breakdown[dimension]
+    if (typeof value !== "number" || Number.isNaN(value)) continue
+    total += value * weight
+    weightUsed += weight
+  }
+  if (weightUsed === 0) return clamp(Number(result?.overallScore ?? 0))
+  return clamp(total / weightUsed)
+}
+
+function passLikelihoodFor(score: number): string {
+  // Derived from the score so the label can never contradict the number.
+  if (score >= 75) return "Strong match"
+  if (score >= 50) return "Medium risk"
+  return "High risk"
+}
+
 export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
   try {
@@ -39,8 +101,6 @@ ${jobSpec}
 
 Return ONLY this JSON structure:
 {
-  "overallScore": <number 0-100>,
-  "passLikelihood": <"High risk" | "Medium risk" | "Strong match">,
   "breakdown": {
     "keywordMatch": <number 0-100>,
     "experienceRelevance": <number 0-100>,
@@ -67,6 +127,12 @@ Return ONLY this JSON structure:
     // Strip markdown code fences if Claude wraps the response
     const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim()
     const result = JSON.parse(text)
+
+    // Replace the model's headline figure with one derived from its own
+    // findings, and keep the label consistent with it.
+    result.overallScore = computeOverallScore(result)
+    result.passLikelihood = passLikelihoodFor(result.overallScore)
+
     return NextResponse.json(result)
   } catch (error: any) {
     console.error("CV analysis error:", error)
