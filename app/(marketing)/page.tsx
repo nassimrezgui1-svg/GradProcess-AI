@@ -111,7 +111,7 @@ export default function LandingPage() {
           <div className="flex items-center mb-14">
             <Link href="/signup"
               className="flex items-center gap-2.5 text-sm font-bold text-white px-8 py-4 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 8px 32px rgba(99,102,241,0.5)" }}>
+              style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 8px 32px rgba(99,102,241,0.5)" }}>
               Get started — £19.99/mo <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -120,14 +120,14 @@ export default function LandingPage() {
             {heroStats.map(s => (
               <div key={s.label} className="text-center">
                 <p className="text-3xl font-black text-white mb-0.5">{s.value}</p>
-                <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{s.label}</p>
+                <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.62)" }}>{s.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         <button onClick={scrollDown} className="relative z-10 mx-auto mb-8 flex flex-col items-center gap-2" aria-label="Scroll down">
-          <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>Scroll</span>
+          <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.52)" }}>Scroll</span>
           <ChevronDown className="w-5 h-5 animate-bounce" style={{ color: "rgba(255,255,255,0.25)" }} />
         </button>
       </section>
@@ -168,12 +168,12 @@ export default function LandingPage() {
       <section className="relative z-10 py-10 px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] mb-5"
-            style={{ color: "rgba(255,255,255,0.2)" }}>
+            style={{ color: "rgba(255,255,255,0.52)" }}>
             Practise for every stage you&apos;ll actually face
           </p>
           <div className="flex flex-wrap justify-center gap-6">
             {stagesCovered.map(s => (
-              <span key={s} className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.3)" }}>{s}</span>
+              <span key={s} className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.62)" }}>{s}</span>
             ))}
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>The platform</p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Every stage. One platform.</h2>
-            <p className="text-lg max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-lg max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.62)" }}>
               From your first CV submission to your final interview — complete coverage.
             </p>
           </div>
@@ -201,7 +201,7 @@ export default function LandingPage() {
                   <f.icon className="w-5 h-5" style={{ color: f.color }} />
                 </div>
                 <h3 className="font-bold text-white mb-2 text-sm">{f.title}</h3>
-                <p className="text-xs leading-relaxed mb-4" style={{ color: "rgba(255,255,255,0.38)" }}>{f.description}</p>
+                <p className="text-xs leading-relaxed mb-4" style={{ color: "rgba(255,255,255,0.62)" }}>{f.description}</p>
                 <div className="flex items-center gap-1 text-xs font-semibold transition-all group-hover:gap-2"
                   style={{ color: f.color }}>
                   Learn more <ArrowRight className="w-3 h-3" />
@@ -228,11 +228,11 @@ export default function LandingPage() {
                 )}
                 <div className="relative z-10">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-base mb-5"
-                    style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 8px 24px rgba(99,102,241,0.35)" }}>
+                    style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 8px 24px rgba(99,102,241,0.35)" }}>
                     {step.num}
                   </div>
                   <h3 className="text-white font-bold mb-2 text-sm">{step.title}</h3>
-                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>{step.desc}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -252,7 +252,7 @@ export default function LandingPage() {
                   before applications open.
                 </span>
               </h2>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.42)" }}>
+              <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.62)" }}>
                 GradProcess AI gives you a quantified readiness score for every part of the recruitment process, so you know exactly what to fix and when you&apos;re ready.
               </p>
               <p className="text-xs font-bold mb-5" style={{ color: "#818CF8" }}>Example — how a readiness score breaks down by module:</p>
@@ -263,7 +263,7 @@ export default function LandingPage() {
                   { label: "Psychometric",   score: 82 },
                 ].map(({ label, score }) => (
                   <div key={label} className="flex items-center gap-3">
-                    <span className="text-xs font-medium w-32 flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</span>
+                    <span className="text-xs font-medium w-32 flex-shrink-0" style={{ color: "rgba(255,255,255,0.62)" }}>{label}</span>
                     <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                       <div className={cn("h-full rounded-full", getScoreBg(score))} style={{ width: `${score}%` }} />
                     </div>
@@ -271,12 +271,12 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-xs mb-8" style={{ color: "rgba(255,255,255,0.28)" }}>
+              <p className="text-xs mb-8" style={{ color: "rgba(255,255,255,0.52)" }}>
                 Illustrative figures. Your own scores depend entirely on your CV, answers and test results.
               </p>
               <Link href="/signup"
                 className="inline-flex items-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all hover:opacity-90"
-                style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+                style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                 Get my readiness score <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -293,7 +293,7 @@ export default function LandingPage() {
                   onMouseEnter={e => { e.currentTarget.style.background = glassCardHover.background; e.currentTarget.style.borderColor = stat.color + "30" }}
                   onMouseLeave={e => { Object.assign(e.currentTarget.style, glassCard) }}>
                   <p className="text-2xl font-black mb-2" style={{ color: stat.color }}>{stat.value}</p>
-                  <p className="text-xs font-medium leading-relaxed" style={{ color: "rgba(255,255,255,0.38)" }}>{stat.label}</p>
+                  <p className="text-xs font-medium leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -306,7 +306,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>Sector coverage</p>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-3">13 sectors. Full coverage.</h2>
-          <p className="text-sm mb-10" style={{ color: "rgba(255,255,255,0.38)" }}>Deep sector knowledge for every major graduate scheme category</p>
+          <p className="text-sm mb-10" style={{ color: "rgba(255,255,255,0.62)" }}>Deep sector knowledge for every major graduate scheme category</p>
           <div className="flex flex-wrap justify-center gap-3">
             {sectorTags.map(sector => (
               <Link key={sector} href={`/sectors/${sector.toLowerCase().replace(/ /g, "-")}`}
@@ -340,7 +340,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-xs mt-10" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <p className="text-center text-xs mt-10" style={{ color: "rgba(255,255,255,0.52)" }}>
             Scores are AI-generated estimates to guide your preparation — not predictions of hiring outcomes.
           </p>
         </div>
@@ -351,7 +351,7 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: "#818CF8" }}>Pricing</p>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-3">One plan. Full access.</h2>
-          <p className="text-sm mb-12" style={{ color: "rgba(255,255,255,0.4)" }}>Everything you need to land your graduate scheme — no tiers, no limits.</p>
+          <p className="text-sm mb-12" style={{ color: "rgba(255,255,255,0.62)" }}>Everything you need to land your graduate scheme — no tiers, no limits.</p>
 
           <div className="relative rounded-3xl overflow-hidden text-left"
             style={{ background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)", boxShadow: "0 24px 80px rgba(99,102,241,0.4)" }}>
@@ -401,7 +401,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <p className="mt-6 text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>Launching at £19.99/mo · Price may increase after launch period</p>
+          <p className="mt-6 text-xs" style={{ color: "rgba(255,255,255,0.52)" }}>Launching at £19.99/mo · Price may increase after launch period</p>
         </div>
       </section>
 

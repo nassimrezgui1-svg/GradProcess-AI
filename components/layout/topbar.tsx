@@ -87,7 +87,7 @@ export function Topbar({ title }: { title: string }) {
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
             style={{
-              background: "linear-gradient(135deg, #5B8CFF, #8B5CF6)",
+              background: "linear-gradient(135deg, #3F6FD8, #7C3AED)",
               boxShadow: "0 0 12px rgba(91,140,255,0.30)",
             }}
           >

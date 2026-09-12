@@ -202,7 +202,7 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
         {error && <p className="text-xs text-red-600 mb-4">{error}</p>}
         <button onClick={generate} disabled={generating}
           className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90 disabled:opacity-60"
-          style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+          style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
         >
           {generating ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</> : <><Sparkles className="w-4 h-4" /> Generate AI Breakdown</>}
         </button>
@@ -461,7 +461,7 @@ function NotesTab({ app, onSave }: { app: TrackerApp; onSave: (updates: Partial<
       </div>
       <button onClick={handleSave}
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-        style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+        style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
       >
         {saved ? <><CheckCircle className="w-4 h-4" /> Saved!</> : <>Save Notes</>}
       </button>

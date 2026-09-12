@@ -38,7 +38,7 @@ function ScoreBadge({ score }: { score: number }) {
 
 function EmptyState({ icon: Icon, message }: { icon: any; message: string }) {
   return (
-    <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.4)" }}>
+    <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.62)" }}>
       <Icon className="w-8 h-8 mx-auto mb-2 opacity-30" />
       <p className="text-sm">{message}</p>
       <p className="text-xs mt-1 opacity-70">Complete a session to see your data here</p>
@@ -51,7 +51,7 @@ function StatCard({ label, value, sub, color }: { label: string; value: string; 
     <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
       <p className="text-2xl font-bold text-white" style={color ? { color } : {}}>{value}</p>
       <p className="text-xs font-medium mt-1 text-white">{label}</p>
-      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{sub}</p>
+      <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{sub}</p>
     </div>
   )
 }
@@ -75,12 +75,12 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">{session.setup.sector} · {session.setup.mode}</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(new Date(session.timestamp).toISOString())} · {session.setup.difficulty} · {session.answers.length} questions</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{fmtDate(new Date(session.timestamp).toISOString())} · {session.setup.difficulty} · {session.answers.length} questions</p>
         </div>
         <div className="text-right flex-shrink-0 flex items-center gap-3">
           <div>
             <span className="text-xl font-bold" style={{ color: scoreColor(r.overallScore) }}>{r.overallScore}</span>
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>/100</span>
           </div>
           {expanded ? <ChevronUp className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />}
         </div>
@@ -98,7 +98,7 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
               { label: "Comms", score: r.communicationScore },
             ].map(({ label, score }) => (
               <div key={label} className="text-center p-2 rounded-xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <p className="text-xs mb-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</p>
+                <p className="text-xs mb-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>{label}</p>
                 <p className="text-sm font-bold" style={{ color: scoreColor(score) }}>{score}</p>
               </div>
             ))}
@@ -157,7 +157,7 @@ function VideoSessionCard({ session }: { session: StoredSession }) {
                       {a.overallScore}
                     </span>
                     <p className="flex-1 text-xs text-white truncate">{a.questionText}</p>
-                    <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>{a.fillerWords?.total || 0} fillers</span>
+                    <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.62)" }}>{a.fillerWords?.total || 0} fillers</span>
                   </div>
                 ))}
               </div>
@@ -299,7 +299,7 @@ export default function ReportsPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-white truncate">{s.label}</p>
-                            <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(s.date)}</p>
+                            <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{fmtDate(s.date)}</p>
                           </div>
                           <span className="text-xs font-semibold" style={{ color: scoreColor(s.score) }}>{s.score}/100</span>
                         </div>
@@ -407,7 +407,7 @@ export default function ReportsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white">CV Analysis</p>
-                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{entry.jobSpec || "General analysis"} · {fmtDate(entry.date)}</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.62)" }}>{entry.jobSpec || "General analysis"} · {fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>
@@ -458,7 +458,7 @@ export default function ReportsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white">{entry.competency}</p>
-                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{entry.experienceText?.slice(0, 60)}… · {fmtDate(entry.date)}</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.62)" }}>{entry.experienceText?.slice(0, 60)}… · {fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>
@@ -491,7 +491,7 @@ export default function ReportsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white">{entry.testName || "Psychometric Test"}</p>
-                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{fmtDate(entry.date)}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{fmtDate(entry.date)}</p>
                       </div>
                       <ScoreBadge score={entry.score} />
                     </div>

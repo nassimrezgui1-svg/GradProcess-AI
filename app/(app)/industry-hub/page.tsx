@@ -347,7 +347,7 @@ export default function IndustryHubPage() {
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-white">Live News — {activeSector}</h3>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                   {/* Name the outlets this sector actually returned. The list used to be
                       hardcoded to six titles and printed even when the feed was empty. */}
                   {news.length > 0
@@ -424,7 +424,7 @@ export default function IndustryHubPage() {
                 <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>
                   {sourceFilter === "all" ? `No ${activeSector} stories in today's feeds` : `Nothing from ${sourceFilter} today`}
                 </p>
-                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.62)" }}>
                   {sourceFilter === "all"
                     ? "Our sources publish general business news, so quieter sectors have thin days. Check back later or browse another sector."
                     : "Try selecting All to see every source."}
@@ -460,7 +460,7 @@ export default function IndustryHubPage() {
                         style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)", border: "1px solid rgba(255,255,255,0.1)" }}>
                         {item.source}
                       </span>
-                      <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
                         <Clock className="w-3 h-3" />
                         {timeAgo(item.publishedAt)}
                       </div>

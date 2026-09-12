@@ -64,7 +64,7 @@ export function RecordingConsentModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-gray-100" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+            <div className="px-6 py-5 border-b border-gray-100" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
@@ -158,7 +158,7 @@ export function RecordingConsentModal({
                 onClick={handleConsent}
                 disabled={!confirmed}
                 className="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
               >
                 I Consent — Start Session
               </button>

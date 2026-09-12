@@ -63,7 +63,7 @@ function ScoreRingCV({ score }: { score: number }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-black text-white tabular-nums">{score}</span>
-        <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>/100</span>
+        <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.62)" }}>/100</span>
       </div>
     </div>
   )
@@ -210,7 +210,7 @@ export default function CVTailoringPage() {
                   </div>
                 </div>
                 <button onClick={clearFile} className="transition-opacity hover:opacity-70">
-                  <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
+                  <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.62)" }} />
                 </button>
               </div>
             ) : (
@@ -240,7 +240,7 @@ export default function CVTailoringPage() {
                   <>
                     <Upload className="w-8 h-8 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
                     <p className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>Drag & drop your CV here</p>
-                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.25)" }}>PDF, DOCX or TXT — or click to browse</p>
+                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.52)" }}>PDF, DOCX or TXT — or click to browse</p>
                   </>
                 )}
               </div>
@@ -287,13 +287,13 @@ export default function CVTailoringPage() {
               className="mt-4 w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
               style={canAnalyse
                 ? {
-                    background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                    background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
                     color: "#fff",
                     boxShadow: "0 4px 24px rgba(99,102,241,0.35)",
                   }
                 : {
                     background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.2)",
+                    color: "rgba(255,255,255,0.52)",
                     cursor: "not-allowed",
                   }
               }
@@ -311,12 +311,12 @@ export default function CVTailoringPage() {
           {/* Score ring card */}
           <div style={CARD} className="p-8 flex flex-col items-center text-center">
             <p className="text-xs font-semibold uppercase tracking-widest mb-5"
-              style={{ color: "rgba(255,255,255,0.35)" }}>ATS Pass Score</p>
+              style={{ color: "rgba(255,255,255,0.62)" }}>ATS Pass Score</p>
             <ScoreRingCV score={result.overall} />
             <span className="mt-5 text-xs font-semibold px-4 py-1.5 rounded-full" style={passStyle}>
               {result.passLikelihood}
             </span>
-            <p className="text-xs mt-3" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-xs mt-3" style={{ color: "rgba(255,255,255,0.62)" }}>
               {getScoreLabel(result.overall)}
             </p>
           </div>
@@ -341,7 +341,7 @@ export default function CVTailoringPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-white">Keyword Analysis</h3>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                   {result.matchedKeywords.length} matched · {result.missingKeywords.length} missing
                 </p>
               </div>
@@ -382,7 +382,7 @@ export default function CVTailoringPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-white">Weak Bullet Rewrites</h3>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                   {result.weakBullets.length} bullet{result.weakBullets.length !== 1 ? "s" : ""} improved by AI
                 </p>
               </div>
@@ -406,7 +406,7 @@ export default function CVTailoringPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-semibold text-white">AI-Tailored Professional Summary</h3>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                 Optimised for this specific role
               </p>
             </div>

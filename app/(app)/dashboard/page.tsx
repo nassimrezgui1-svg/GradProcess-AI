@@ -132,7 +132,7 @@ function ModuleCard({ mod, score, delay }: { mod: ModuleDef; score: number | nul
           {/* Text */}
           <div className="flex-1 relative">
             <h4 className="text-sm font-bold text-white mb-1.5">{mod.label}</h4>
-            <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>{mod.description}</p>
+            <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>{mod.description}</p>
           </div>
 
           {/* Score / CTA */}
@@ -140,7 +140,7 @@ function ModuleCard({ mod, score, delay }: { mod: ModuleDef; score: number | nul
             {score !== null ? (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>Score</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.52)" }}>Score</span>
                   <span className="text-sm font-black tabular-nums" style={{ color: mod.color }}>{score}/100</span>
                 </div>
                 <div className="h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
                     Command Centre
                   </span>
                 </h2>
-                <p className="text-sm leading-relaxed max-w-md" style={{ color: "rgba(255,255,255,0.38)" }}>
+                <p className="text-sm leading-relaxed max-w-md" style={{ color: "rgba(255,255,255,0.62)" }}>
                   {motivationalLine}
                 </p>
               </div>
@@ -359,7 +359,7 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center gap-2 lg:pr-4 flex-shrink-0">
               <ScoreRing score={overall} />
               <p className="text-[10px] font-semibold tracking-[0.18em] uppercase mt-1"
-                style={{ color: "rgba(255,255,255,0.2)" }}>
+                style={{ color: "rgba(255,255,255,0.52)" }}>
                 Overall Readiness
               </p>
             </div>
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                       style={c.completed ? { color: "rgba(52,211,153,0.5)" } : {}}>
                       {c.title}
                     </p>
-                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.52)" }}>
                       +{c.xpReward} XP · {c.module}
                     </p>
                   </div>
@@ -445,7 +445,7 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-white/70">
                   Level {gam.level} · {levelInfo.name}
                 </span>
-                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.52)" }}>
                   {gam.xp} / {levelInfo.nextXP} XP
                 </span>
               </div>
@@ -458,7 +458,7 @@ export default function DashboardPage() {
                   transition={{ duration: 1.2, ease: "easeOut" }}
                 />
               </div>
-              <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+              <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.52)" }}>
                 {levelInfo.nextXP - gam.xp} XP until next level
               </p>
             </div>
@@ -481,7 +481,7 @@ export default function DashboardPage() {
                 <h3 className="text-sm font-bold text-white">Company Readiness</h3>
               </div>
             </div>
-            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.22)" }}>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.52)" }}>
               Estimated from your readiness score — not a prediction of hiring outcomes
             </p>
 
@@ -495,7 +495,7 @@ export default function DashboardPage() {
                   <div className="flex items-end justify-between mb-1.5">
                     <div>
                       <p className="text-xs font-bold text-white/80 leading-none">{c.company}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)" }}>{c.sector}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.52)" }}>{c.sector}</p>
                     </div>
                     <span className="text-xs font-black tabular-nums ml-2"
                       style={{ color: c.likelihood >= 70 ? "#34D399" : c.likelihood >= 50 ? "#818CF8" : "#FBBF24" }}>
@@ -561,13 +561,13 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white/70 mb-1.5">No sessions yet</p>
-                  <p className="text-xs leading-relaxed max-w-[170px]" style={{ color: "rgba(255,255,255,0.28)" }}>
+                  <p className="text-xs leading-relaxed max-w-[170px]" style={{ color: "rgba(255,255,255,0.52)" }}>
                     Pick a module to start your first practice session
                   </p>
                 </div>
                 <Link href="/psychometric"
                   className="text-xs font-bold text-white rounded-xl px-5 py-2 transition-all hover:opacity-90"
-                  style={{ background: "linear-gradient(135deg, #5B8CFF, #8B5CF6)", boxShadow: "0 4px 18px rgba(91,140,255,0.35)" }}>
+                  style={{ background: "linear-gradient(135deg, #3F6FD8, #7C3AED)", boxShadow: "0 4px 18px rgba(91,140,255,0.35)" }}>
                   Start practising
                 </Link>
               </div>
@@ -583,14 +583,14 @@ export default function DashboardPage() {
                   >
                     <div>
                       <p className="text-xs font-semibold text-white/80">{s.label}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)" }}>{timeAgo(s.date)}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.52)" }}>{timeAgo(s.date)}</p>
                     </div>
                     <div className="flex items-baseline gap-0.5">
                       <span className="text-base font-black tabular-nums"
                         style={{ color: s.score >= 75 ? "#34D399" : s.score >= 60 ? "#818CF8" : "#FBBF24" }}>
                         {s.score}
                       </span>
-                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>/100</span>
+                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.52)" }}>/100</span>
                     </div>
                   </motion.div>
                 ))}
@@ -616,7 +616,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white">Skill Coverage</h3>
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.52)" }}>
                     How you're tracking across all preparation areas
                   </p>
                 </div>

@@ -172,7 +172,7 @@ export function CookieBanner() {
                 <button
                   onClick={() => accept("custom")}
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white transition-all"
-                  style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                  style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
                 >
                   Save preferences
                 </button>
@@ -180,7 +180,7 @@ export function CookieBanner() {
                 <button
                   onClick={() => accept("all")}
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white transition-all"
-                  style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                  style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
                 >
                   Accept all
                 </button>

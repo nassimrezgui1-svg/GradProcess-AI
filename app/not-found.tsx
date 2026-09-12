@@ -19,14 +19,14 @@ export default function NotFound() {
         We couldn&apos;t find that page.
       </h1>
 
-      <p className="text-sm leading-relaxed mb-10 max-w-md" style={{ color: "rgba(255,255,255,0.42)" }}>
+      <p className="text-sm leading-relaxed mb-10 max-w-md" style={{ color: "rgba(255,255,255,0.62)" }}>
         The link may be out of date, or the page may have moved. Everything below still works.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Link href="/dashboard"
           className="flex items-center justify-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+          style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
           <LayoutDashboard className="w-4 h-4" />
           Go to dashboard
         </Link>
@@ -39,7 +39,7 @@ export default function NotFound() {
       </div>
 
       <div className="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs"
-        style={{ color: "rgba(255,255,255,0.3)" }}>
+        style={{ color: "rgba(255,255,255,0.62)" }}>
         {[
           { href: "/cv-tailoring", label: "CV Tailoring" },
           { href: "/star-builder", label: "STAR Builder" },
@@ -53,7 +53,7 @@ export default function NotFound() {
 
       <Link href="/login"
         className="mt-10 flex items-center gap-1.5 text-xs transition-colors hover:text-white"
-        style={{ color: "rgba(255,255,255,0.25)" }}>
+        style={{ color: "rgba(255,255,255,0.52)" }}>
         <ArrowLeft className="w-3 h-3" /> Sign in to your account
       </Link>
     </div>

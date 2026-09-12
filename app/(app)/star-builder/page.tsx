@@ -105,7 +105,7 @@ export default function STARBuilderPage() {
 
             {/* Competency selector */}
             <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "rgba(255,255,255,0.62)" }}>
                 Competency to Build
               </label>
               <div className="relative">
@@ -119,7 +119,7 @@ export default function STARBuilderPage() {
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "rgba(255,255,255,0.4)" }} />
               </div>
-              <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.62)" }}>
                 Select the competency, then click <strong style={{ color: "rgba(255,255,255,0.65)" }}>Generate STAR</strong> on any experience below.
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function STARBuilderPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-sm font-semibold text-white">Your Experiences</h3>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Add bullet points, situations, or achievements from your life</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>Add bullet points, situations, or achievements from your life</p>
                 </div>
                 <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)" }}>
                   {experiences.length}
@@ -154,8 +154,8 @@ export default function STARBuilderPage() {
                     "mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-medium transition-colors",
                   )}
                   style={newExperience.trim()
-                    ? { background: "linear-gradient(135deg, #5B8CFF, #8B5CF6)", color: "#ffffff" }
-                    : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", cursor: "not-allowed" }
+                    ? { background: "linear-gradient(135deg, #3F6FD8, #7C3AED)", color: "#ffffff" }
+                    : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.62)", cursor: "not-allowed" }
                   }
                 >
                   <Plus className="w-4 h-4" /> Add Experience
@@ -198,7 +198,7 @@ export default function STARBuilderPage() {
                           disabled={loading}
                           className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-colors"
                           style={loading && loadingExperienceId !== exp.id
-                            ? { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.3)", cursor: "not-allowed" }
+                            ? { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.62)", cursor: "not-allowed" }
                             : { background: "#5B8CFF", color: "#ffffff" }
                           }
                         >
@@ -221,7 +221,7 @@ export default function STARBuilderPage() {
                         <button
                           onClick={() => removeExperience(exp.id)}
                           className="p-1.5 rounded-lg transition-colors hover:text-red-400"
-                          style={{ color: "rgba(255,255,255,0.4)" }}
+                          style={{ color: "rgba(255,255,255,0.62)" }}
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -230,7 +230,7 @@ export default function STARBuilderPage() {
                   )
                 })}
                 {experiences.length === 0 && (
-                  <div className="text-center py-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <div className="text-center py-8" style={{ color: "rgba(255,255,255,0.62)" }}>
                     <p className="text-sm">No experiences added yet.</p>
                     <p className="text-xs mt-1">Add a bullet point above to get started.</p>
                   </div>
@@ -259,7 +259,7 @@ export default function STARBuilderPage() {
                           <span className="text-xs font-semibold" style={{ color: "#5B8CFF" }}>{s.competency}</span>
                           <span className={cn("text-xs font-bold", getScoreColor(s.result.score))}>{s.result.score}/100</span>
                         </div>
-                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{s.experienceText}</p>
+                        <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.62)" }}>{s.experienceText}</p>
                       </button>
                     )
                   })}
@@ -278,10 +278,10 @@ export default function STARBuilderPage() {
                   <Zap className="w-7 h-7" style={{ color: "#5B8CFF" }} />
                 </div>
                 <h3 className="text-base font-semibold text-white mb-2">No STAR answer generated yet</h3>
-                <p className="text-sm max-w-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-sm max-w-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
                   Select a competency on the left, then click <strong style={{ color: "rgba(255,255,255,0.65)" }}>Generate STAR</strong> on any of your experiences.
                 </p>
-                <div className="flex items-center gap-2 mt-6 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <div className="flex items-center gap-2 mt-6 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
                   <span>Add experience</span>
                   <ArrowRight className="w-3 h-3" />
                   <span>Pick competency</span>
@@ -303,7 +303,7 @@ export default function STARBuilderPage() {
                           {getScoreLabel(activeScenario.result.score)}
                         </span>
                       </div>
-                      <p className="text-xs mt-2 italic line-clamp-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <p className="text-xs mt-2 italic line-clamp-2" style={{ color: "rgba(255,255,255,0.62)" }}>
                         Based on: "{activeScenario.experienceText}"
                       </p>
                     </div>
@@ -311,7 +311,7 @@ export default function STARBuilderPage() {
                       <div className={cn("text-4xl font-bold", getScoreColor(activeScenario.result.score))}>
                         {activeScenario.result.score}
                       </div>
-                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</div>
+                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>/100</div>
                     </div>
                   </div>
                   {/* STAR completeness bar */}
@@ -347,7 +347,7 @@ export default function STARBuilderPage() {
                     <button
                       onClick={() => handleCopy(getVersionText(activeScenario) || "")}
                       className="flex items-center gap-1.5 text-xs transition-colors"
-                      style={{ color: "rgba(255,255,255,0.4)" }}
+                      style={{ color: "rgba(255,255,255,0.62)" }}
                     >
                       {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
                       {copied ? "Copied!" : "Copy"}

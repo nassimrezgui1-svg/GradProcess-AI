@@ -163,7 +163,7 @@ function PricingContent() {
       <section className="px-6 pb-24">
         <div className="max-w-2xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)", boxShadow: "0 32px 80px rgba(99,102,241,0.4)" }}>
+            style={{ background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)", boxShadow: "0 32px 80px rgba(99,102,241,0.4)" }}>
 
             <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none"
               style={{ background: "rgba(255,255,255,0.07)" }} />
@@ -190,7 +190,7 @@ function PricingContent() {
                     aria-pressed={plan === opt.key}
                     className="px-5 py-2 rounded-xl text-sm font-bold transition-all"
                     style={plan === opt.key
-                      ? { background: "#FFFFFF", color: "#6366F1" }
+                      ? { background: "#FFFFFF", color: "#4F46E5" }
                       : { background: "transparent", color: "rgba(255,255,255,0.7)" }}>
                     {opt.label}
                   </button>
@@ -203,9 +203,9 @@ function PricingContent() {
                     <span className="text-6xl font-black text-white tracking-tight">
                       {formatPrice(selected.perMonth)}
                     </span>
-                    <span className="text-xl font-semibold" style={{ color: "rgba(196,181,253,0.8)" }}>/month</span>
+                    <span className="text-xl font-semibold" style={{ color: "rgba(255,255,255,0.92)" }}>/month</span>
                   </div>
-                  <p style={{ color: "rgba(196,181,253,0.7)" }} className="text-sm">
+                  <p style={{ color: "rgba(255,255,255,0.92)" }} className="text-sm">
                     {plan === "annual"
                       ? `Billed ${formatPrice(selected.amount)} a year — saves ${formatPrice(ANNUAL_SAVING)} against monthly`
                       : "Billed monthly · Cancel any time · No hidden fees"}
@@ -215,7 +215,7 @@ function PricingContent() {
                   onClick={handleCheckout}
                   disabled={loading}
                   className="flex-shrink-0 inline-flex items-center justify-center gap-2.5 text-base font-black px-9 py-4 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
-                  style={{ background: "#FFFFFF", color: "#6366F1", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+                  style={{ background: "#FFFFFF", color: "#4F46E5", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
                   {loading
                     ? <Loader2 className="w-5 h-5 animate-spin" />
                     : <><span>{ctaLabel}</span><ArrowRight className="w-5 h-5" /></>
@@ -227,7 +227,7 @@ function PricingContent() {
               {!subActive && (
                 <div className="mb-8">
                   <label htmlFor="promo" className="block text-xs font-semibold mb-2"
-                    style={{ color: "rgba(196,181,253,0.85)" }}>
+                    style={{ color: "rgba(255,255,255,0.92)" }}>
                     Discount code (optional)
                   </label>
                   <input
@@ -244,7 +244,7 @@ function PricingContent() {
                       color: "#FFFFFF",
                     }}
                   />
-                  <p className="text-xs mt-2" style={{ color: "rgba(196,181,253,0.6)" }}>
+                  <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.92)" }}>
                     Applied at checkout — you will see the discount before you pay.
                   </p>
                 </div>
@@ -264,14 +264,16 @@ function PricingContent() {
                 {features.map(f => (
                   <div key={f} className="flex items-start gap-3">
                     <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-white" />
-                    <span className="text-sm leading-snug" style={{ color: "rgba(224,214,255,0.9)" }}>{f}</span>
+                    <span className="text-sm leading-snug" style={{ color: "rgba(255,255,255,0.93)" }}>{f}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <p className="text-center mt-5 text-xs" style={{ color: "rgba(255,255,255,0.22)" }}>
+          {/* A material pricing disclosure, so it has to be legible: white at
+              22% opacity measured 1.92:1 against a 4.5:1 AA floor. */}
+          <p className="text-center mt-5 text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
             {plan === "annual"
               ? `${formatPrice(PLANS.annual.amount)} billed once a year · Existing subscribers keep their rate`
               : "Price may increase after the initial launch period · Existing subscribers keep their rate"}
@@ -299,21 +301,21 @@ function PricingContent() {
 
       {/* ── CTA ── */}
       <section className="relative py-28 px-6 overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #0EA5E9 100%)" }}>
+        style={{ background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0369A1 100%)" }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.1), transparent 60%)" }} />
         <div className="relative max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
             Start practising today.
           </h2>
-          <p className="text-lg text-indigo-100 mb-10">
+          <p className="text-lg mb-10" style={{ color: "rgba(255,255,255,0.95)" }}>
             {formatPrice(selected.perMonth)}/mo · Full access · Cancel any time.
           </p>
           <button
             onClick={handleCheckout}
             disabled={loading}
             className="inline-flex items-center gap-3 text-base font-bold px-10 py-5 rounded-2xl transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
-            style={{ background: "#FFFFFF", color: "#6366F1", boxShadow: "0 12px 48px rgba(0,0,0,0.2)" }}>
+            style={{ background: "#FFFFFF", color: "#4F46E5", boxShadow: "0 12px 48px rgba(0,0,0,0.2)" }}>
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>{ctaLabel} <ArrowRight className="w-5 h-5" /></>}
           </button>
         </div>

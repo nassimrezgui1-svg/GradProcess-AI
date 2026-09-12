@@ -261,7 +261,7 @@ export default function PsychometricPage() {
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">Generating 20 Questions</h3>
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Ava is building your {testName} questions...</p>
-            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>Questions are tailored to avoid repeating what you've seen before</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.62)" }}>Questions are tailored to avoid repeating what you've seen before</p>
           </div>
         </div>
       </div>
@@ -311,7 +311,7 @@ export default function PsychometricPage() {
 
             {/* Question */}
             <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <p className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.62)" }}>
                 {currentQ.type.charAt(0).toUpperCase() + currentQ.type.slice(1)} · {currentQ.difficulty}
               </p>
               <p className="text-base font-medium leading-relaxed mb-6 text-white">{currentQ.question}</p>
@@ -367,12 +367,12 @@ export default function PsychometricPage() {
                   }
                 </div>
                 <p style={{ color: "rgba(255,255,255,0.65)" }}>{currentQ.explanation}</p>
-                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>Next question in a moment...</p>
+                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.62)" }}>Next question in a moment...</p>
               </div>
             )}
 
             {/* Score tracker */}
-            <div className="flex items-center justify-between text-xs px-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <div className="flex items-center justify-between text-xs px-1" style={{ color: "rgba(255,255,255,0.62)" }}>
               <span>{answers.filter(a => a.isCorrect).length} correct so far</span>
               <span>{answers.filter(a => !a.isCorrect && a.selected !== -1).length} incorrect · {answers.filter(a => a.selected === -1).length} timed out</span>
             </div>
@@ -399,7 +399,7 @@ export default function PsychometricPage() {
               <div>
                 <h2 className="text-2xl font-bold mb-1">Test Complete!</h2>
                 <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{currentSession.testName} · {currentSession.total} questions</p>
-                <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>{new Date(currentSession.date).toLocaleString()}</p>
+                <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.62)" }}>{new Date(currentSession.date).toLocaleString()}</p>
               </div>
               <div className="text-right">
                 <div className={cn("text-6xl font-bold", getScoreColor(currentSession.score))}>{currentSession.score}</div>
@@ -451,7 +451,7 @@ export default function PsychometricPage() {
                       <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
                         Your answer: <strong>{a.selected >= 0 ? a.options[a.selected] : "Timed out"}</strong>
                         {!a.isCorrect && <> · Correct: <strong style={{ color: "#34D399" }}>{a.options[a.correct]}</strong></>}
-                        <span className="ml-2" style={{ color: "rgba(255,255,255,0.4)" }}>({a.timeTaken}s)</span>
+                        <span className="ml-2" style={{ color: "rgba(255,255,255,0.62)" }}>({a.timeTaken}s)</span>
                       </p>
                       {!a.isCorrect && <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{a.explanation}</p>}
                     </div>
@@ -501,7 +501,7 @@ export default function PsychometricPage() {
         <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg, #0a0f1e 0%, #1e293b 100%)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wide mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Overall Psychometric Score</p>
+              <p className="text-xs uppercase tracking-wide mb-1" style={{ color: "rgba(255,255,255,0.62)" }}>Overall Psychometric Score</p>
               {overallScore !== null ? (
                 <>
                   <p className={cn("text-5xl font-bold", getScoreColor(overallScore))}>{overallScore}</p>
@@ -511,7 +511,7 @@ export default function PsychometricPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-4xl font-bold" style={{ color: "rgba(255,255,255,0.3)" }}>—</p>
+                  <p className="text-4xl font-bold" style={{ color: "rgba(255,255,255,0.62)" }}>—</p>
                   <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>Complete your first test to get a score</p>
                 </>
               )}
@@ -520,7 +520,7 @@ export default function PsychometricPage() {
               {scoreByType.filter(t => t.count > 0).slice(0, 4).map(t => (
                 <div key={t.id} className="text-center rounded-xl px-3 py-2" style={{ background: "rgba(255,255,255,0.05)" }}>
                   <p className={cn("text-lg font-bold", getScoreColor(t.avg!))}>{t.avg}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.name.split(" ")[0]}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{t.name.split(" ")[0]}</p>
                 </div>
               ))}
             </div>
@@ -571,14 +571,14 @@ export default function PsychometricPage() {
                     {avgScore !== null && (
                       <div className="text-right">
                         <span className={cn("text-sm font-bold", getScoreColor(avgScore))}>{avgScore}/100</span>
-                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{sessions.length} attempt{sessions.length !== 1 ? "s" : ""}</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{sessions.length} attempt{sessions.length !== 1 ? "s" : ""}</p>
                       </div>
                     )}
                   </div>
                   <h3 className="font-semibold text-white mb-1">{test.name}</h3>
                   <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{test.description}</p>
                   {last && (
-                    <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.62)" }}>
                       Last: {last.correct}/{last.total} correct · {new Date(last.date).toLocaleDateString()}
                     </p>
                   )}
@@ -610,7 +610,7 @@ export default function PsychometricPage() {
               <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <History className="w-10 h-10 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.2)" }} />
                 <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>No tests completed yet</p>
-                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Complete a test to see your history here</p>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.62)" }}>Complete a test to see your history here</p>
               </div>
             ) : (
               testLog.map((session, i) => {
@@ -625,12 +625,12 @@ export default function PsychometricPage() {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-white">{session.testName}</p>
-                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{new Date(session.date).toLocaleString()}</p>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{new Date(session.date).toLocaleString()}</p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className={cn("text-2xl font-bold", getScoreColor(session.score))}>{session.score}</p>
-                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</p>
+                        <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>/100</p>
                       </div>
                     </div>
                     <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -670,7 +670,7 @@ export default function PsychometricPage() {
               <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <TrendingUp className="w-6 h-6 mx-auto mb-2" style={{ color: "#8B5CF6" }} />
                 <p className={cn("text-2xl font-bold", overallScore ? getScoreColor(overallScore) : "")}
-                  style={!overallScore ? { color: "rgba(255,255,255,0.4)" } : {}}>
+                  style={!overallScore ? { color: "rgba(255,255,255,0.62)" } : {}}>
                   {overallScore ?? "—"}
                 </p>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Overall Score</p>
@@ -685,9 +685,9 @@ export default function PsychometricPage() {
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{t.name}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.count} attempt{t.count !== 1 ? "s" : ""}</span>
+                        <span className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{t.count} attempt{t.count !== 1 ? "s" : ""}</span>
                         <span className={cn("text-sm font-bold", t.avg ? getScoreColor(t.avg) : "")}
-                          style={!t.avg ? { color: "rgba(255,255,255,0.4)" } : {}}>
+                          style={!t.avg ? { color: "rgba(255,255,255,0.62)" } : {}}>
                           {t.avg ?? "—"}
                         </span>
                       </div>

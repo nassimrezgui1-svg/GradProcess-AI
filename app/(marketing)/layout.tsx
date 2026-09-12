@@ -57,7 +57,7 @@ function MarketingNav() {
           {signedIn ? (
             <Link href="/dashboard"
               className="text-sm font-bold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+              style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
               Go to Dashboard
             </Link>
           ) : (
@@ -71,7 +71,7 @@ function MarketingNav() {
               </Link>
               <Link href="/signup"
                 className="text-sm font-bold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-                style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+                style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
                 Get Started
               </Link>
             </>
@@ -94,13 +94,13 @@ function MarketingNav() {
           <div className="pt-3 flex gap-3 mt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             {signedIn ? (
               <Link href="/dashboard" className="flex-1 text-center py-2.5 rounded-xl text-sm font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}>Go to Dashboard</Link>
+                style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}>Go to Dashboard</Link>
             ) : (
               <>
                 <Link href="/login" className="flex-1 text-center py-2.5 rounded-xl text-sm font-medium"
                   style={{ border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.6)" }}>Log in</Link>
                 <Link href="/signup" className="flex-1 text-center py-2.5 rounded-xl text-sm font-bold text-white"
-                  style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}>Get Started</Link>
+                  style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}>Get Started</Link>
               </>
             )}
           </div>
@@ -117,7 +117,7 @@ function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
             <div className="mb-4"><LogoFull iconSize={26} dark /></div>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>
               AI-powered graduate recruitment preparation for the UK&apos;s top schemes.
             </p>
           </div>
@@ -155,7 +155,7 @@ function MarketingFooter() {
                 {col.links.map(l => (
                   <li key={l.href}>
                     <Link href={l.href} className="text-sm transition-colors"
-                      style={{ color: "rgba(255,255,255,0.3)" }}
+                      style={{ color: "rgba(255,255,255,0.62)" }}
                       onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
                       onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>{l.label}</Link>
                   </li>
@@ -166,13 +166,13 @@ function MarketingFooter() {
         </div>
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.2)" }}>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.52)" }}>
             © {new Date().getFullYear()} GradProcess AI. All rights reserved.
           </p>
           {/* Social placeholders removed — they looked like links but went nowhere.
               A real contact route is more useful than three dead icons. */}
           <a href="mailto:support@gradprocessai.com" className="text-sm transition-colors"
-            style={{ color: "rgba(255,255,255,0.2)" }}
+            style={{ color: "rgba(255,255,255,0.52)" }}
             onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
             onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.2)")}>
             support@gradprocessai.com

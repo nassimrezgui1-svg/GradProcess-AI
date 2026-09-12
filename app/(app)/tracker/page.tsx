@@ -94,7 +94,7 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
         </span>
         {app.location && (
           <span className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
-            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.62)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <MapPin className="w-2.5 h-2.5" />{app.location}
           </span>
         )}
@@ -103,7 +103,7 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
       {/* Deadline */}
       {dl && (
         <div className={cn("flex items-center gap-1.5 text-xs mb-3", dl.urgent ? "text-red-400" : dl.over ? "" : "")}
-          style={dl.over ? { color: "rgba(255,255,255,0.4)" } : dl.urgent ? {} : { color: "rgba(255,255,255,0.65)" }}>
+          style={dl.over ? { color: "rgba(255,255,255,0.62)" } : dl.urgent ? {} : { color: "rgba(255,255,255,0.65)" }}>
           <Clock className="w-3 h-3" />
           <span className="font-medium">{dl.urgent && !dl.over ? "⚡ " : ""}{dl.label}</span>
         </div>
@@ -113,7 +113,7 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
       {app.readinessScore !== undefined && (
         <div className="mb-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Readiness</span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Readiness</span>
             <span className="text-xs font-bold" style={{ color: scoreColor(app.readinessScore) }}>{app.readinessScore}/100</span>
           </div>
           <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -163,7 +163,7 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
         <button
           onClick={e => { e.stopPropagation(); onClick() }}
           className="flex items-center justify-center p-1.5 rounded-lg transition-colors"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          style={{ color: "rgba(255,255,255,0.62)" }}
           onMouseEnter={e => { e.currentTarget.style.color = "#8B5CF6"; e.currentTarget.style.background = "rgba(139,92,246,0.1)" }}
           onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent" }}
           title="View details"
@@ -173,7 +173,7 @@ function ApplicationCard({ app, onMove, onDelete, onClick }: {
         <button
           onClick={e => { e.stopPropagation(); onDelete() }}
           className="flex items-center justify-center p-1.5 rounded-lg transition-colors"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          style={{ color: "rgba(255,255,255,0.62)" }}
           onMouseEnter={e => { e.currentTarget.style.color = "#F87171"; e.currentTarget.style.background = "rgba(248,113,113,0.1)" }}
           onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "transparent" }}
           title="Delete"
@@ -224,7 +224,7 @@ function StageColumn({ stage, apps, onMove, onDelete, onCardClick, onAddToStage 
       <button
         onClick={() => onAddToStage(stage.id)}
         className="mt-3 flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-xs font-medium transition-all"
-        style={{ border: "2px dashed rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", background: "transparent" }}
+        style={{ border: "2px dashed rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.62)", background: "transparent" }}
         onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.65)" }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)" }}
       >
@@ -349,9 +349,9 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
           <div className="flex items-center justify-between px-6 py-5 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <div>
               <h2 className="text-lg font-bold text-white">Add Opportunity</h2>
-              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Paste a job description to let AI extract the details automatically</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>Paste a job description to let AI extract the details automatically</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}
+            <button onClick={onClose} className="p-2 rounded-xl transition-colors" style={{ color: "rgba(255,255,255,0.62)" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             ><X className="w-5 h-5" /></button>
@@ -363,7 +363,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
               <button key={t.id} onClick={() => setTab(t.id)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
                 style={tab === t.id
-                  ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)", color: "#ffffff" }
+                  ? { background: "linear-gradient(135deg,#5546D6,#3F6FD8)", color: "#ffffff" }
                   : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)" }
                 }
               >
@@ -409,7 +409,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
                   onClick={handleExtract}
                   disabled={extracting || (!jdText.trim() && !url.trim())}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-50"
-                  style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                  style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
                 >
                   {extracting ? <><Loader2 className="w-4 h-4 animate-spin" /> Extracting…</> : <><Sparkles className="w-4 h-4" /> AI Extract Details</>}
                 </button>
@@ -445,7 +445,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-white mb-1">Key Skills <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: "normal" }}>(comma separated)</span></label>
+                  <label className="block text-xs font-semibold text-white mb-1">Key Skills <span style={{ color: "rgba(255,255,255,0.62)", fontWeight: "normal" }}>(comma separated)</span></label>
                   <input className="w-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40" style={inputStyle} placeholder="e.g. Financial modelling, Excel, Python, Stakeholder management" value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} />
                 </div>
                 <div>
@@ -470,7 +470,7 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
                 onClick={handleSave}
                 disabled={!form.company || !form.role || saving}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                 Save Opportunity
@@ -566,7 +566,7 @@ export default function TrackerPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white leading-none">{value}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{label}</p>
                 </div>
               </div>
             ))}
@@ -581,7 +581,7 @@ export default function TrackerPage() {
                   onClick={() => setSectorFilter(s)}
                   className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
                   style={sectorFilter === s
-                    ? { background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)", color: "#ffffff" }
+                    ? { background: "linear-gradient(135deg,#5546D6,#3F6FD8)", color: "#ffffff" }
                     : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.65)" }
                   }
                 >
@@ -593,7 +593,7 @@ export default function TrackerPage() {
             <button
               onClick={() => { setAddStage("saved"); setAddOpen(true) }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0 transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+              style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
             >
               <Plus className="w-4 h-4" /> Add Opportunity
             </button>
@@ -619,7 +619,7 @@ export default function TrackerPage() {
             <button
               onClick={() => { setAddStage("saved"); setAddOpen(true) }}
               className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+              style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
             >
               <Plus className="w-4 h-4" /> Add Your First Opportunity
             </button>
@@ -646,7 +646,7 @@ export default function TrackerPage() {
             {/* Outcomes strip */}
             {outcomes.some(o => o.apps.length > 0) && (
               <div className="flex-shrink-0 px-6 pb-5 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>Closed Applications</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.62)" }}>Closed Applications</p>
                 <div className="flex flex-wrap gap-3">
                   {outcomes.filter(o => o.apps.length > 0).map(({ stage, apps: outApps }) => (
                     <div key={stage.id} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium" style={{ backgroundColor: stage.bg, color: stage.text, borderColor: stage.border, border: `1px solid ${stage.border}` }}>

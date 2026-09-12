@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
           <Link
             href="/forgot-password"
             className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all"
-            style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+            style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
           >
             Request a new link
           </Link>
@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
             type="submit"
             disabled={loading || !isValid}
             className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+            style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
           >
             {loading ? "Updating…" : "Update password"}
           </button>

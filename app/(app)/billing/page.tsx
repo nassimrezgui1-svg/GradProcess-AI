@@ -103,7 +103,7 @@ export default function BillingPage() {
                   <p className="font-bold text-white">
                     {isActive ? "Student Pro" : "No active plan"}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                     {isActive
                       ? periodEnd
                         // Only claim a date when Stripe has actually given us one —
@@ -192,7 +192,7 @@ export default function BillingPage() {
                       disabled={checkoutLoading !== null}
                       className="w-full flex items-center justify-between gap-3 text-left px-5 py-4 rounded-xl transition-all hover:opacity-90 disabled:opacity-50"
                       style={isAnnual
-                        ? { background: "linear-gradient(135deg, #6366F1, #8B5CF6)", color: "#fff", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }
+                        ? { background: "linear-gradient(135deg, #4F46E5, #7C3AED)", color: "#fff", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }
                         : { background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}
                     >
                       <span>
@@ -226,14 +226,14 @@ export default function BillingPage() {
                     <p className="text-xs" style={{ color: "rgba(255,255,255,0.75)" }}>{checkoutError}</p>
                   </div>
                 )}
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
                   Have a discount code? Enter it at checkout, or on the{" "}
                   <a href="/pricing" className="underline" style={{ color: "#818CF8" }}>pricing page</a>.
                 </p>
               </div>
             )}
 
-            <p className="mt-3 text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <p className="mt-3 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
               {isActive
                 ? "Cancel, update payment method, or download invoices via the billing portal."
                 : "Full access · Cancel any time · 7-day refund guarantee"

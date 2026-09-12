@@ -72,7 +72,7 @@ export default async function SectorPage({ params }: PageProps) {
         <div className="relative max-w-7xl mx-auto">
           <Link href="/sectors"
             className="inline-flex items-center gap-2 text-sm mb-8 transition-colors"
-            style={{ color: "rgba(255,255,255,0.4)" }}
+            style={{ color: "rgba(255,255,255,0.62)" }}
           >
             <ArrowLeft className="w-4 h-4" /> All Sectors
           </Link>
@@ -224,7 +224,7 @@ export default async function SectorPage({ params }: PageProps) {
             </p>
             <Link href="/signup"
               className="inline-flex items-center gap-2 text-sm font-bold text-white px-6 py-3 rounded-xl transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
+              style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.35)" }}>
               Get notified <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

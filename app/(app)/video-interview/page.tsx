@@ -591,7 +591,7 @@ export default function VideoInterviewPage() {
                 {/* Header */}
                 <div className="px-6 pt-6 pb-4 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                    style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                     <Video className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -625,7 +625,7 @@ export default function VideoInterviewPage() {
                   <div>
                     <label className="block text-xs font-semibold text-white mb-2">
                       Interview Mode
-                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>— pick the competency type you want to practise</span>
+                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.62)" }}>— pick the competency type you want to practise</span>
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {MODES.map(m => (
@@ -658,12 +658,12 @@ export default function VideoInterviewPage() {
                   <div>
                     <label className="block text-xs font-semibold text-white mb-2">
                       Questions: <span style={{ color: "#5B8CFF" }}>{setup.questionCount}</span>
-                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>({setup.questionCount <= 3 ? "Quick practice" : setup.questionCount <= 5 ? "Standard session" : "Full interview"})</span>
+                      <span className="ml-2 font-normal" style={{ color: "rgba(255,255,255,0.62)" }}>({setup.questionCount <= 3 ? "Quick practice" : setup.questionCount <= 5 ? "Standard session" : "Full interview"})</span>
                     </label>
                     <input type="range" min={2} max={8} value={setup.questionCount}
                       onChange={e => setSetup(p => ({ ...p, questionCount: +e.target.value }))}
                       className="w-full" style={{ accentColor: "#5B8CFF" }} />
-                    <div className="flex justify-between text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    <div className="flex justify-between text-xs mt-1" style={{ color: "rgba(255,255,255,0.62)" }}>
                       <span>2 — Quick</span><span>8 — Full simulation</span>
                     </div>
                   </div>
@@ -674,7 +674,7 @@ export default function VideoInterviewPage() {
                   <button onClick={handleStartInterview} disabled={generatingQs}
                     className="w-full py-4 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2"
                     style={{
-                      background: generatingQs ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg,#6D5EF3,#5B8DEF)",
+                      background: generatingQs ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg,#5546D6,#3F6FD8)",
                       cursor: generatingQs ? "not-allowed" : "pointer",
                     }}>
                     {generatingQs
@@ -682,7 +682,7 @@ export default function VideoInterviewPage() {
                       : <><Play className="w-4 h-4" />Start {setup.mode} Interview — {setup.sector}</>
                     }
                   </button>
-                  <p className="text-xs text-center mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-xs text-center mt-3" style={{ color: "rgba(255,255,255,0.62)" }}>
                     You will be asked to grant camera &amp; microphone access on the next screen.
                   </p>
                 </div>
@@ -718,7 +718,7 @@ export default function VideoInterviewPage() {
                   {pastSessions.length === 0 ? (
                     <div className="text-center py-4">
                       <Video className="w-7 h-7 mx-auto mb-2" style={{ color: "rgba(255,255,255,0.2)" }} />
-                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>No sessions yet — complete your first above</p>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>No sessions yet — complete your first above</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -732,7 +732,7 @@ export default function VideoInterviewPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
                             {new Date(s.timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {s.questions.length}Q
                           </p>
                         </div>
@@ -764,7 +764,7 @@ export default function VideoInterviewPage() {
         <Topbar title="Video Interview — Setup" />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full rounded-2xl p-8 text-center space-y-6" style={cardStyle}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
               <Mic className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -781,7 +781,7 @@ export default function VideoInterviewPage() {
             <div className="space-y-3">
               <button onClick={requestPermissions}
                 className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all flex items-center justify-center gap-2 hover:opacity-90"
-                style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                 <Video className="w-4 h-4" />
                 Allow Camera & Microphone
               </button>
@@ -817,7 +817,7 @@ export default function VideoInterviewPage() {
                 <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg,#6D5EF3,#5B8DEF)" }}
                   initial={{ width: 0 }} animate={{ width: `${((qIndex) / totalQs) * 100}%` }} transition={{ duration: 0.5 }} />
               </div>
-              <span className="text-xs whitespace-nowrap" style={{ color: "rgba(255,255,255,0.4)" }}>{qIndex + 1}/{totalQs}</span>
+              <span className="text-xs whitespace-nowrap" style={{ color: "rgba(255,255,255,0.62)" }}>{qIndex + 1}/{totalQs}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -843,7 +843,7 @@ export default function VideoInterviewPage() {
                   </p>
                   {isFollowUp
                     ? <p className="text-xs text-amber-400 font-medium">Follow-up question based on your previous answer</p>
-                    : <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Take a moment to collect your thoughts, then click Record</p>
+                    : <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Take a moment to collect your thoughts, then click Record</p>
                   }
                 </div>
               </div>
@@ -856,7 +856,7 @@ export default function VideoInterviewPage() {
                       style={{ background: "rgba(91,140,255,0.15)", color: "#5B8CFF" }}>
                       {isFollowUp ? "Follow-up" : currentQ.type}
                     </span>
-                    {!isFollowUp && <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{currentQ.competency}</span>}
+                    {!isFollowUp && <span className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{currentQ.competency}</span>}
                   </div>
                   <p className="text-lg font-semibold text-white leading-relaxed">{displayQ}</p>
                 </div>
@@ -924,7 +924,7 @@ export default function VideoInterviewPage() {
                 <div className="flex gap-3">
                   <button onClick={startRecording}
                     className="flex-1 py-3.5 rounded-xl font-semibold text-sm text-white hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
-                    style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                    style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                     <Mic className="w-4 h-4" />
                     Start Recording
                   </button>
@@ -938,7 +938,7 @@ export default function VideoInterviewPage() {
                 </div>
 
                 <div className="flex items-center gap-2 justify-end">
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Live coaching</span>
+                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Live coaching</span>
                   <button
                     onClick={() => setLiveCoaching(v => !v)}
                     aria-pressed={liveCoaching}
@@ -1036,14 +1036,14 @@ export default function VideoInterviewPage() {
                   {fullTranscript ? (
                     <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
                       {transcript}
-                      <span className="italic" style={{ color: "rgba(255,255,255,0.35)" }}>{liveText}</span>
+                      <span className="italic" style={{ color: "rgba(255,255,255,0.62)" }}>{liveText}</span>
                     </p>
                   ) : !speechSupported ? (
-                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.62)" }}>
                       Live transcription isn&apos;t available in this browser — type your answer below and it will be scored the same way.
                     </p>
                   ) : (
-                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.35)" }}>Start speaking — your words will appear here…</p>
+                    <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.62)" }}>Start speaking — your words will appear here…</p>
                   )}
                 </div>
 
@@ -1074,7 +1074,7 @@ export default function VideoInterviewPage() {
                   {["Situation", "Task", "Action", "Result"].map((s) => (
                     <div key={s} className="rounded-lg p-2 text-center" style={cardStyle}>
                       <p className="text-xs font-bold text-white">{s[0]}</p>
-                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{s}</p>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{s}</p>
                     </div>
                   ))}
                 </div>
@@ -1085,7 +1085,7 @@ export default function VideoInterviewPage() {
                   Stop & Submit Answer
                 </button>
 
-                <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.62)" }}>
                   Your answer will be transcribed and analysed by Ava
                 </p>
               </div>
@@ -1103,7 +1103,7 @@ export default function VideoInterviewPage() {
         <Topbar title="Analysing Your Answer…" />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center space-y-4">
-            <motion.div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+            <motion.div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
               animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.5, repeat: Infinity }}>
               <Sparkles className="w-7 h-7 text-white" />
             </motion.div>
@@ -1111,7 +1111,7 @@ export default function VideoInterviewPage() {
               <h3 className="text-base font-semibold text-white mb-1">Ava is reviewing your answer</h3>
               <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Checking STAR structure, delivery, and content quality…</p>
             </div>
-            <div className="flex flex-col gap-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <div className="flex flex-col gap-2 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
               {["Detecting STAR components", "Counting filler words", "Scoring delivery metrics", "Generating ideal answer", "Preparing follow-up question"].map((s, i) => (
                 <motion.div key={s} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.4 }}
                   className="flex items-center gap-2 justify-center">
@@ -1139,12 +1139,12 @@ export default function VideoInterviewPage() {
               className="rounded-2xl p-5" style={cardStyle}>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-xs mb-1 font-medium" style={{ color: "rgba(255,255,255,0.4)" }}>{isFollowUp ? "Follow-up" : currentQ?.type} · Q{qIndex + 1}/{totalQs}</p>
+                  <p className="text-xs mb-1 font-medium" style={{ color: "rgba(255,255,255,0.62)" }}>{isFollowUp ? "Follow-up" : currentQ?.type} · Q{qIndex + 1}/{totalQs}</p>
                   <p className="text-sm font-semibold text-white line-clamp-2">{a.questionText}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   <p className={cn("text-3xl font-bold", scoreColor(a.overallScore))}>{a.overallScore}</p>
-                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>/100</p>
+                  <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>/100</p>
                 </div>
               </div>
               <div className="grid grid-cols-5 gap-2">
@@ -1192,14 +1192,14 @@ export default function VideoInterviewPage() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
-                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Duration</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Duration</p>
                     <p className="text-sm font-bold text-white">{fmtTime(a.durationSeconds)}</p>
-                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{a.durationSeconds < 60 ? "Too short" : a.durationSeconds > 180 ? "Too long" : "Good length"}</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{a.durationSeconds < 60 ? "Too short" : a.durationSeconds > 180 ? "Too long" : "Good length"}</p>
                   </div>
                   <div className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
-                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Speaking pace</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Speaking pace</p>
                     <p className={cn("text-sm font-bold", a.delivery.pacing === "good" ? "text-emerald-400" : "text-amber-400")}>{a.delivery.wordsPerMinute} wpm</p>
-                    <p className="text-xs capitalize" style={{ color: "rgba(255,255,255,0.4)" }}>{a.delivery.pacing}</p>
+                    <p className="text-xs capitalize" style={{ color: "rgba(255,255,255,0.62)" }}>{a.delivery.pacing}</p>
                   </div>
                 </div>
                 <div className="rounded-lg p-3"
@@ -1236,7 +1236,7 @@ export default function VideoInterviewPage() {
                       <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                       {s}
                     </li>
-                  )) : <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Keep working — strengths develop with practice.</p>}
+                  )) : <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Keep working — strengths develop with practice.</p>}
                 </ul>
               </div>
               <div className="rounded-2xl p-5" style={cardStyle}>
@@ -1325,7 +1325,7 @@ export default function VideoInterviewPage() {
               </div>
 
               {!mediaRecorderSupported && (
-                <p className="text-xs mt-3 flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="text-xs mt-3 flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.62)" }}>
                   <Info className="w-3.5 h-3.5 flex-shrink-0" />
                   Video recording is unavailable in this browser — transcript and HTML downloads are fully supported.
                 </p>
@@ -1344,7 +1344,7 @@ export default function VideoInterviewPage() {
               )}
               <button onClick={handleNextQuestion}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm text-white hover:opacity-90 transition-all"
-                style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                 {isLastQ && !a.followUpQuestion ? <><Trophy className="w-4 h-4" />Finish & Get Report</> : <><ChevronRight className="w-4 h-4" />{isLastQ ? "Finish Interview" : "Next Question"}</>}
               </button>
             </div>
@@ -1363,7 +1363,7 @@ export default function VideoInterviewPage() {
           <div className="max-w-4xl mx-auto space-y-5">
             {generatingReport || !finalReport ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <motion.div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+                <motion.div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
                   animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.5, repeat: Infinity }}>
                   <BarChart3 className="w-7 h-7 text-white" />
                 </motion.div>
@@ -1377,7 +1377,7 @@ export default function VideoInterviewPage() {
                 {/* Hero */}
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                   className="rounded-2xl p-6 text-white"
-                  style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                  style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm mb-1" style={{ color: "rgba(255,255,255,0.7)" }}>{setup.sector} · {setup.mode} · {setup.difficulty}</p>
@@ -1408,7 +1408,7 @@ export default function VideoInterviewPage() {
                       <p className="text-xs font-medium mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>{label}</p>
                       {score !== null
                         ? <p className={cn("text-xl font-bold", scoreColor(score))}>{score}</p>
-                        : <div><p className="text-base font-bold" style={{ color: "rgba(255,255,255,0.4)" }}>—</p><p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Beta</p></div>
+                        : <div><p className="text-base font-bold" style={{ color: "rgba(255,255,255,0.62)" }}>—</p><p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>Beta</p></div>
                       }
                     </div>
                   ))}
@@ -1418,15 +1418,15 @@ export default function VideoInterviewPage() {
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                   className="grid grid-cols-3 gap-3">
                   <div className="rounded-2xl p-4 text-center" style={cardStyle}>
-                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Fillers</p>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.62)" }}>Total Fillers</p>
                     <p className={cn("text-2xl font-bold", finalReport.totalFillerWords > 20 ? "text-rose-400" : finalReport.totalFillerWords > 10 ? "text-amber-400" : "text-emerald-400")}>{finalReport.totalFillerWords}</p>
                   </div>
                   <div className="rounded-2xl p-4 text-center" style={cardStyle}>
-                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Avg Pace</p>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.62)" }}>Avg Pace</p>
                     <p className={cn("text-2xl font-bold", finalReport.avgWordsPerMinute >= 110 && finalReport.avgWordsPerMinute <= 155 ? "text-emerald-400" : "text-amber-400")}>{finalReport.avgWordsPerMinute} wpm</p>
                   </div>
                   <div className="rounded-2xl p-4 text-center" style={cardStyle}>
-                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Total Time</p>
+                    <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.62)" }}>Total Time</p>
                     <p className="text-2xl font-bold text-white">{fmtTime(finalReport.totalDurationSeconds)}</p>
                   </div>
                 </motion.div>
@@ -1508,7 +1508,7 @@ export default function VideoInterviewPage() {
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-white truncate">{a.questionText}</p>
-                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{a.delivery.wordsPerMinute} wpm · {a.fillerWords.total} fillers · {fmtTime(a.durationSeconds)}</p>
+                          <p className="text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>{a.delivery.wordsPerMinute} wpm · {a.fillerWords.total} fillers · {fmtTime(a.durationSeconds)}</p>
                         </div>
                         {i === finalReport.strongestAnswerIndex && <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(52,211,153,0.12)", color: "#34D399", border: "1px solid rgba(52,211,153,0.25)" }}>Strongest</span>}
                         {i === finalReport.weakestAnswerIndex && answers.length > 1 && <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.25)" }}>Focus here</span>}
@@ -1520,14 +1520,14 @@ export default function VideoInterviewPage() {
                 {/* AI disclaimer */}
                 <div className="flex items-start gap-2 rounded-xl p-4" style={cardStyle}>
                   <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }} />
-                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>This feedback is AI-generated and designed to support interview preparation. It should not be treated as an exact recruiter assessment. Body language analysis is in beta — visual scoring requires camera access and will be available in a future release.</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.62)" }}>This feedback is AI-generated and designed to support interview preparation. It should not be treated as an exact recruiter assessment. Body language analysis is in beta — visual scoring requires camera access and will be available in a future release.</p>
                 </div>
 
                 {/* Actions */}
                 <div className="flex gap-3 pb-4">
                   <button onClick={handleRestart}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm text-white hover:opacity-90 transition-all"
-                    style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+                    style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
                     <RefreshCw className="w-4 h-4" />
                     Practice Again
                   </button>

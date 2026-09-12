@@ -224,7 +224,7 @@ function SecurityTab() {
             type="submit"
             disabled={pwLoading || !currentPassword || !newPassword || !confirmPassword}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+            style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
           >
             {pwLoading ? "Updating…" : "Update Password"}
           </button>
@@ -405,7 +405,7 @@ function PrivacyTab() {
         <button
           onClick={saveCookiePrefs}
           className="mt-4 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-          style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+          style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
         >
           Save Cookie Preferences
         </button>
@@ -496,7 +496,7 @@ export default function SettingsPage() {
     <button
       onClick={handleSave}
       className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-colors"
-      style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}
+      style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}
     >
       {saved ? <><Check className="w-4 h-4" />Saved!</> : "Save Changes"}
     </button>
@@ -638,7 +638,7 @@ function SubscriptionTab() {
 
   if (loading) {
     return <div className="rounded-2xl p-6" style={CARD_DARK}>
-      <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading your plan…</p>
+      <p className="text-sm" style={{ color: "rgba(255,255,255,0.62)" }}>Loading your plan…</p>
     </div>
   }
 
@@ -650,7 +650,7 @@ function SubscriptionTab() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+      <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg,#5546D6,#3F6FD8)" }}>
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-5 h-5" />
           <span className="font-bold">{isActive ? plan.name : "No active plan"}</span>
