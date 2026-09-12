@@ -135,9 +135,15 @@ export function loadDashboardScores(): DashboardScores {
     ? Math.round(moduleList.reduce((s, m) => s + m.score, 0) / moduleList.length)
     : null
 
+  // "Priority Focus" and "Biggest Strength" are a comparison, so they need at
+  // least two modules to compare. With one completed module sorted[0] and
+  // sorted[length - 1] were the same entry, and the Reports page presented that
+  // single module as simultaneously the user's weakest and strongest area.
   const sorted = [...moduleList].sort((a, b) => a.score - b.score)
-  const weakest: { label: string; score: number } | null = sorted[0] ?? null
-  const strongest: { label: string; score: number } | null = sorted[sorted.length - 1] ?? null
+  const canCompare = moduleList.length >= 2
+  const weakest: { label: string; score: number } | null = canCompare ? sorted[0] : null
+  const strongest: { label: string; score: number } | null =
+    canCompare ? sorted[sorted.length - 1] : null
 
   // Recent sessions: merge across all types, sort by date desc, take top 6
   const recentSessions: { label: string; score: number; date: string }[] = [

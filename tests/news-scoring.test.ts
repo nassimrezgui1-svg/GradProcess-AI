@@ -78,3 +78,31 @@ describe("the page does not claim sources it did not use", () => {
     expect(hub).toMatch(/Sourced from \$\{allSources\.filter/)
   })
 })
+
+/**
+ * The tab is labelled "Live News ... updated every 30 min" but nothing filtered
+ * on age. Measured on 12 September 2026: Engineering served an article 925 days
+ * old, Wealth Management a single item from 102 days earlier, and Asset
+ * Management one from 226 days earlier — all presented as current.
+ */
+describe("Live News only serves current articles", () => {
+  it("drops anything older than the freshness the tab claims", () => {
+    expect(route).toMatch(/MAX_ARTICLE_AGE_MS/)
+    const m = route.match(/MAX_ARTICLE_AGE_MS\s*=\s*(\d+)\s*\*\s*24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/)
+    expect(m, "no day-based age ceiling found").not.toBeNull()
+    expect(Number(m![1])).toBeLessThanOrEqual(30)
+  })
+
+  it("applies the age filter while collecting, not only when sorting", () => {
+    const collect = route.slice(route.indexOf("if (score < 1) continue"))
+    const guard = collect.slice(0, collect.indexOf("allItems.push"))
+    expect(guard).toMatch(/MAX_ARTICLE_AGE_MS/)
+    expect(guard).toMatch(/continue/)
+  })
+
+  it("prefers an empty sector over padding it with stale articles", () => {
+    // A quiet sector showing nothing is honest; showing a 102-day-old article
+    // under "updated every 30 min" is not.
+    expect(hub).toMatch(/No \$\{activeSector\} stories in today's feeds|quieter sectors/)
+  })
+})

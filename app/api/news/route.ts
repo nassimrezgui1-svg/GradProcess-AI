@@ -105,6 +105,9 @@ const SECTOR_KEYWORDS: Record<string, string[]> = {
 const cache: Record<string, { items: any[]; fetchedAt: number }> = {}
 const CACHE_TTL = 30 * 60 * 1000 // 30 minutes
 
+/** Anything older than this is not "live" and is dropped. */
+const MAX_ARTICLE_AGE_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
 /** Organisations whose name alone identifies the sector. */
 const NAMED_ENTITIES = new Set([
   "mckinsey", "bcg", "bain", "deloitte", "pwc", "kpmg", "ey", "accenture",
@@ -191,6 +194,13 @@ export async function GET(req: NextRequest) {
       const score = scoreArticle(item, keywords)
       // With whole-word matching, one hit is a genuine signal.
       if (score < 1) continue
+
+      // The tab is labelled "Live News ... updated every 30 min", but nothing
+      // filtered on age: Engineering served an article 925 days old and Wealth
+      // Management a single item from 102 days ago. Commercial awareness built
+      // on stale news is worse than an honest empty state.
+      const published = new Date(item.pubDate || item.isoDate || Date.now()).getTime()
+      if (Number.isFinite(published) && Date.now() - published > MAX_ARTICLE_AGE_MS) continue
       allItems.push({
         id: item.guid || item.link || item.title,
         title: item.title?.trim() || "Untitled",
