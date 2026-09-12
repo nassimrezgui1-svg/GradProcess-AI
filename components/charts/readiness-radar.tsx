@@ -1,4 +1,5 @@
 "use client"
+import { memo } from "react"
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip,
 } from "recharts"
@@ -10,7 +11,7 @@ interface ReadinessRadarProps {
   dark?: boolean
 }
 
-export function ReadinessRadar({ data, className, dark }: ReadinessRadarProps) {
+function ReadinessRadarImpl({ data, className, dark }: ReadinessRadarProps) {
   // With every module at zero the radius domain collapses and the chart draws
   // its axes with no shape at all, which reads as a broken chart rather than
   // an empty one.
@@ -67,3 +68,14 @@ export function ReadinessRadar({ data, className, dark }: ReadinessRadarProps) {
     </ChartFrame>
   )
 }
+
+/**
+ * Memoised because a parent re-render must not re-render the chart.
+ * Recharts 3 keeps an internal Redux store, and a 12 September crash report
+ * showed an unbounded update loop running through it — dispatch ->
+ * notifyNestedSubs -> render -> dispatch — raising "Maximum update depth
+ * exceeded" (React #185) and killing the browser tab while typing on a page
+ * that renders a chart. With referentially stable props the chart subtree now
+ * stays out of those renders entirely.
+ */
+export const ReadinessRadar = memo(ReadinessRadarImpl)

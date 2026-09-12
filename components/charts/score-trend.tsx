@@ -1,4 +1,5 @@
 "use client"
+import { memo } from "react"
 import {
   LineChart,
   Line,
@@ -16,7 +17,7 @@ interface ScoreTrendProps {
   className?: string
 }
 
-export function ScoreTrend({ data, className }: ScoreTrendProps) {
+function ScoreTrendImpl({ data, className }: ScoreTrendProps) {
   return (
     <ChartFrame className={className} height={200}>
       <ResponsiveContainer width="100%" height="100%">
@@ -57,3 +58,14 @@ export function ScoreTrend({ data, className }: ScoreTrendProps) {
     </ChartFrame>
   )
 }
+
+/**
+ * Memoised because a parent re-render must not re-render the chart.
+ * Recharts 3 keeps an internal Redux store, and a 12 September crash report
+ * showed an unbounded update loop running through it — dispatch ->
+ * notifyNestedSubs -> render -> dispatch — raising "Maximum update depth
+ * exceeded" (React #185) and killing the browser tab while typing on a page
+ * that renders a chart. With referentially stable props the chart subtree now
+ * stays out of those renders entirely.
+ */
+export const ScoreTrend = memo(ScoreTrendImpl)

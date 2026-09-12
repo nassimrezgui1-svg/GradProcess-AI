@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { Topbar } from "@/components/layout/topbar"
 import { KeywordTags } from "@/components/cv/keyword-tags"
 import { BulletRewriter } from "@/components/cv/bullet-rewriter"
@@ -153,10 +153,20 @@ export default function CVTailoringPage() {
     setTimeout(() => setCopiedSummary(false), 2000)
   }
 
-  const breakdownData = Object.entries(result.breakdown).map(([key, val]) => ({
-    name: key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()),
-    score: val as number,
-  }))
+  // Rebuilt inline this array had a new identity on every render, including
+  // every keystroke in the CV and Job Description boxes. Recharts 3 keeps an
+  // internal Redux store and treats new data as a state change, so each
+  // keystroke dispatched an update, which re-rendered, which produced another
+  // new array — an unbounded loop that raised "Maximum update depth exceeded"
+  // (React #185) and killed the browser tab. The STAR Builder textarea, on a
+  // page with no chart, was unaffected.
+  const breakdownData = useMemo(
+    () => Object.entries(result.breakdown).map(([key, val]) => ({
+      name: key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()),
+      score: val as number,
+    })),
+    [result.breakdown]
+  )
 
   const passStyle =
     result.passLikelihood === "Strong match"

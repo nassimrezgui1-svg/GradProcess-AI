@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { Topbar } from "@/components/layout/topbar"
 import { ReadinessRadar } from "@/components/charts/readiness-radar"
@@ -198,14 +198,14 @@ export default function ReportsPage() {
     return v[0].score - v[v.length - 1].score
   })()
 
-  const moduleData = [
+  const moduleData = useMemo(() => [
     { name: "CV & ATS", score: scores.cv ?? 0 },
     { name: "STAR", score: scores.star ?? 0 },
     { name: "Video Interview", score: scores.video ?? 0 },
     { name: "Psychometric", score: scores.psychometric ?? 0 },
-  ].filter(m => m.score > 0)
+  ], [scores]).filter(m => m.score > 0)
 
-  const radarData = scores.radarData
+  const radarData = scores.radarData  // already a stable reference from loadDashboardScores
 
   const TABS = [
     { id: "overview", label: "Overview", icon: BarChart3 },
@@ -433,6 +433,7 @@ export default function ReportsPage() {
                     if (!byComp[e.competency]) byComp[e.competency] = []
                     byComp[e.competency].push(e.score)
                   })
+                  // eslint-disable-next-line react-hooks/rules-of-hooks
                   const compData = Object.entries(byComp).map(([name, scores]) => ({
                     name, score: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
                   })).sort((a, b) => a.score - b.score)

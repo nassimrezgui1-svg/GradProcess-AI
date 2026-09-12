@@ -1,4 +1,5 @@
 "use client"
+import { memo } from "react"
 import {
   BarChart,
   Bar,
@@ -24,7 +25,7 @@ function getBarColor(score: number) {
   return "#ef4444"
 }
 
-export function ModuleBars({ data, className, horizontal = false, dark = false }: ModuleBarsProps) {
+function ModuleBarsImpl({ data, className, horizontal = false, dark = false }: ModuleBarsProps) {
   const gridColor = dark ? "rgba(255,255,255,0.05)" : "#f1f5f9"
   const tickColor = dark ? "rgba(255,255,255,0.3)" : "#94a3b8"
   const labelColor = dark ? "rgba(255,255,255,0.45)" : "#64748b"
@@ -70,3 +71,14 @@ export function ModuleBars({ data, className, horizontal = false, dark = false }
     </ChartFrame>
   )
 }
+
+/**
+ * Memoised because a parent re-render must not re-render the chart.
+ * Recharts 3 keeps an internal Redux store, and a 12 September crash report
+ * showed an unbounded update loop running through it — dispatch ->
+ * notifyNestedSubs -> render -> dispatch — raising "Maximum update depth
+ * exceeded" (React #185) and killing the browser tab while typing on a page
+ * that renders a chart. With referentially stable props the chart subtree now
+ * stays out of those renders entirely.
+ */
+export const ModuleBars = memo(ModuleBarsImpl)
