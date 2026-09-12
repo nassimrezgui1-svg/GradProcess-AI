@@ -59,13 +59,32 @@ Provide a comprehensive coaching report. Return ONLY valid JSON:
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1000,
+      // The coaching report measures ~1,219 output tokens. At 1,000 it stopped
+      // on max_tokens every time, the JSON was cut mid-structure, and the parse
+      // below silently fell back to {} — so every report returned correct
+      // scores with no recruiter feedback, strengths, improvements, roadmap or
+      // next steps at all.
+      max_tokens: 1800,
       messages: [{ role: "user", content: prompt }],
     })
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "{}"
+    const text = response.content[0].type === "text" ? response.content[0].text : ""
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    const coaching = JSON.parse(jsonMatch?.[0] || "{}")
+
+    // Falling back to {} here is what hid the truncation: the report still
+    // returned 200 with every score intact and no coaching in it. A report with
+    // no feedback is not a report, so this now fails loudly and the client can
+    // offer a retry.
+    let coaching: Record<string, unknown>
+    try {
+      if (!jsonMatch) throw new Error("no JSON object in response")
+      coaching = JSON.parse(jsonMatch[0])
+    } catch {
+      throw new Error("Could not generate your coaching feedback. Your answers are saved — please try again.")
+    }
+    if (!coaching.recruiterFeedback) {
+      throw new Error("The coaching feedback came back incomplete. Your answers are saved — please try again.")
+    }
 
     const report = {
       overallScore: overall,

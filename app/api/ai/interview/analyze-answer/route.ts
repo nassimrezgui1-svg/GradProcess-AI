@@ -95,7 +95,21 @@ Scoring guidance:
 
     const text = response.content[0].type === "text" ? response.content[0].text : "{}"
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    const analysis = JSON.parse(jsonMatch?.[0] || "{}")
+
+    // Falling back to {} handed the UI an analysis with every field undefined,
+    // which renders as a feedback screen of blanks and zeroes rather than an
+    // error. The same fallback in the final report hid a truncation that left
+    // every session report with no coaching text at all.
+    let analysis: Record<string, unknown>
+    try {
+      if (!jsonMatch) throw new Error("no JSON object in response")
+      analysis = JSON.parse(jsonMatch[0])
+    } catch {
+      throw new Error("Could not analyse that answer. Your recording is saved — please try again.")
+    }
+    if (typeof analysis.overallScore !== "number") {
+      throw new Error("The analysis came back incomplete. Your recording is saved — please try again.")
+    }
 
     return NextResponse.json(analysis)
   } catch (error: any) {
