@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import {
@@ -35,9 +35,19 @@ export function CommandPalette() {
     { id: "weaknesses",  label: "See my weaknesses",          description: "Find out where to focus your energy",               icon: <Zap className="w-4 h-4" />,        action: () => go("/reports"),            category: "AI Coach" },
   ]
 
-  const filtered = query.trim()
-    ? commands.filter(c => c.label.toLowerCase().includes(query.toLowerCase()) || c.description.toLowerCase().includes(query.toLowerCase()))
-    : commands
+  // `filtered` is a dependency of the keydown effect below. Rebuilt on every
+  // render it made that effect detach and re-attach its window listener each
+  // time, so the handler churned continuously while the palette was open.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return commands
+    return commands.filter(c =>
+      c.label.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+    )
+    // `commands` is rebuilt each render by design (it closes over `go`), so the
+    // query is what actually decides the result.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
 
   const categories = [...new Set(filtered.map(c => c.category))]
 
