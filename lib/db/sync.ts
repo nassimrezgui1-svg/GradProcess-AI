@@ -5,7 +5,7 @@
 // so every device converges on the same history.
 
 import {
-  activeUser, setActiveUser, claimLegacyData, readLocal, writeLocal, announceSync,
+  activeUser, setActiveUser, discardLegacyData, readLocal, writeLocal, announceSync,
 } from "./local"
 import {
   getUserId, pullModuleResults, pushModuleResult, pullGamification, pushGamification,
@@ -45,11 +45,14 @@ async function run(): Promise<void> {
 
   const switchingAccount = activeUser() !== userId
   setActiveUser(userId)
-  const hadLegacyData = claimLegacyData(userId)
+  // Never adopt pre-account data: it may belong to someone else who used this
+  // browser. See discardLegacyData.
+  discardLegacyData()
 
-  // Local-first upload: anything produced before this account had cloud storage
-  // (or while offline) gets pushed before we overwrite the cache.
-  if (!switchingAccount || hadLegacyData) {
+  // Local-first upload: work this account produced while offline gets pushed
+  // before the cache is overwritten from the cloud. Skipped when switching
+  // accounts, because the cache then holds the previous user's rows.
+  if (!switchingAccount) {
     await pushLocalOnlyData()
   }
 

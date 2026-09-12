@@ -1,6 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
 
+// Vercel terminates the function at this ceiling instead of letting a slow
+// model hold the request open indefinitely. Hobby plan allows up to 60s.
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
 
 export async function POST(req: NextRequest) {

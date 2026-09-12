@@ -41,6 +41,14 @@ export interface ScoreStore {
 }
 
 import { readLocal, writeLocal } from "@/lib/db/local"
+import { awardXP } from "@/lib/gamification"
+
+/**
+ * XP granted for completing each module, matching the "+N XP" shown on the
+ * dashboard tiles. Nothing used to call awardXP at all, so the counter sat at
+ * "0 XP · Starter Applicant" no matter how much work was done.
+ */
+export const MODULE_XP = { cv: 50, star: 30, video: 60, psychometric: 40 } as const
 import { pushModuleResult } from "@/lib/db/cloud"
 
 const EMPTY: ScoreStore = { cv: [], star: [], video: [] }
@@ -57,6 +65,7 @@ export function saveCVScore(entry: CVScoreEntry) {
   const store = load()
   store.cv = [entry, ...store.cv].slice(0, 20)
   save(store)
+  awardXP(MODULE_XP.cv, "cv")
   void pushModuleResult("cv", { ...entry })
 }
 
@@ -64,6 +73,7 @@ export function saveSTARScore(entry: STARScoreEntry) {
   const store = load()
   store.star = [entry, ...store.star].slice(0, 50)
   save(store)
+  awardXP(MODULE_XP.star, "star")
   void pushModuleResult("star", { ...entry, label: entry.competency })
 }
 
@@ -71,6 +81,7 @@ export function saveVideoScore(entry: VideoScoreEntry) {
   const store = load()
   store.video = [entry, ...store.video].slice(0, 20)
   save(store)
+  awardXP(MODULE_XP.video, "video")
   void pushModuleResult("video", { ...entry, label: entry.topic })
 }
 
@@ -78,6 +89,7 @@ export function saveVideoScore(entry: VideoScoreEntry) {
 export function savePsychScore(entry: { score: number; date: string; testName: string } & Record<string, unknown>) {
   const log = readLocal<Record<string, unknown>[]>("gradprocess_psych_log", [])
   writeLocal("gradprocess_psych_log", [entry, ...log].slice(0, 50))
+  awardXP(MODULE_XP.psychometric, "psychometric")
   void pushModuleResult("psychometric", { ...entry, label: entry.testName })
 }
 

@@ -482,7 +482,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.22)" }}>
-              Simulated estimates based on your scores
+              Estimated from your readiness score — not a prediction of hiring outcomes
             </p>
 
             <div className="space-y-4">

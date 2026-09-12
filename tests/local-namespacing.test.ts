@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import {
-  activeUser, setActiveUser, readLocal, writeLocal, claimLegacyData,
+  activeUser, setActiveUser, readLocal, writeLocal, discardLegacyData,
 } from "@/lib/db/local"
 
 // Minimal localStorage stand-in — the module only uses get/set/remove.
@@ -46,33 +46,45 @@ describe("per-account cache isolation", () => {
   })
 })
 
-describe("claimLegacyData", () => {
+describe("discardLegacyData", () => {
   beforeEach(() => { installStorage() })
 
-  it("moves pre-account data to the first account that signs in", () => {
-    localStorage.setItem("gradprocess_tracker", JSON.stringify([{ id: "app-1" }]))
+  /**
+   * Pre-account data used to be *claimed* by the first account to sign in.
+   * That handed one person's work to whoever signed up next on the same
+   * browser — a September 2026 audit found a fresh account showing a STAR
+   * score of 62/100 it had never earned.
+   */
+  it("never gives pre-account data to an account", () => {
+    localStorage.setItem("gradprocess_tracker", JSON.stringify([{ id: "someone-elses" }]))
 
-    expect(claimLegacyData("user-a")).toBe(true)
+    discardLegacyData()
     setActiveUser("user-a")
-    expect(readLocal<{ id: string }[]>("gradprocess_tracker", [])).toHaveLength(1)
-  })
 
-  it("removes the unscoped copy so a second account cannot inherit it", () => {
-    localStorage.setItem("gradprocess_tracker", JSON.stringify([{ id: "app-1" }]))
-    claimLegacyData("user-a")
-
-    expect(localStorage.getItem("gradprocess_tracker")).toBeNull()
-    expect(claimLegacyData("user-b")).toBe(false)
-    setActiveUser("user-b")
     expect(readLocal<{ id: string }[]>("gradprocess_tracker", [])).toEqual([])
   })
 
-  it("never overwrites data the account already has", () => {
+  it("removes the unscoped copy entirely", () => {
+    localStorage.setItem("gradprocess_scores", JSON.stringify({ cv: [{ score: 99 }] }))
+    localStorage.setItem("gradprocess_gamification", JSON.stringify({ xp: 500 }))
+
+    discardLegacyData()
+
+    expect(localStorage.getItem("gradprocess_scores")).toBeNull()
+    expect(localStorage.getItem("gradprocess_gamification")).toBeNull()
+  })
+
+  it("leaves an account's own namespaced data untouched", () => {
     localStorage.setItem("gradprocess_scores::user-a", JSON.stringify({ cv: [{ score: 80 }] }))
     localStorage.setItem("gradprocess_scores", JSON.stringify({ cv: [{ score: 10 }] }))
 
-    claimLegacyData("user-a")
+    discardLegacyData()
     setActiveUser("user-a")
+
     expect(readLocal<{ cv: { score: number }[] }>("gradprocess_scores", { cv: [] }).cv[0].score).toBe(80)
+  })
+
+  it("is safe to call when there is nothing to discard", () => {
+    expect(() => discardLegacyData()).not.toThrow()
   })
 })

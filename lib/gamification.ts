@@ -227,18 +227,36 @@ export function getBadges(state: GamificationState): Badge[] {
   }))
 }
 
-export function getCompanyReadiness(overallScore: number): { company: string; sector: string; likelihood: number; color: string }[] {
-  const base = overallScore ?? 0
+/**
+ * How the user's own readiness score compares to the bar each employer is
+ * generally understood to set. Derived entirely from their score — it is not a
+ * prediction, and the UI must present it as an estimate.
+ *
+ * Returns nothing until there is a real score to derive from. It previously
+ * added `Math.random()` to a base of zero, so a brand-new account saw
+ * "KPMG 4%, PwC 3%, Deloitte 1%" directly beneath the caption "Complete
+ * modules to unlock your scores" — invented numbers, re-rolled on every
+ * render, which is why the list reordered by itself.
+ */
+export function getCompanyReadiness(overallScore: number | null): { company: string; sector: string; likelihood: number; color: string }[] {
+  if (!overallScore || overallScore <= 0) return []
+
+  // Deterministic: the same score always produces the same figures.
   return [
-    { company: "Deloitte", sector: "Consulting", likelihood: Math.min(95, Math.round(base * 0.95 + Math.random() * 5)), color: "#00b04f" },
-    { company: "PwC", sector: "Consulting", likelihood: Math.min(95, Math.round(base * 0.93 + Math.random() * 5)), color: "#d04a02" },
-    { company: "McKinsey", sector: "Consulting", likelihood: Math.min(90, Math.round(base * 0.72)), color: "#00a9e0" },
-    { company: "Goldman Sachs", sector: "Banking", likelihood: Math.min(90, Math.round(base * 0.68)), color: "#6d9fd6" },
-    { company: "JPMorgan", sector: "Banking", likelihood: Math.min(90, Math.round(base * 0.74)), color: "#005eb8" },
-    { company: "Barclays", sector: "Banking", likelihood: Math.min(90, Math.round(base * 0.82)), color: "#00aeef" },
-    { company: "KPMG", sector: "Consulting", likelihood: Math.min(95, Math.round(base * 0.91 + Math.random() * 4)), color: "#0091da" },
-    { company: "BlackRock", sector: "Asset Mgmt", likelihood: Math.min(90, Math.round(base * 0.76)), color: "#000000" },
-  ].sort((a, b) => b.likelihood - a.likelihood)
+    { company: "Deloitte", sector: "Consulting", weight: 0.95, color: "#00b04f" },
+    { company: "PwC", sector: "Consulting", weight: 0.93, color: "#d04a02" },
+    { company: "KPMG", sector: "Consulting", weight: 0.91, color: "#0091da" },
+    { company: "Barclays", sector: "Banking", weight: 0.82, color: "#00aeef" },
+    { company: "BlackRock", sector: "Asset Mgmt", weight: 0.76, color: "#000000" },
+    { company: "JPMorgan", sector: "Banking", weight: 0.74, color: "#005eb8" },
+    { company: "McKinsey", sector: "Consulting", weight: 0.72, color: "#00a9e0" },
+    { company: "Goldman Sachs", sector: "Banking", weight: 0.68, color: "#6d9fd6" },
+  ]
+    .map(({ weight, ...rest }) => ({
+      ...rest,
+      likelihood: Math.min(95, Math.round(overallScore * weight)),
+    }))
+    .sort((a, b) => b.likelihood - a.likelihood)
 }
 
 export { BADGES_DEFINITION }

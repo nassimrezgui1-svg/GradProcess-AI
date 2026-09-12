@@ -55,23 +55,24 @@ export function writeLocal(key: LegacyKey, value: unknown, userId = activeUser()
 }
 
 /**
- * Data written before accounts existed lives at the unscoped key. Claim it for
- * the first account that signs in on this browser, then remove the original so
- * it can never be inherited by a second account.
+ * Discards data written at the unscoped key, from before storage was keyed by
+ * account.
+ *
+ * This used to *claim* that data for the first account to sign in on the
+ * browser. That handed one person's work to whoever signed up next: a fresh
+ * account opened on a machine where anyone had used the app inherited their
+ * scores, showed them on the dashboard, and uploaded them to the new account's
+ * cloud storage. A September 2026 audit hit exactly that — a new account
+ * displaying a STAR score of 62/100 it had never earned.
+ *
+ * Nothing legitimate is lost: a signed-out visitor cannot reach any module, so
+ * there is no anonymous work to carry over.
  */
-export function claimLegacyData(userId: string): boolean {
-  if (typeof window === "undefined") return false
-  let claimed = false
+export function discardLegacyData(): void {
+  if (typeof window === "undefined") return
   for (const key of LEGACY_KEYS) {
-    const raw = localStorage.getItem(key)
-    if (raw === null) continue
-    if (localStorage.getItem(scoped(key, userId)) === null) {
-      localStorage.setItem(scoped(key, userId), raw)
-      claimed = true
-    }
     localStorage.removeItem(key)
   }
-  return claimed
 }
 
 /** Notifies mounted components that the cache changed under them. */

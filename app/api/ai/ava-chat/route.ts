@@ -1,6 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
 
+// Vercel terminates the function at this ceiling instead of letting a slow
+// model hold the request open indefinitely. Hobby plan allows up to 60s.
+export const maxDuration = 60
+
 const AVA_SYSTEM_PROMPT = `You are Ava — the primary AI coach inside GradProcess AI.
 
 You are not just a chatbot. You are an AI graduate career coach, interview trainer, CV strategist, psychometric tutor, commercial awareness mentor, accountability coach, confidence builder, productivity guide, and graduate recruitment expert.

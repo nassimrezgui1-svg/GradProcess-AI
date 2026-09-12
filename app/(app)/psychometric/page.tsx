@@ -3,6 +3,7 @@ import { savePsychScore } from "@/lib/scores"
 import { readLocal, DATA_SYNCED_EVENT } from "@/lib/db/local"
 import { useState, useEffect, useCallback } from "react"
 import { Topbar } from "@/components/layout/topbar"
+import { postAI } from "@/lib/ai/request"
 import { psychometricTests } from "@/lib/mock-data"
 import { cn, getScoreColor, getScoreLabel, getScoreBg } from "@/lib/utils"
 import {
@@ -143,20 +144,21 @@ export default function PsychometricPage() {
         .flatMap(s => s.answers.map(a => a.question))
         .slice(0, 40)
 
-      const res = await fetch("/api/ai/psychometric-quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      // Generating 20 questions is the slowest call in the product, so it gets
+      // a longer ceiling than the shared default — but it must still end.
+      const data = await postAI<{ questions?: unknown[] }>(
+        "/api/ai/psychometric-quiz",
+        {
           type: testId,
           difficulty: "medium",
           count: 20,
           previousQuestions: prevQuestions,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.questions?.length) throw new Error(data.error || "Failed to load questions")
+        },
+        { timeoutMs: 60_000 }
+      )
+      if (!data.questions?.length) throw new Error("No questions were returned. Please try again.")
 
-      setQuestions(data.questions)
+      setQuestions(data.questions as typeof questions)
       setQuestionIndex(0)
       setAnswers([])
       setSelected(null)

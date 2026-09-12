@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { postAI } from "@/lib/ai/request"
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -55,17 +56,10 @@ export type InterviewScore = z.infer<typeof InterviewScoreSchema>
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
+// Every AI service call goes through here, so the timeout applies to all of
+// them. Without it a slow model left buttons spinning with no way back.
 async function post<T>(route: string, body: Record<string, unknown>): Promise<T> {
-  const res = await fetch(route, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Unknown error" }))
-    throw new Error(err.error || `Request failed: ${res.status}`)
-  }
-  return res.json()
+  return postAI<T>(route, body)
 }
 
 // ─── AI Service Functions ────────────────────────────────────────────────────
