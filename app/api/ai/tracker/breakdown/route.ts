@@ -20,8 +20,9 @@ const SYSTEM =
  * JSON.parse that and showed "Unexpected token 'A'". The feature could never
  * succeed for anyone.
  *
- * Splitting it in two roughly halves the tokens each request must generate,
- * and the two run concurrently, so wall-clock time is the slower half rather
+ * Split in two it measured 36.2s locally but 45-48s on Vercel, leaving only
+ * ~12s of headroom against the ceiling. Three concurrent parts shorten the
+ * critical path further, since wall-clock time is the slowest part rather
  * than the sum.
  */
 const PROFILE_SHAPE = `{
@@ -35,7 +36,7 @@ const PROFILE_SHAPE = `{
   "cultureInsights": "<2-3 sentences about this company's culture, values, and what they genuinely look for beyond qualifications>"
 }`
 
-const PREP_SHAPE = `{
+const QUESTIONS_SHAPE = `{
   "interviewQuestions": [
     {"competency": "<competency>", "question": "<specific likely interview question>"}
     — 8 entries, each a different competency
@@ -43,7 +44,10 @@ const PREP_SHAPE = `{
   "starSuggestions": [
     {"competency": "<competency>", "suggestion": "<specific STAR story to prepare, e.g. Prepare an example of leading a team under pressure where you had to adapt your approach>"}
     — 6 entries
-  ],
+  ]
+}`
+
+const PLAN_SHAPE = `{
   "prepRoadmap": [
     {"period": "Week 1 — Foundation", "tasks": [<4 specific tasks>]},
     {"period": "Week 2 — Application", "tasks": [<4 specific tasks>]},
@@ -55,6 +59,7 @@ const PREP_SHAPE = `{
   "likelyInterviewStages": [<ordered list of likely recruitment stages for this specific company and role, e.g. Online application, Numerical reasoning test, HireVue video interview, Assessment centre, Final partner interview>],
   "assessmentCentreExpectations": [<4-5 exercises likely at assessment centre if applicable to this company/role>]
 }`
+
 
 function contextBlock(company: string, role: string, sector: string, jobDescription?: string) {
   return `Company: ${company}
@@ -93,12 +98,16 @@ export async function POST(req: NextRequest) {
     const context = contextBlock(company, role, sector, jobDescription)
 
     // Concurrent, so the wall-clock cost is the slower half, not the total.
-    const [profile, prep] = await Promise.all([
-      generateSection(PROFILE_SHAPE, context, 2048),
-      generateSection(PREP_SHAPE, context, 2600),
+    const [profile, questions, plan] = await Promise.all([
+      generateSection(PROFILE_SHAPE, context, 1800),
+      generateSection(QUESTIONS_SHAPE, context, 1500),
+      generateSection(PLAN_SHAPE, context, 1500),
     ])
 
-    return NextResponse.json({ ...profile, ...prep, generatedAt: new Date().toISOString() })
+    return NextResponse.json({
+      ...profile, ...questions, ...plan,
+      generatedAt: new Date().toISOString(),
+    })
   } catch (err: any) {
     console.error("breakdown error:", err)
     return NextResponse.json(

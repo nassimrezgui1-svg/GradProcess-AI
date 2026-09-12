@@ -141,15 +141,16 @@ describe("the tracker breakdown fits inside the function ceiling", () => {
   const route = readFileSync(
     join(__dirname, "..", "app", "api", "ai", "tracker", "breakdown", "route.ts"), "utf8")
 
-  it("issues its two halves concurrently", () => {
+  it("issues its parts concurrently rather than in sequence", () => {
     expect(route).toMatch(/Promise\.all/)
-    expect((route.match(/generateSection\(/g) || []).length).toBeGreaterThanOrEqual(3)
   })
 
-  it("keeps each half well under the single-call budget", () => {
+  it("keeps every part small enough that the slowest one still fits", () => {
+    // One 4096-token call took 65.7s. Two parts measured 45-48s on Vercel —
+    // only ~12s of headroom — so the work is split three ways.
     const budgets = [...route.matchAll(/generateSection\([A-Z_]+, context, (\d+)\)/g)].map(m => +m[1])
-    expect(budgets.length).toBe(2)
-    for (const b of budgets) expect(b).toBeLessThanOrEqual(2600)
+    expect(budgets.length).toBeGreaterThanOrEqual(3)
+    for (const b of budgets) expect(b).toBeLessThanOrEqual(1800)
   })
 
   it("still returns every field the UI reads", () => {
