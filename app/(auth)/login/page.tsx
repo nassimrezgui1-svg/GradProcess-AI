@@ -78,16 +78,16 @@ function LoginForm() {
     <div className="w-full max-w-md mx-auto">
       <div className="rounded-2xl p-8"
         style={{
-          background: "rgba(11,16,32,0.82)",
+          background: "rgba(14,20,38,0.96)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          border: "1px solid rgba(255,255,255,0.14)",
           boxShadow: "0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,140,255,0.06)",
         }}>
 
         <div className="text-center mb-7">
           <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-sm" style={{ color: "#94A3B8" }}>Sign in to your Career Operating System</p>
+          <p className="text-sm" style={{ color: "#CBD5E1" }}>Sign in to continue your preparation</p>
         </div>
 
         {GOOGLE_AUTH_ENABLED && (<>
@@ -164,9 +164,11 @@ function LoginForm() {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-6" style={{ color: "#94A3B8" }}>
-          Don't have an account?{" "}
-          <Link href="/signup" className="font-medium" style={{ color: "#5B8CFF" }}>Create one free</Link>
+        {/* "Create one free" promised a free tier that does not exist —
+            every module sits behind the subscription. */}
+        <p className="text-center text-xs mt-6" style={{ color: "#CBD5E1" }}>
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="font-semibold" style={{ color: "#8FB4FF" }}>Create an account</Link>
         </p>
       </div>
     </div>

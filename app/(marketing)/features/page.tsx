@@ -59,7 +59,6 @@ const featureBlocks = [
       "Numerical, verbal, logical, abstract, SJT, and attention to detail",
       "Timed conditions matching real employer tests",
       "Detailed explanations for every answer",
-      "Percentile estimates vs graduate applicant pool",
       "Weak topic identification and targeted drills",
       "Accuracy and speed tracking over time",
     ],

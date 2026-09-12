@@ -252,7 +252,9 @@ input::placeholder, textarea::placeholder { color: #8494AC; }
   box-shadow: 0 6px 30px rgba(91,140,255,0.45), 0 1px 3px rgba(0,0,0,0.4);
 }
 .btn-gradient:active:not(:disabled) { transform: scale(0.98); }
-.btn-gradient:disabled { opacity: 0.38; cursor: not-allowed; }
+/* 0.38 made an empty-form button look broken rather than waiting for
+   input; the label fell under the AA contrast floor with it. */
+.btn-gradient:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
 
 .btn-ghost {
   background: rgba(255,255,255,0.05);

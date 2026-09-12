@@ -15,7 +15,6 @@ const features = [
   "Weekly readiness reports & progress analytics",
   "AI coach Ava — available 24/7",
   "Application tracker (unlimited roles)",
-  "Score benchmarking vs graduate applicant pool",
 ]
 
 const faqs = [

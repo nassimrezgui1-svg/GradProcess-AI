@@ -244,6 +244,14 @@ export default function PsychometricPage() {
   const lastSessionByType = (typeId: string) => testLog.find(s => s.testType === typeId)
 
   const currentSession = testLog[0]
+
+  // Derived from the user's own completed sessions, so it is always a real
+  // number they earned rather than a comparison we cannot actually make.
+  const sameTestScores = testLog
+    .filter(s => s.testType === currentSession?.testType)
+    .map(s => s.score)
+  const bestScoreForTest = sameTestScores.length ? Math.max(...sameTestScores) : 0
+  const isPersonalBest = !!currentSession && currentSession.score >= bestScoreForTest && sameTestScores.length > 1
   const currentQ = questions[questionIndex]
 
   // ─── Loading screen ───────────────────────────────────────────────────────
@@ -426,8 +434,15 @@ export default function PsychometricPage() {
             </div>
             <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <TrendingUp className="w-7 h-7 mx-auto mb-2" style={{ color: "#8B5CF6" }} />
-              <p className="text-3xl font-bold text-white">{Math.min(99, Math.round(currentSession.score * 0.9 + 5))}th</p>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>Percentile est.</p>
+              {/* This tile used to read "Percentile est." from
+                  score * 0.9 + 5 — the user's own score relabelled as a rank
+                  against other graduates. There is no applicant pool to
+                  compare against, so it claimed a comparison that did not
+                  exist. Their best score on this test type is real. */}
+              <p className="text-3xl font-bold text-white">{bestScoreForTest}%</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+                {isPersonalBest ? "Your best — new record" : "Your best on this test"}
+              </p>
             </div>
           </div>
 
