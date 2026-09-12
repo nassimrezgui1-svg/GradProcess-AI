@@ -5,6 +5,17 @@ import { NextRequest, NextResponse } from "next/server"
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
 export const maxDuration = 60
 
+/**
+ * This asked for the analysis and all four spoken versions in one request —
+ * roughly 925 words of answer text plus the breakdown. Measured warm it took
+ * 45-50s, while the client's own ceiling is 45s, so it was racing its own
+ * timeout: a 12 September audit saw the first attempt fail at 45s and an
+ * immediate retry succeed.
+ *
+ * The analysis and the spoken versions are now generated concurrently, so the
+ * wall-clock cost is the slower of the two.
+ */
+
 export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
   try {
@@ -14,9 +25,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Competency is required" }, { status: 400 })
     }
 
-    const response = await client.messages.create({
+    const callModel = (shape: string, maxTokens: number) => client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      max_tokens: maxTokens,
       system: [
         {
           type: "text",
@@ -36,7 +47,19 @@ Target Role: ${targetRole || "Graduate Analyst"}
 Target Sector: ${targetSector || "Financial Services"}
 
 Return ONLY this JSON:
-{
+${shape}`,
+        },
+      ],
+    })
+
+    async function section(shape: string, maxTokens: number) {
+      const response = await callModel(shape, maxTokens)
+      const raw = response.content[0].type === "text" ? response.content[0].text : ""
+      const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim()
+      return JSON.parse(text) as Record<string, unknown>
+    }
+
+    const ANALYSIS_SHAPE = `{
   "score": <number 0-100>,
   "starCompleteness": <number 0-100>,
   "competency": "${competency}",
@@ -44,23 +67,27 @@ Return ONLY this JSON:
   "task": "<1-2 sentences: specific responsibility or challenge>",
   "action": "<3-5 sentences: specific actions THEY personally took — use 'I' not 'we'>",
   "result": "<2-3 sentences: quantified outcomes and impact>",
-  "improvedVersion": "<full rewritten STAR answer, 200-250 words, strong language, quantified, first person>",
-  "version60s": "<60-second spoken version, ~150 words, punchy>",
-  "version90s": "<90-second spoken version, ~225 words>",
-  "version2min": "<2-minute spoken version, ~300 words, full detail with reflection>",
   "improvements": [<3-5 specific improvements to strengthen this answer>],
   "missingElements": [<elements missing that interviewers will notice>],
   "followUpQuestions": [<3 follow-up questions an interviewer will likely ask>],
   "interviewerRiskFlags": [<things that could concern an interviewer>]
-}`,
-        },
-      ],
-    })
+}`
 
-    const raw = response.content[0].type === "text" ? response.content[0].text : ""
-    // Strip markdown code fences if Claude wraps the response
-    const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim()
-    const result = JSON.parse(text)
+    const VERSIONS_SHAPE = `{
+  "improvedVersion": "<full rewritten STAR answer, 200-250 words, strong language, quantified, first person>",
+  "version60s": "<60-second spoken version, ~150 words, punchy>",
+  "version90s": "<90-second spoken version, ~225 words>",
+  "version2min": "<2-minute spoken version, ~300 words, full detail with reflection>"
+}`
+
+    // Concurrent: the spoken versions are the bulk of the words, the analysis
+    // is the bulk of the thinking. Together they exceeded the client ceiling.
+    const [analysis, versions] = await Promise.all([
+      section(ANALYSIS_SHAPE, 2000),
+      section(VERSIONS_SHAPE, 2000),
+    ])
+    const result = { ...analysis, ...versions }
+
     return NextResponse.json(result)
   } catch (error: any) {
     console.error("STAR generation error:", error)

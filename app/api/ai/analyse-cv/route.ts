@@ -16,7 +16,9 @@ export async function POST(req: NextRequest) {
 
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      // Measured at ~30s; its 11-field output does not approach this, and the
+      // lower ceiling keeps a long CV from running past the function limit.
+      max_tokens: 2600,
       system: [
         {
           type: "text",

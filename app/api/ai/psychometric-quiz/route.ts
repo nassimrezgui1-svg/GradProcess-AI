@@ -5,6 +5,22 @@ import { NextRequest, NextResponse } from "next/server"
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
 export const maxDuration = 60
 
+/**
+ * All twenty questions used to come from one 8,000-token request — the largest
+ * call in the app, since every question carries four options and a fully worked
+ * explanation. It consistently ran past the 60s ceiling: a 12 September audit
+ * recorded 0 of 3 attempts succeeding, each failing after 45-60s, on a feature
+ * sold as an included Student Pro benefit.
+ *
+ * Measured against the real prompt: 20 in one call exceeds 60s; batches of 10
+ * still reached 60.6s for verbal, which carries a fresh passage per question.
+ * Batches of 4 at 2,600 tokens leave the slowest run inside the ceiling and
+ * give numerical questions room for their full worked explanations — at 2,200
+ * those were truncated mid-JSON, and the failed batches silently shrank a
+ * 20-question test to 10.
+ */
+const BATCH_SIZE = 4
+
 export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
   try {
@@ -23,9 +39,21 @@ export async function POST(req: NextRequest) {
       ? `\nIMPORTANT: Do NOT repeat or closely resemble any of these previously asked questions:\n${previousQuestions.slice(0, 20).map((q: string, i: number) => `${i + 1}. ${q}`).join("\n")}\n`
       : ""
 
+    // Batches run concurrently and cannot see each other, so without this each
+    // one drew from the same topic list and produced overlapping questions —
+    // dedupe then left a 20-question test with only 15 in it.
+    const allTopics = (topicGuide[type] || "general reasoning").split(",").map(s => s.trim()).filter(Boolean)
+    function topicsFor(batchIndex: number, batchTotal: number) {
+      if (allTopics.length <= batchTotal) return allTopics.join(", ")
+      const per = Math.ceil(allTopics.length / batchTotal)
+      const slice = allTopics.slice(batchIndex * per, batchIndex * per + per)
+      return (slice.length ? slice : allTopics).join(", ")
+    }
+
+    async function generateBatch(batchCount: number, focusTopics: string) {
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8000,
+      max_tokens: 2600,
       system: [
         {
           type: "text",
@@ -36,9 +64,9 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Generate exactly ${count} ${type} reasoning questions at ${difficulty} difficulty. Make them varied — different topics, different structures, different difficulty within the band.
+          content: `Generate exactly ${batchCount} ${type} reasoning questions at ${difficulty} difficulty. Make them varied — different topics, different structures, different difficulty within the band.
 
-Topics and style: ${topicGuide[type] || "general reasoning"}
+Topics and style: ${focusTopics}\n\nStay within those topics for this set so it does not overlap other sets.
 
 ${type === "verbal" ? "For verbal: each question needs its own unique passage (80-120 words) on a different business topic, then ask True/False/Cannot Say about a specific statement." : ""}
 ${type === "sjt" ? "For SJT: each scenario should be a different workplace situation. Provide 4 response options labelled A-D. The correct answer is the most professionally appropriate response." : ""}
@@ -56,7 +84,7 @@ Return ONLY this JSON (no markdown, no explanation):
       "question": "<the full question text>",
       "options": ["<option A text>", "<option B text>", "<option C text>", "<option D text>"],
       "correct": <MUST vary across all questions — use 0, 1, 2 AND 3 roughly equally, do NOT default to 1>,
-      "explanation": "<clear explanation of the correct answer — show full working for numerical questions>",
+      "explanation": "<clear explanation of the correct answer, at most 60 words. For numerical, show the working as a compact calculation rather than prose — unbounded explanations truncate the response mid-JSON and lose the whole batch>",
       "timeLimit": <recommended seconds to answer, 45-90 for easy, 75-120 for hard>
     }
   ]
@@ -68,7 +96,50 @@ Return ONLY this JSON (no markdown, no explanation):
     const raw = response.content[0].type === "text" ? response.content[0].text : ""
     // Strip markdown code fences if Claude wraps the response
     const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim()
-    const result = JSON.parse(text)
+      const parsed = JSON.parse(text)
+      if (!Array.isArray(parsed.questions)) {
+        throw new Error("Model returned no questions array")
+      }
+      return parsed.questions
+    }
+
+    // Concurrent, so the wall-clock cost is the slowest batch rather than the
+    // sum. Batches cannot see each other, so near-duplicates are removed below.
+    // Two spare batches, because near-duplicates are dropped when the batches
+    // are merged and the UI promises an exact count ("Start Practice (20 Qs)").
+    // With one spare, logical and attention still came back with 18-19.
+    const target = count + BATCH_SIZE * 2
+    const batchSizes: number[] = []
+    for (let remaining = target; remaining > 0; remaining -= BATCH_SIZE) {
+      batchSizes.push(Math.min(BATCH_SIZE, remaining))
+    }
+    // One failed batch should not lose the whole test, but a total failure has
+    // to surface: returning { questions: [] } with a 200 left the page showing
+    // a test with nothing in it.
+    const settled = await Promise.allSettled(
+      batchSizes.map((n, i) => generateBatch(n, topicsFor(i, batchSizes.length)))
+    )
+    const batches = settled.flatMap(r => (r.status === "fulfilled" ? [r.value] : []))
+    if (batches.length === 0) {
+      const reason = settled.find(r => r.status === "rejected") as PromiseRejectedResult | undefined
+      throw new Error(reason?.reason?.message || "Question generation failed")
+    }
+
+    const seen = new Set<string>()
+    const merged: any[] = []
+    for (const q of batches.flat()) {
+      const key = String(q?.question ?? "").toLowerCase().replace(/\s+/g, " ").trim()
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      merged.push({ ...q, id: `q${merged.length + 1}` })
+    }
+    if (merged.length === 0) {
+      return NextResponse.json(
+        { error: "No questions could be generated. Please try again." },
+        { status: 502 }
+      )
+    }
+    const result: any = { questions: merged.slice(0, count) }
 
     // Shuffle options server-side to remove LLM position bias (answers cluster at index 1)
     // Fisher-Yates shuffle on each question's options, keeping correct answer tracked by content

@@ -9,8 +9,7 @@ import { saveSTARScore } from "@/lib/scores"
 import { cn, getScoreColor, getScoreLabel } from "@/lib/utils"
 import {
   Loader2, ChevronDown, MessageSquare, Lightbulb, AlertTriangle,
-  Copy, Check, Plus, Trash2, Zap, Clock, ChevronRight, ArrowRight, X
-} from "lucide-react"
+  Copy, Check, Plus, Trash2, Zap, Clock, ChevronRight, ArrowRight, X, AlertCircle} from "lucide-react"
 
 interface Experience {
   id: string
@@ -42,6 +41,7 @@ export default function STARBuilderPage() {
   const [competency, setCompetency] = useState("Leadership")
   const [loading, setLoading] = useState(false)
   const [loadingExperienceId, setLoadingExperienceId] = useState<string | null>(null)
+  const [genError, setGenError] = useState("")
   const [scenarios, setScenarios] = useState<GeneratedScenario[]>([])
   const [activeScenario, setActiveScenario] = useState<GeneratedScenario | null>(null)
   const [activeVersionTab, setActiveVersionTab] = useState<"60s" | "90s" | "2min" | "full">("full")
@@ -61,6 +61,7 @@ export default function STARBuilderPage() {
   const handleGenerate = async (exp: Experience) => {
     setLoadingExperienceId(exp.id)
     setLoading(true)
+    setGenError("")
     try {
       const result = await generateSTARScenario(exp.text, competency)
       const newScenario: GeneratedScenario = {
@@ -73,6 +74,11 @@ export default function STARBuilderPage() {
       setScenarios(prev => [newScenario, ...prev])
       setActiveScenario(newScenario)
       saveSTARScore({ score: result.score, competency, experienceText: exp.text.slice(0, 100), date: new Date().toISOString() })
+    } catch (e: any) {
+      // try/finally with no catch meant a failed generation simply put the
+      // button back with nothing shown: a 12 September audit recorded a 45s
+      // timeout where the only trace was a console exception.
+      setGenError(e?.message || "Could not generate that STAR answer. Please try again.")
     } finally {
       setLoading(false)
       setLoadingExperienceId(null)
@@ -161,6 +167,14 @@ export default function STARBuilderPage() {
                   <Plus className="w-4 h-4" /> Add Experience
                 </button>
               </div>
+
+              {genError && (
+                <div className="mb-3 rounded-xl p-3 flex items-start gap-2" role="alert"
+                  style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#F87171" }} />
+                  <p className="text-xs" style={{ color: "#FCA5A5" }}>{genError}</p>
+                </div>
+              )}
 
               {experiences.some(e => e.example) && (
                 <p className="text-xs mb-2 leading-relaxed" style={{ color: "rgba(251,191,36,0.75)" }}>
