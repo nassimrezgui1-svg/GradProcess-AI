@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { GOOGLE_AUTH_ENABLED } from "@/lib/auth-providers"
 
 const MAX_ATTEMPTS = 5
 const LOCKOUT_MS   = 15 * 60 * 1000
@@ -89,6 +90,7 @@ function LoginForm() {
           <p className="text-sm" style={{ color: "#94A3B8" }}>Sign in to your Career Operating System</p>
         </div>
 
+        {GOOGLE_AUTH_ENABLED && (<>
         <button type="button" onClick={handleGoogle}
           className="w-full flex items-center justify-center gap-3 rounded-xl py-3 text-sm font-medium transition-all mb-5"
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "#94A3B8" }}
@@ -108,6 +110,7 @@ function LoginForm() {
           <span className="text-xs" style={{ color: "#94A3B8" }}>or</span>
           <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
         </div>
+        </>)}
 
         {error && (
           <div className="flex items-start gap-2.5 p-3 rounded-xl mb-4"
