@@ -4,6 +4,7 @@ import { DATA_SYNCED_EVENT, setActiveUser } from "@/lib/db/local"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { PLANS, formatPrice } from "@/lib/plans"
 import { loadGamification, GamificationState, getLevelInfo, getLevelProgress } from "@/lib/gamification"
 import {
   LayoutDashboard, FileText, Mic2, Video, Brain,
@@ -32,12 +33,27 @@ export function Sidebar() {
   const router = useRouter()
   const [gam, setGam] = useState<GamificationState | null>(null)
   const [loggingOut, setLoggingOut] = useState(false)
+  // null while unknown, so the upsell never flashes at a paying customer.
+  const [subscribed, setSubscribed] = useState<boolean | null>(null)
 
   useEffect(() => {
     const refresh = () => setGam(loadGamification())
     refresh()
     window.addEventListener(DATA_SYNCED_EVENT, refresh)
     return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
+  }, [])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setSubscribed(false); return }
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      setSubscribed(data?.status === "active" || data?.status === "trialing")
+    })
   }, [])
 
   const handleLogout = async () => {
@@ -190,22 +206,27 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Upgrade card */}
-        <div className="relative overflow-hidden rounded-2xl p-4"
-          style={{
-            background: "linear-gradient(135deg, rgba(91,140,255,0.12), rgba(139,92,246,0.10))",
-            border: "1px solid rgba(91,140,255,0.20)",
-          }}>
-          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none"
-            style={{ background: "rgba(91,140,255,0.15)" }} />
-          <p className="text-xs font-bold text-white mb-0.5 relative">Upgrade to Pro</p>
-          <p className="text-xs leading-relaxed mb-3 relative" style={{ color: "#64748B" }}>
-            Unlock AI video scoring and full process reports
-          </p>
-          <button className="w-full py-2 text-xs font-bold text-white rounded-xl btn-gradient relative">
-            Upgrade — £19.99/mo
-          </button>
-        </div>
+        {/* Upgrade card — only for accounts without a subscription.
+            It used to show on every page regardless, so paying customers were
+            told to "unlock AI video scoring" they had already bought, and the
+            button did nothing. */}
+        {subscribed === false && (
+          <Link href="/billing" className="block relative overflow-hidden rounded-2xl p-4"
+            style={{
+              background: "linear-gradient(135deg, rgba(91,140,255,0.12), rgba(139,92,246,0.10))",
+              border: "1px solid rgba(91,140,255,0.20)",
+            }}>
+            <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none"
+              style={{ background: "rgba(91,140,255,0.15)" }} />
+            <p className="text-xs font-bold text-white mb-0.5 relative">Unlock full access</p>
+            <p className="text-xs leading-relaxed mb-3 relative" style={{ color: "#64748B" }}>
+              Subscribe to use every module
+            </p>
+            <span className="block w-full py-2 text-xs font-bold text-white rounded-xl btn-gradient relative text-center">
+              From {formatPrice(PLANS.annual.perMonth)}/mo
+            </span>
+          </Link>
+        )}
 
         {/* Single-device sign out — the only other option was "sign out of all
             devices", buried in Settings, which is far too blunt for a shared computer. */}

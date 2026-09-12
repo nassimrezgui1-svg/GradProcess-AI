@@ -348,7 +348,11 @@ export default function IndustryHubPage() {
               <div>
                 <h3 className="text-sm font-semibold text-white">Live News — {activeSector}</h3>
                 <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  Sourced from BBC, Financial Times, Guardian, City A.M., CNBC, Economist · updated every 30 min
+                  {/* Name the outlets this sector actually returned. The list used to be
+                      hardcoded to six titles and printed even when the feed was empty. */}
+                  {news.length > 0
+                    ? `Sourced from ${allSources.filter(s => s !== "all").join(", ")} · updated every 30 min`
+                    : "Sourced from major UK and international business feeds · updated every 30 min"}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -417,8 +421,14 @@ export default function IndustryHubPage() {
             {!newsLoading && newsFetched && filteredNews.length === 0 && (
               <div className="rounded-2xl p-12 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <Globe className="w-10 h-10 mx-auto mb-3" style={{ color: "rgba(255,255,255,0.2)" }} />
-                <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>No news found for {activeSector}</p>
-                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Try refreshing or selecting a different sector</p>
+                <p className="font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>
+                  {sourceFilter === "all" ? `No ${activeSector} stories in today's feeds` : `Nothing from ${sourceFilter} today`}
+                </p>
+                <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {sourceFilter === "all"
+                    ? "Our sources publish general business news, so quieter sectors have thin days. Check back later or browse another sector."
+                    : "Try selecting All to see every source."}
+                </p>
                 <button onClick={() => fetchNews(activeSector, true)} className="mt-4 text-sm font-medium" style={{ color: "#5B8CFF" }}>
                   Try again
                 </button>

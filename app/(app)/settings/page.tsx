@@ -1,12 +1,14 @@
 "use client"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { createBrowserClient } from "@supabase/ssr"
 import { Topbar } from "@/components/layout/topbar"
 import { loadProfile, saveProfile, UserProfile } from "@/lib/profile"
 import { PasswordStrength, getPasswordScore } from "@/components/ui/password-strength"
 import { cn } from "@/lib/utils"
+import { PLANS, formatPrice } from "@/lib/plans"
 import {
-  User, Target, Bell, CreditCard, Shield, Check, Zap, Lock,
+  User, Target, Bell, CreditCard, Shield, Check, Zap, Lock, ArrowRight,
   Download, Trash2, Eye, EyeOff, AlertCircle, Cookie, Database,
   LogOut, ChevronRight,
 } from "lucide-react"
@@ -576,39 +578,13 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Subscription */}
-          {activeTab === "subscription" && (
-            <div className="space-y-4">
-              <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="w-5 h-5" />
-                  <span className="font-bold">Pro Student Plan</span>
-                </div>
-                <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.8)" }}>£19/month · Next billing: 9 June 2026</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {["Unlimited CV scans", "Video interview practice", "All psychometric tests", "Sector preparation", "Progress dashboard"].map(f => (
-                    <div key={f} className="flex items-center gap-1.5 text-xs">
-                      <Check className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.7)" }} />
-                      <span style={{ color: "rgba(255,255,255,0.9)" }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h3 className="text-sm font-semibold text-gray-900 mb-4">Upgrade to Premium</h3>
-                <div className="space-y-2 mb-4">
-                  {["Full mock application process", "Advanced video scoring", "Personalised improvement roadmap", "Final interview preparation", "Priority support"].map(f => (
-                    <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-emerald-500" />{f}
-                    </div>
-                  ))}
-                </div>
-                <button className="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors">
-                  Upgrade to Premium — £39/month
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Subscription — real data only.
+              This tab used to hard-code "Pro Student Plan · £19/month · Next
+              billing: 9 June 2026" and an "Upgrade to Premium — £39/month"
+              tier that does not exist, contradicting both the Billing page and
+              the sidebar. Billing is the single source of truth; this shows the
+              live values and links there to manage them. */}
+          {activeTab === "subscription" && <SubscriptionTab />}
 
           {/* Security */}
           {activeTab === "security" && <SecurityTab />}
@@ -616,6 +592,92 @@ export default function SettingsPage() {
           {/* Privacy */}
           {activeTab === "privacy" && <PrivacyTab />}
         </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Live subscription state. Everything here comes from the subscriptions table
+ * so it can never disagree with the Billing page or the sidebar.
+ */
+const CARD_DARK = {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+} as const
+
+function SubscriptionTab() {
+  const [sub, setSub] = useState<{
+    status: string
+    billing_interval: "month" | "year" | null
+    current_period_end: string | null
+    cancel_at_period_end: boolean
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setLoading(false); return }
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("status, billing_interval, current_period_end, cancel_at_period_end")
+        .eq("user_id", user.id)
+        .maybeSingle()
+      setSub(data)
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) {
+    return <div className="rounded-2xl p-6" style={CARD_DARK}>
+      <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading your plan…</p>
+    </div>
+  }
+
+  const isActive = sub?.status === "active" || sub?.status === "trialing"
+  const plan = sub?.billing_interval === "year" ? PLANS.annual : PLANS.monthly
+  const renews = sub?.current_period_end
+    ? new Date(sub.current_period_end).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : null
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg,#6D5EF3,#5B8DEF)" }}>
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="w-5 h-5" />
+          <span className="font-bold">{isActive ? plan.name : "No active plan"}</span>
+        </div>
+        <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.85)" }}>
+          {isActive
+            ? `${formatPrice(plan.perMonth)}/month${sub?.billing_interval === "year" ? ` · billed ${formatPrice(plan.amount)} a year` : ""}`
+              + (renews ? ` · ${sub?.cancel_at_period_end ? "Ends" : "Renews"} ${renews}` : "")
+            : "Subscribe to access every module."}
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {["Unlimited CV scans", "Video interview practice", "All psychometric tests", "Sector preparation", "Progress dashboard"].map(f => (
+            <div key={f} className="flex items-center gap-1.5 text-xs">
+              <Check className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.7)" }} />
+              <span style={{ color: "rgba(255,255,255,0.9)" }}>{f}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-2xl p-6" style={CARD_DARK}>
+        <h3 className="text-sm font-semibold text-white mb-2">Manage your subscription</h3>
+        <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.45)" }}>
+          {isActive
+            ? "Change plan, update your card, download invoices or cancel."
+            : "Choose a plan to unlock the full platform."}
+        </p>
+        <Link href="/billing"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white btn-gradient">
+          Go to billing <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </div>
   )

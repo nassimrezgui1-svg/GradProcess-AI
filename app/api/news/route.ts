@@ -18,6 +18,7 @@ const RSS_FEEDS = [
   { url: "https://www.cnbc.com/id/19854910/device/rss/rss.html", source: "CNBC Finance", credibility: "high" },
   { url: "https://techcrunch.com/feed/", source: "TechCrunch", credibility: "high" },
   { url: "https://www.wired.com/feed/rss", source: "Wired", credibility: "high" },
+  { url: "https://www.legalcheek.com/feed/", source: "Legal Cheek", credibility: "medium" },
 ]
 
 // Keywords per sector for relevance filtering — higher-weight terms are listed first
@@ -104,9 +105,44 @@ const SECTOR_KEYWORDS: Record<string, string[]> = {
 const cache: Record<string, { items: any[]; fetchedAt: number }> = {}
 const CACHE_TTL = 30 * 60 * 1000 // 30 minutes
 
+/** Organisations whose name alone identifies the sector. */
+const NAMED_ENTITIES = new Set([
+  "mckinsey", "bcg", "bain", "deloitte", "pwc", "kpmg", "ey", "accenture",
+  "goldman sachs", "jpmorgan", "barclays", "hsbc", "natwest", "lloyds", "blackrock",
+  "clifford chance", "linklaters", "allen & overy", "freshfields", "slaughter and may",
+])
+
+const KEYWORD_PATTERNS = new Map<string, RegExp>()
+
+/**
+ * Matches a keyword only as a whole word.
+ *
+ * Plain `includes()` matched substrings, which quietly broke sector matching in
+ * both directions. The Consulting keyword "ey" (the firm) matched "they",
+ * "money", "key" and "survey", so virtually every article in every feed scored
+ * exactly 1 on irrelevant text — while genuinely relevant articles rarely
+ * reached the `score >= 2` cutoff. The result was a Consulting feed that was
+ * permanently empty, with the noise sitting just below the cutoff line.
+ */
+function keywordPattern(kw: string): RegExp {
+  let re = KEYWORD_PATTERNS.get(kw)
+  if (!re) {
+    const escaped = kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    re = new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "u")
+    KEYWORD_PATTERNS.set(kw, re)
+  }
+  return re
+}
+
 function scoreArticle(item: any, keywords: string[]): number {
   const text = `${item.title || ""} ${item.contentSnippet || item.summary || ""}`.toLowerCase()
-  return keywords.reduce((score, kw) => score + (text.includes(kw.toLowerCase()) ? 1 : 0), 0)
+  return keywords.reduce((score, kw) => {
+    if (!keywordPattern(kw).test(text)) return score
+    // A named firm or a multi-word phrase is a far stronger signal that the
+    // article actually belongs to this sector than a single generic noun.
+    const strong = kw.includes(" ") || NAMED_ENTITIES.has(kw)
+    return score + (strong ? 2 : 1)
+  }, 0)
 }
 
 function cleanSnippet(text: string): string {
@@ -137,8 +173,8 @@ export async function GET(req: NextRequest) {
   const feedsToFetch = sector === "technology"
     ? RSS_FEEDS.filter(f => ["TechCrunch", "Wired", "BBC Business", "CNBC Business", "The Guardian"].includes(f.source))
     : sector === "law"
-    ? RSS_FEEDS.filter(f => ["BBC Business", "The Guardian", "City A.M.", "Financial Times"].includes(f.source))
-    : RSS_FEEDS.filter(f => !["TechCrunch", "Wired"].includes(f.source))
+    ? RSS_FEEDS.filter(f => ["Legal Cheek", "BBC Business", "The Guardian", "City A.M.", "Financial Times"].includes(f.source))
+    : RSS_FEEDS.filter(f => !["TechCrunch", "Wired", "Legal Cheek"].includes(f.source))
 
   const results = await Promise.allSettled(
     feedsToFetch.map(feed =>
@@ -153,7 +189,8 @@ export async function GET(req: NextRequest) {
     const { feed, items } = r.value
     for (const item of items) {
       const score = scoreArticle(item, keywords)
-      if (score < 2) continue
+      // With whole-word matching, one hit is a genuine signal.
+      if (score < 1) continue
       allItems.push({
         id: item.guid || item.link || item.title,
         title: item.title?.trim() || "Untitled",
