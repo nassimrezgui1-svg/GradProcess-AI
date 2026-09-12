@@ -64,7 +64,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const testColorStyles: Record<string, { bg: string; color: string }> = {
   numerical: { bg: "rgba(91,140,255,0.15)", color: "#5B8CFF" },
-  verbal: { bg: "rgba(139,92,246,0.15)", color: "#8B5CF6" },
+  verbal: { bg: "rgba(139,92,246,0.15)", color: "#A78BFA" },
   logical: { bg: "rgba(52,211,153,0.15)", color: "#34D399" },
   abstract: { bg: "rgba(251,191,36,0.12)", color: "#FBBF24" },
   sjt: { bg: "rgba(34,211,238,0.12)", color: "#22D3EE" },

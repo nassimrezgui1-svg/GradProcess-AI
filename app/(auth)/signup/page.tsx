@@ -66,10 +66,10 @@ export default function SignupPage() {
             <CheckCircle className="w-8 h-8" style={{ color: "#10B981" }} />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Check your email</h2>
-          <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "#94A3B8" }}>
             We sent a verification link to <span className="text-white font-medium">{email}</span>. Click the link to activate your account.
           </p>
-          <p className="text-xs mt-4" style={{ color: "#334155" }}>Didn't receive it? Check your spam folder.</p>
+          <p className="text-xs mt-4" style={{ color: "#94A3B8" }}>Didn't receive it? Check your spam folder.</p>
         </div>
       </div>
     )
@@ -88,7 +88,7 @@ export default function SignupPage() {
 
         <div className="text-center mb-7">
           <h1 className="text-2xl font-bold text-white mb-1">Create your account</h1>
-          <p className="text-sm" style={{ color: "#64748B" }}>Start your free readiness assessment today</p>
+          <p className="text-sm" style={{ color: "#94A3B8" }}>Start your free readiness assessment today</p>
         </div>
 
         <button type="button" onClick={handleGoogle}
@@ -107,7 +107,7 @@ export default function SignupPage() {
 
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-          <span className="text-xs" style={{ color: "#334155" }}>or</span>
+          <span className="text-xs" style={{ color: "#94A3B8" }}>or</span>
           <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
         </div>
 
@@ -121,20 +121,20 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="name" className="block text-xs font-medium mb-2" style={{ color: "#64748B" }}>Full name</label>
+            <label htmlFor="name" className="block text-xs font-medium mb-2" style={{ color: "#94A3B8" }}>Full name</label>
             <input id="name" type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Alex Johnson" required autoComplete="name"
               className="input-dark" />
           </div>
           <div>
-            <label htmlFor="email" className="block text-xs font-medium mb-2" style={{ color: "#64748B" }}>Email address</label>
+            <label htmlFor="email" className="block text-xs font-medium mb-2" style={{ color: "#94A3B8" }}>Email address</label>
             <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="alex@university.ac.uk" required autoComplete="email"
               className="input-dark" />
           </div>
           <div>
-            <label htmlFor="password" className="block text-xs font-medium mb-2" style={{ color: "#64748B" }}>
-              Password <span style={{ color: "#334155" }}>(min. 12 characters)</span>
+            <label htmlFor="password" className="block text-xs font-medium mb-2" style={{ color: "#94A3B8" }}>
+              Password <span style={{ color: "#94A3B8" }}>(min. 12 characters)</span>
             </label>
             <div className="relative">
               <input id="password" type={showPwd ? "text" : "password"} value={password}
@@ -142,7 +142,7 @@ export default function SignupPage() {
                 className="input-dark pr-11" />
               <button type="button" onClick={() => setShowPwd(s => !s)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                style={{ color: "#475569" }}
+                style={{ color: "#94A3B8" }}
                 aria-label={showPwd ? "Hide password" : "Show password"}>
                 {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -153,7 +153,7 @@ export default function SignupPage() {
           <label className="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
               className="mt-0.5 w-4 h-4 rounded" style={{ accentColor: "#5B8CFF" }} />
-            <span className="text-xs leading-relaxed" style={{ color: "#64748B" }}>
+            <span className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
               I agree to the{" "}
               <Link href="/terms" className="underline" style={{ color: "#5B8CFF" }} target="_blank">Terms of Service</Link>
               {" "}and{" "}
@@ -169,14 +169,14 @@ export default function SignupPage() {
 
           {/* Access needs a subscription, so saying "free account" here would be
               a promise the product does not keep. */}
-          <p className="text-center text-xs" style={{ color: "#64748B" }}>
+          <p className="text-center text-xs" style={{ color: "#94A3B8" }}>
             A subscription is required to use GradProcess AI. You&apos;ll choose a
             plan straight after verifying your email — from {" "}
             <span className="font-semibold" style={{ color: "#94A3B8" }}>£17.99/month</span>.
           </p>
         </form>
 
-        <p className="text-center text-xs mt-6" style={{ color: "#475569" }}>
+        <p className="text-center text-xs mt-6" style={{ color: "#94A3B8" }}>
           Already have an account?{" "}
           <Link href="/login" className="font-medium" style={{ color: "#5B8CFF" }}>Sign in</Link>
         </p>

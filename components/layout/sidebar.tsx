@@ -99,7 +99,7 @@ export function Sidebar() {
           style={{
             background: "rgba(255,255,255,0.04)",
             border: "1px solid rgba(255,255,255,0.07)",
-            color: "#475569",
+            color: "#94A3B8",
           }}
           onMouseEnter={e => {
             e.currentTarget.style.background = "rgba(91,140,255,0.06)"
@@ -115,7 +115,7 @@ export function Sidebar() {
           <Command className="w-3 h-3 flex-shrink-0" />
           <span className="flex-1 text-left">Quick actions</span>
           <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded"
-            style={{ background: "rgba(255,255,255,0.05)", color: "#334155" }}>⌘K</kbd>
+            style={{ background: "rgba(255,255,255,0.05)", color: "#94A3B8" }}>⌘K</kbd>
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border group relative",
                 isActive ? "nav-active" : "border-transparent"
               )}
-              style={!isActive ? { color: "#475569" } : undefined}
+              style={!isActive ? { color: "#94A3B8" } : undefined}
               onMouseEnter={e => {
                 if (!isActive) {
                   e.currentTarget.style.background = "rgba(255,255,255,0.04)"
@@ -175,7 +175,7 @@ export function Sidebar() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold" style={{ color: "#E2E8F0" }}>{levelInfo?.name}</p>
-                <p className="text-xs" style={{ color: "#475569" }}>Level {gam.level}</p>
+                <p className="text-xs" style={{ color: "#94A3B8" }}>Level {gam.level}</p>
               </div>
               {gam.streakDays > 0 && (
                 <div className="flex items-center gap-1 px-2 py-1 rounded-lg"
@@ -187,11 +187,11 @@ export function Sidebar() {
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] flex items-center gap-1" style={{ color: "#475569" }}>
+                <span className="text-[10px] flex items-center gap-1" style={{ color: "#94A3B8" }}>
                   <Zap className="w-2.5 h-2.5" style={{ color: "#FBBF24" }} />
                   {gam.xp} XP
                 </span>
-                <span className="text-[10px]" style={{ color: "#334155" }}>{levelInfo?.nextXP} XP</span>
+                <span className="text-[10px]" style={{ color: "#94A3B8" }}>{levelInfo?.nextXP} XP</span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                 <motion.div
@@ -219,7 +219,7 @@ export function Sidebar() {
             <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none"
               style={{ background: "rgba(91,140,255,0.15)" }} />
             <p className="text-xs font-bold text-white mb-0.5 relative">Unlock full access</p>
-            <p className="text-xs leading-relaxed mb-3 relative" style={{ color: "#64748B" }}>
+            <p className="text-xs leading-relaxed mb-3 relative" style={{ color: "#94A3B8" }}>
               Subscribe to use every module
             </p>
             <span className="block w-full py-2 text-xs font-bold text-white rounded-xl btn-gradient relative text-center">
@@ -234,7 +234,7 @@ export function Sidebar() {
           onClick={handleLogout}
           disabled={loggingOut}
           className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-60"
-          style={{ color: "#64748B" }}
+          style={{ color: "#94A3B8" }}
           onMouseEnter={e => { e.currentTarget.style.color = "#F87171"; e.currentTarget.style.background = "rgba(248,113,113,0.08)" }}
           onMouseLeave={e => { e.currentTarget.style.color = "#64748B"; e.currentTarget.style.background = "transparent" }}
         >

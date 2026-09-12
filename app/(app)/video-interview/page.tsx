@@ -1303,7 +1303,7 @@ export default function VideoInterviewPage() {
                   <button
                     onClick={handleDownloadVideo}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
-                    style={{ color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.1)" }}>
+                    style={{ color: "#A78BFA", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.1)" }}>
                     <Video className="w-4 h-4" />
                     Download Video (.webm)
                   </button>
@@ -1337,7 +1337,7 @@ export default function VideoInterviewPage() {
               {a.followUpQuestion && !isFollowUp && (
                 <button onClick={handleAnswerFollowUp}
                   className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all"
-                  style={{ color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.08)" }}>
+                  style={{ color: "#A78BFA", border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.08)" }}>
                   <MessageSquare className="w-4 h-4" />
                   Answer Follow-up
                 </button>

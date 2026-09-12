@@ -86,7 +86,7 @@ function LoginForm() {
 
         <div className="text-center mb-7">
           <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-sm" style={{ color: "#64748B" }}>Sign in to your Career Operating System</p>
+          <p className="text-sm" style={{ color: "#94A3B8" }}>Sign in to your Career Operating System</p>
         </div>
 
         <button type="button" onClick={handleGoogle}
@@ -105,7 +105,7 @@ function LoginForm() {
 
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-          <span className="text-xs" style={{ color: "#334155" }}>or</span>
+          <span className="text-xs" style={{ color: "#94A3B8" }}>or</span>
           <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
         </div>
 
@@ -128,7 +128,7 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="email" className="block text-xs font-medium mb-2" style={{ color: "#64748B" }}>
+            <label htmlFor="email" className="block text-xs font-medium mb-2" style={{ color: "#94A3B8" }}>
               Email address
             </label>
             <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -137,7 +137,7 @@ function LoginForm() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor="password" className="text-xs font-medium" style={{ color: "#64748B" }}>Password</label>
+              <label htmlFor="password" className="text-xs font-medium" style={{ color: "#94A3B8" }}>Password</label>
               <Link href="/forgot-password" className="text-xs transition-colors" style={{ color: "#5B8CFF" }}>
                 Forgot password?
               </Link>
@@ -148,7 +148,7 @@ function LoginForm() {
                 className="input-dark pr-11 disabled:opacity-40" />
               <button type="button" onClick={() => setShowPwd(s => !s)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                style={{ color: "#475569" }}
+                style={{ color: "#94A3B8" }}
                 aria-label={showPwd ? "Hide password" : "Show password"}>
                 {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -161,7 +161,7 @@ function LoginForm() {
           </button>
         </form>
 
-        <p className="text-center text-xs mt-6" style={{ color: "#475569" }}>
+        <p className="text-center text-xs mt-6" style={{ color: "#94A3B8" }}>
           Don't have an account?{" "}
           <Link href="/signup" className="font-medium" style={{ color: "#5B8CFF" }}>Create one free</Link>
         </p>

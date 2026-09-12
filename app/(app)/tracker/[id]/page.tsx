@@ -103,7 +103,7 @@ function OverviewTab({ app }: { app: TrackerApp }) {
           { label: "Stage", value: stage.label, color: stage.color, sub: null },
           { label: "Readiness", value: app.readinessScore ? `${app.readinessScore}/100` : "—", color: app.readinessScore ? scoreColor(app.readinessScore) : "#9CA3AF", sub: null },
           { label: "Deadline", value: days === null ? "—" : days < 0 ? "Closed" : days === 0 ? "Today!" : `${days} days`, color: days !== null && days <= 7 ? "#EF4444" : "#374151", sub: app.deadline ? fmtDate(app.deadline) : null },
-          { label: "Sector", value: app.sector, color: "#374151", sub: app.workType ?? null },
+          { label: "Sector", value: app.sector, color: "#94A3B8", sub: app.workType ?? null },
         ].map(({ label, value, color, sub }) => (
           <div key={label} className="bg-white rounded-2xl border border-surface-border p-4">
             <p className="text-xs text-ink-faint mb-1">{label}</p>
@@ -411,7 +411,7 @@ function StarTab({ app }: { app: TrackerApp }) {
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#FFFBEB", color: "#B45309", border: "1px solid #FDE68A" }}>{s.competency}</span>
           </div>
           <p className="text-sm text-ink-muted leading-relaxed">{s.suggestion}</p>
-          <a href="/star-builder" className="mt-3 flex items-center gap-1.5 text-xs font-medium" style={{ color: "#6D5EF3" }}>
+          <a href="/star-builder" className="mt-3 flex items-center gap-1.5 text-xs font-medium" style={{ color: "#8F83F7" }}>
             <Sparkles className="w-3 h-3" /> Practice this in STAR Builder →
           </a>
         </div>
@@ -618,7 +618,7 @@ export default function TrackerDetailPage() {
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={cn("flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-medium whitespace-nowrap transition-all border-b-2", tab === t.id ? "border-brand-purple text-brand-purple bg-surface-muted" : "border-transparent text-ink-muted hover:text-ink")}
-              style={tab === t.id ? { borderBottomColor: "#6D5EF3", color: "#6D5EF3" } : {}}
+              style={tab === t.id ? { borderBottomColor: "#8F83F7", color: "#8F83F7" } : {}}
             >
               <t.icon className="w-3.5 h-3.5" /> {t.label}
             </button>

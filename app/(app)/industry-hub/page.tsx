@@ -586,7 +586,7 @@ export default function IndustryHubPage() {
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
                       <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{ background: "rgba(139,92,246,0.15)", color: "#8B5CF6" }}>T</span>
+                        style={{ background: "rgba(139,92,246,0.15)", color: "#A78BFA" }}>T</span>
                       <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{q}</p>
                     </div>
                   ))}

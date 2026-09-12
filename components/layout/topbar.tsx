@@ -56,11 +56,11 @@ export function Topbar({ title }: { title: string }) {
               border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            <span className="text-xs" style={{ color: "#475569" }}>Readiness</span>
+            <span className="text-xs" style={{ color: "#94A3B8" }}>Readiness</span>
             <span className="font-bold text-xs tabular-nums" style={{ color: scoreColor(overallScore) }}>
               {overallScore}
             </span>
-            <span className="text-[10px]" style={{ color: "#334155" }}>/100</span>
+            <span className="text-[10px]" style={{ color: "#94A3B8" }}>/100</span>
             {/* Tiny glow dot */}
             <span className="w-1.5 h-1.5 rounded-full animate-pulse"
               style={{ background: scoreColor(overallScore), boxShadow: `0 0 6px ${scoreColor(overallScore)}` }} />

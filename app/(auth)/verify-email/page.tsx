@@ -26,7 +26,7 @@ function VerifyContent() {
         <Link
           href="/login"
           className="flex items-center justify-center gap-2 text-sm font-medium"
-          style={{ color: "#6D5EF3" }}
+          style={{ color: "#8F83F7" }}
         >
           <ArrowLeft className="w-4 h-4" />
           Back to sign in

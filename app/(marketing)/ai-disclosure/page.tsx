@@ -29,7 +29,7 @@ export default function AiDisclosurePage() {
         {/* Key info cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           {[
-            { icon: Brain, title: "Model Used", body: "Anthropic Claude (claude-3-5-sonnet / claude-3-opus)", color: "#6D5EF3" },
+            { icon: Brain, title: "Model Used", body: "Anthropic Claude (claude-3-5-sonnet / claude-3-opus)", color: "#8F83F7" },
             { icon: Shield, title: "Data Sent", body: "Content only — never your name or email", color: "#10B981" },
             { icon: AlertCircle, title: "Limitations", body: "Guidance only, not a guarantee of outcomes", color: "#F59E0B" },
           ].map(({ icon: Icon, title, body, color }) => (
@@ -53,7 +53,7 @@ export default function AiDisclosurePage() {
             </p>
             <p>
               <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener noreferrer"
-                className="underline" style={{ color: "#6D5EF3" }}>
+                className="underline" style={{ color: "#8F83F7" }}>
                 Anthropic Privacy Policy →
               </a>
             </p>
@@ -186,10 +186,10 @@ export default function AiDisclosurePage() {
           <div className="mt-12 p-5 rounded-2xl border border-gray-100 bg-gray-50">
             <p className="text-xs text-gray-500">
               Questions about our AI use? Email us at{" "}
-              <a href="mailto:ai@gradprocess.ai" className="underline" style={{ color: "#6D5EF3" }}>ai@gradprocess.ai</a>.
+              <a href="mailto:ai@gradprocess.ai" className="underline" style={{ color: "#8F83F7" }}>ai@gradprocess.ai</a>.
               See also our{" "}
-              <Link href="/privacy" className="underline" style={{ color: "#6D5EF3" }}>Privacy Policy</Link> and{" "}
-              <Link href="/terms" className="underline" style={{ color: "#6D5EF3" }}>Terms of Service</Link>.
+              <Link href="/privacy" className="underline" style={{ color: "#8F83F7" }}>Privacy Policy</Link> and{" "}
+              <Link href="/terms" className="underline" style={{ color: "#8F83F7" }}>Terms of Service</Link>.
             </p>
           </div>
         </div>

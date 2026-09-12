@@ -27,7 +27,7 @@ export default function TermsPage() {
           <Section title="1. Acceptance of Terms">
             <p>
               By creating an account or using GradProcess AI (&ldquo;the Platform&rdquo;, &ldquo;Service&rdquo;), you agree to
-              these Terms of Service and our <Link href="/privacy" className="underline" style={{ color: "#6D5EF3" }}>Privacy Policy</Link>.
+              these Terms of Service and our <Link href="/privacy" className="underline" style={{ color: "#8F83F7" }}>Privacy Policy</Link>.
               If you do not agree, do not use the Service.
             </p>
             <p>
@@ -84,7 +84,7 @@ export default function TermsPage() {
               <li>You should critically review all AI-generated content before use</li>
               <li>You retain ownership of content you upload; we do not claim ownership of your CV or recordings</li>
             </ul>
-            <p>See our full <Link href="/ai-disclosure" className="underline" style={{ color: "#6D5EF3" }}>AI Use Disclosure</Link> for details.</p>
+            <p>See our full <Link href="/ai-disclosure" className="underline" style={{ color: "#8F83F7" }}>AI Use Disclosure</Link> for details.</p>
           </Section>
 
           <Section title="6. Recording Consent">
@@ -138,7 +138,7 @@ export default function TermsPage() {
             <p>
               We may suspend or terminate your account if you breach these Terms. You may close your account
               at any time via Settings. Upon termination, your personal data will be deleted in accordance
-              with our <Link href="/privacy" className="underline" style={{ color: "#6D5EF3" }}>Privacy Policy</Link>.
+              with our <Link href="/privacy" className="underline" style={{ color: "#8F83F7" }}>Privacy Policy</Link>.
             </p>
           </Section>
 
@@ -160,10 +160,10 @@ export default function TermsPage() {
           <div className="mt-12 p-5 rounded-2xl border border-gray-100 bg-gray-50">
             <p className="text-xs text-gray-500">
               Questions about these Terms? Email us at{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#6D5EF3" }}>{CONTACT_EMAIL}</a>.
+              <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#8F83F7" }}>{CONTACT_EMAIL}</a>.
               See also our{" "}
-              <Link href="/privacy" className="underline" style={{ color: "#6D5EF3" }}>Privacy Policy</Link> and{" "}
-              <Link href="/ai-disclosure" className="underline" style={{ color: "#6D5EF3" }}>AI Use Disclosure</Link>.
+              <Link href="/privacy" className="underline" style={{ color: "#8F83F7" }}>Privacy Policy</Link> and{" "}
+              <Link href="/ai-disclosure" className="underline" style={{ color: "#8F83F7" }}>AI Use Disclosure</Link>.
             </p>
           </div>
         </div>

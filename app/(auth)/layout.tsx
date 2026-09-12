@@ -26,11 +26,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Footer */}
-      <p className="mt-8 text-xs text-center relative z-10" style={{ color: "#334155" }}>
+      {/* This is a consent notice, so it has to be readable: #334155 on the auth
+          background measured 1.9:1, against a WCAG AA floor of 4.5:1. */}
+      <p className="mt-8 text-xs text-center relative z-10" style={{ color: "#94A3B8" }}>
         By using GradProcess AI you agree to our{" "}
-        <Link href="/terms" className="transition-colors hover:text-slate-400 underline">Terms</Link>{" "}
+        <Link href="/terms" className="transition-colors hover:text-white underline">Terms</Link>{" "}
         and{" "}
-        <Link href="/privacy" className="transition-colors hover:text-slate-400 underline">Privacy Policy</Link>.
+        <Link href="/privacy" className="transition-colors hover:text-white underline">Privacy Policy</Link>.
       </p>
     </div>
   )

@@ -30,7 +30,7 @@ export default function PrivacyPage() {
               <strong>app.gradprocess.ai</strong>. We are the data controller for personal data processed through our services.
             </p>
             <p>
-              Contact: <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#6D5EF3" }}>{CONTACT_EMAIL}</a>
+              Contact: <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#8F83F7" }}>{CONTACT_EMAIL}</a>
             </p>
           </Section>
 
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
             <p>
               Your CV text, job descriptions, practice transcripts, and other content are sent to{" "}
               <strong>Anthropic&apos;s Claude API</strong> to generate feedback and scores. Please see our{" "}
-              <Link href="/ai-disclosure" className="underline" style={{ color: "#6D5EF3" }}>AI Use Disclosure</Link>{" "}
+              <Link href="/ai-disclosure" className="underline" style={{ color: "#8F83F7" }}>AI Use Disclosure</Link>{" "}
               for full details. We send only the minimum content required; we do not send your name or email to Anthropic.
             </p>
           </Section>
@@ -113,9 +113,9 @@ export default function PrivacyPage() {
               <li><strong>Withdraw consent</strong> — for recording consent or marketing at any time</li>
             </ul>
             <p>
-              To exercise any right, contact <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#6D5EF3" }}>{CONTACT_EMAIL}</a>.
+              To exercise any right, contact <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#8F83F7" }}>{CONTACT_EMAIL}</a>.
               We will respond within 30 days. You may also lodge a complaint with the ICO (UK) at{" "}
-              <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "#6D5EF3" }}>ico.org.uk</a>.
+              <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "#8F83F7" }}>ico.org.uk</a>.
             </p>
           </Section>
 
@@ -156,10 +156,10 @@ export default function PrivacyPage() {
           <div className="mt-12 p-5 rounded-2xl border border-gray-100 bg-gray-50">
             <p className="text-xs text-gray-500">
               Questions about this policy? Email us at{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#6D5EF3" }}>{CONTACT_EMAIL}</a>.
+              <a href={`mailto:${CONTACT_EMAIL}`} className="underline" style={{ color: "#8F83F7" }}>{CONTACT_EMAIL}</a>.
               See also our{" "}
-              <Link href="/terms" className="underline" style={{ color: "#6D5EF3" }}>Terms of Service</Link> and{" "}
-              <Link href="/ai-disclosure" className="underline" style={{ color: "#6D5EF3" }}>AI Use Disclosure</Link>.
+              <Link href="/terms" className="underline" style={{ color: "#8F83F7" }}>Terms of Service</Link> and{" "}
+              <Link href="/ai-disclosure" className="underline" style={{ color: "#8F83F7" }}>AI Use Disclosure</Link>.
             </p>
           </div>
         </div>
