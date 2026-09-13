@@ -73,6 +73,7 @@ function SecurityTab() {
   const [pwMsg, setPwMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState("")
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
   const [sessions, setSessions] = useState<{ created_at: string; user_agent: string | null }[]>([])
   const [signOutLoading, setSignOutLoading] = useState(false)
 
@@ -139,11 +140,24 @@ function SecurityTab() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm !== "DELETE") return
     setDeleteLoading(true)
-    // Account deletion requires the service role key — direct users to support
-    // or implement via a dedicated server action with the service client
-    await fetch("/api/account/delete", { method: "DELETE" })
-    await supabase.auth.signOut()
-    window.location.href = "/?deleted=1"
+    setDeleteError("")
+    try {
+      // The response was previously ignored. The route did not exist, so this
+      // 404'd, the user was signed out anyway and shown a confirmation, and
+      // their account and all their data were still there.
+      const res = await fetch("/api/account/delete", { method: "DELETE" })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setDeleteError(data.error || "Your account could not be deleted. Please contact support.")
+        setDeleteLoading(false)
+        return
+      }
+      await supabase.auth.signOut()
+      window.location.href = "/?deleted=1"
+    } catch {
+      setDeleteError("Could not reach the server. Your account has not been deleted.")
+      setDeleteLoading(false)
+    }
   }
 
   return (
@@ -305,6 +319,9 @@ function SecurityTab() {
           >
             {deleteLoading ? "Deleting…" : "Permanently Delete My Account"}
           </button>
+          {deleteError && (
+            <p className="text-xs font-medium text-red-700" role="alert">{deleteError}</p>
+          )}
         </div>
       </div>
     </div>
@@ -418,7 +435,8 @@ function PrivacyTab() {
           Your Data
         </h3>
         <p className="text-xs text-gray-500 mb-5">
-          You own your data. Export or request deletion at any time under your GDPR rights.
+          You own your data. Export it here at any time, or delete your account and
+          everything in it from the Security tab — both are your rights under UK GDPR.
         </p>
         <div className="space-y-3">
           <button
