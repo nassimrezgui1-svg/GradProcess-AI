@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
+import { requirePaidUser, isBlocked } from "@/lib/api/guard"
 
 // Vercel terminates the function at this ceiling instead of letting a slow
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
@@ -103,6 +104,9 @@ async function generateSection(shape: string, context: string, maxTokens: number
 }
 
 export async function POST(req: NextRequest) {
+  const guard = await requirePaidUser()
+  if (isBlocked(guard)) return guard
+
   try {
     const { company, role, sector, jobDescription } = await req.json()
     if (!company || !role) {

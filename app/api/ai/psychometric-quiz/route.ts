@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
+import { requirePaidUser, isBlocked } from "@/lib/api/guard"
 
 // Vercel terminates the function at this ceiling instead of letting a slow
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
@@ -22,6 +23,9 @@ export const maxDuration = 60
 const BATCH_SIZE = 4
 
 export async function POST(req: NextRequest) {
+  const guard = await requirePaidUser()
+  if (isBlocked(guard)) return guard
+
   const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
   try {
     const { type, difficulty = "medium", count = 20, previousQuestions = [] } = await req.json()

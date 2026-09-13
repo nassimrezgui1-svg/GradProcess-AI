@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requirePaidUser, isBlocked } from "@/lib/api/guard"
 
 export async function POST(req: NextRequest) {
+  // Accepts uploaded files, so it needs the same guard as the AI routes:
+  // unauthenticated upload endpoints are an abuse vector on their own.
+  const guard = await requirePaidUser()
+  if (isBlocked(guard)) return guard
+
   try {
     const formData = await req.formData()
     const file = formData.get("file") as File | null

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
+import { requirePaidUser, isBlocked } from "@/lib/api/guard"
 
 // Vercel terminates the function at this ceiling instead of letting a slow
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
@@ -175,6 +176,9 @@ RESPONSE STYLE RULES
 - Use minimal emojis — only when it genuinely adds warmth, not as decoration`
 
 export async function POST(req: NextRequest) {
+  const guard = await requirePaidUser()
+  if (isBlocked(guard)) return guard
+
   const client = new Anthropic({ apiKey: process.env.GRADPROCESS_AI_KEY })
   try {
     const { message, context, history = [] } = await req.json()
