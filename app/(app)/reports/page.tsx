@@ -186,6 +186,22 @@ export default function ReportsPage() {
     return () => window.removeEventListener(DATA_SYNCED_EVENT, refresh)
   }, [])
 
+  // Must stay above the early return below: placed after it, this hook was
+  // skipped on the first render (scores is null until the effect loads them)
+  // and ran on the next, changing the hook order and throwing "Rendered more
+  // hooks than during the previous render" — the Reports page failed to render
+  // at all. The filter belongs inside so the memo actually returns a stable
+  // array; chained outside it built a new one on every render.
+  const moduleData = useMemo(() => {
+    if (!scores) return []
+    return [
+      { name: "CV & ATS", score: scores.cv ?? 0 },
+      { name: "STAR", score: scores.star ?? 0 },
+      { name: "Video Interview", score: scores.video ?? 0 },
+      { name: "Psychometric", score: scores.psychometric ?? 0 },
+    ].filter(m => m.score > 0)
+  }, [scores])
+
   if (!scores) return null
 
   // Computed stats
@@ -198,12 +214,7 @@ export default function ReportsPage() {
     return v[0].score - v[v.length - 1].score
   })()
 
-  const moduleData = useMemo(() => [
-    { name: "CV & ATS", score: scores.cv ?? 0 },
-    { name: "STAR", score: scores.star ?? 0 },
-    { name: "Video Interview", score: scores.video ?? 0 },
-    { name: "Psychometric", score: scores.psychometric ?? 0 },
-  ], [scores]).filter(m => m.score > 0)
+
 
   const radarData = scores.radarData  // already a stable reference from loadDashboardScores
 
@@ -433,7 +444,6 @@ export default function ReportsPage() {
                     if (!byComp[e.competency]) byComp[e.competency] = []
                     byComp[e.competency].push(e.score)
                   })
-                  // eslint-disable-next-line react-hooks/rules-of-hooks
                   const compData = Object.entries(byComp).map(([name, scores]) => ({
                     name, score: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
                   })).sort((a, b) => a.score - b.score)
