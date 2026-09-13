@@ -100,6 +100,44 @@ body {
 .border-gray-200 { border-color: rgba(255,255,255,0.12) !important; }
 .border-gray-300 { border-color: rgba(255,255,255,0.16) !important; }
 
+/* Tinted status cards — success, warning, info, error.
+   These carry their own light background (bg-amber-50, bg-blue-50 and friends)
+   rather than bg-white, so the text remap above turned their near-black
+   headings into near-white on cream: a STAR Builder feedback card rendered as
+   an empty-looking panel with invisible text. The surfaces move to the dark
+   palette so the same light text reads on them, and the tinted text moves to
+   the light end of its own hue. */
+
+.bg-green-50, .bg-green-100, .bg-emerald-50, .bg-emerald-100 {
+  background-color: rgba(52,211,153,0.10) !important;
+}
+.bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-yellow-100 {
+  background-color: rgba(251,191,36,0.10) !important;
+}
+.bg-orange-50, .bg-orange-100 { background-color: rgba(249,115,22,0.10) !important; }
+.bg-blue-50, .bg-blue-100, .bg-sky-50 { background-color: rgba(96,165,250,0.10) !important; }
+.bg-indigo-50, .bg-violet-50, .bg-purple-50 { background-color: rgba(167,139,250,0.10) !important; }
+.bg-red-50, .bg-red-100, .bg-rose-50, .bg-rose-100 { background-color: rgba(248,113,113,0.10) !important; }
+
+.border-green-200, .border-green-100, .border-emerald-200 { border-color: rgba(52,211,153,0.28) !important; }
+.border-amber-200, .border-amber-100, .border-yellow-200 { border-color: rgba(251,191,36,0.28) !important; }
+.border-orange-200 { border-color: rgba(249,115,22,0.28) !important; }
+.border-blue-200, .border-blue-100, .border-sky-200 { border-color: rgba(96,165,250,0.28) !important; }
+.border-indigo-200, .border-violet-200, .border-purple-200 { border-color: rgba(167,139,250,0.28) !important; }
+.border-red-200, .border-red-100, .border-rose-200 { border-color: rgba(248,113,113,0.28) !important; }
+
+.text-green-600, .text-green-700, .text-green-800, .text-green-900,
+.text-emerald-600, .text-emerald-700, .text-emerald-800 { color: #6EE7B7 !important; }
+.text-amber-600, .text-amber-700, .text-amber-800, .text-amber-900,
+.text-yellow-600, .text-yellow-700, .text-yellow-800 { color: #FCD34D !important; }
+.text-orange-600, .text-orange-700, .text-orange-800 { color: #FDBA74 !important; }
+.text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900,
+.text-sky-600, .text-sky-700 { color: #93C5FD !important; }
+.text-indigo-600, .text-indigo-700, .text-violet-600, .text-violet-700,
+.text-purple-600, .text-purple-700 { color: #C4B5FD !important; }
+.text-red-600, .text-red-700, .text-red-800, .text-red-900,
+.text-rose-600, .text-rose-700 { color: #FCA5A5 !important; }
+
 /* Inputs inherit the card surface, so their text must come with them. */
 input, textarea, select { color: #F8FAFC; }
 input::placeholder, textarea::placeholder { color: #8494AC; }

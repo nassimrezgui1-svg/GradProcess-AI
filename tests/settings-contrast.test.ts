@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { readFileSync } from "node:fs"
+import { readFileSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 
 /**
@@ -94,5 +94,48 @@ describe("globals.css remaps text alongside surfaces", () => {
       const ratio = contrast(m[1], CARD)
       expect(ratio, `${m[1]} on ${CARD} is ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5)
     }
+  })
+})
+
+/**
+ * Remapping the grey text scale for the dark cards broke the tinted status
+ * cards, which carry their own light background (bg-amber-50, bg-blue-50 and
+ * friends) rather than bg-white. Their text-gray-900 headings became near-white
+ * on cream: the STAR Builder feedback panels rendered as blank-looking boxes.
+ *
+ * Any light surface the app still uses has to be remapped alongside the text,
+ * or the two disagree.
+ */
+describe("tinted status cards are remapped with the text", () => {
+  const css = readFileSync(join(__dirname, "..", "app", "globals.css"), "utf8")
+
+  function classesUsed(pattern: RegExp): string[] {
+    const out = new Set<string>()
+    const walk = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap(e => {
+        if (e.name === "node_modules" || e.name.startsWith(".")) return []
+        const p = join(dir, e.name)
+        return e.isDirectory() ? walk(p) : e.name.endsWith(".tsx") ? [p] : []
+      })
+    for (const f of [...walk(join(__dirname, "..", "app")), ...walk(join(__dirname, "..", "components"))]) {
+      for (const m of readFileSync(f, "utf8").matchAll(pattern)) out.add(m[0])
+    }
+    return [...out]
+  }
+
+  it("every light tinted background in use is remapped", () => {
+    const used = classesUsed(/bg-(?:amber|blue|red|green|emerald|yellow|orange|indigo|violet|purple|sky|rose)-(?:50|100)\b/g)
+    const missing = used.filter(c => !css.includes("." + c))
+    expect(missing, `light card surfaces with no dark remap:\n${missing.join("\n")}`).toEqual([])
+  })
+
+  it("every dark tinted text colour in use is remapped", () => {
+    const used = classesUsed(/text-(?:amber|blue|red|green|emerald|yellow|orange|indigo|violet|purple|sky|rose)-(?:600|700|800|900)\b/g)
+    const missing = used.filter(c => !css.includes("." + c))
+    expect(missing, `dark tinted text with no light remap:\n${missing.join("\n")}`).toEqual([])
+  })
+
+  it("the surfaces stay translucent so they read as tints, not solid blocks", () => {
+    expect(css).toMatch(/\.bg-amber-50[^{]*\{[^}]*rgba\(251,191,36,0\.1/)
   })
 })
