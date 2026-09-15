@@ -269,11 +269,18 @@ function AddOpportunityModal({ open, defaultStage, onClose, onSave }: {
   }, [open])
 
   const handleExtract = async () => {
-    const text = jdText.trim() || url.trim()
-    if (!text) return
+    // The URL goes to the server as a URL. It used to be sent in place of the
+    // job description, so the model was handed a link and asked to read it.
+    const text = jdText.trim()
+    const link = url.trim()
+    if (!text && !link) return
     setExtracting(true); setExtractError("")
     try {
-      const data = await postAI<any>("/api/ai/tracker/extract-role", { text })
+      const data = await postAI<any>(
+        "/api/ai/tracker/extract-role",
+        { text, url: link || undefined },
+        { timeoutMs: 60_000 }
+      )
       setForm({
         company: data.company ?? "",
         role: data.role ?? "",

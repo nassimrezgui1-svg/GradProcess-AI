@@ -177,27 +177,37 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
   }, [])
 
   const [generating, setGenerating] = useState(false)
+  const [partsDone, setPartsDone] = useState(0)
   const [error, setError] = useState("")
   const b = app.breakdown
 
   const generate = async () => {
     setGenerating(true); setError("")
-    try {
-      // Bare fetch here had no timeout and called res.json() before checking
-      // res.ok, so a plain-text gateway error surfaced to the user as
-      // "Unexpected token 'A', \"An error o\"... is not valid JSON" rather
-      // than anything they could act on. postAI handles both.
-      const data = await postAI<RoleBreakdown>(
-        "/api/ai/tracker/breakdown",
-        { company: app.company, role: app.role, sector: app.sector, jobDescription: app.jobDescription },
-        { timeoutMs: 60_000 }
-      )
-      onBreakdownGenerated(data)
-    } catch (e: any) {
-      setError(e.message || "Generation failed")
-    } finally {
-      setGenerating(false)
-    }
+    setPartsDone(0)
+    const body = { company: app.company, role: app.role, sector: app.sector, jobDescription: app.jobDescription }
+
+    // Each part is fetched separately and merged as it arrives, so the first
+    // section appears in about a third of the time the whole breakdown takes.
+    // Waiting for all three meant 28-34 seconds of nothing on screen.
+    let merged: Partial<RoleBreakdown> = {}
+    let failures = 0
+
+    await Promise.all((["profile", "questions", "plan"] as const).map(async part => {
+      try {
+        const section = await postAI<Partial<RoleBreakdown>>(
+          "/api/ai/tracker/breakdown", { ...body, part }, { timeoutMs: 60_000 }
+        )
+        merged = { ...merged, ...section }
+        setPartsDone(n => n + 1)
+        onBreakdownGenerated(merged as RoleBreakdown)
+      } catch (e: any) {
+        failures += 1
+        setError(e?.message || "Part of the breakdown could not be generated. Try again.")
+      }
+    }))
+
+    if (failures === 3) setError(prev => prev || "The breakdown could not be generated. Please try again.")
+    setGenerating(false)
   }
 
   if (!b) {
@@ -228,7 +238,8 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
       <div className="flex items-center justify-between">
         <p className="text-xs text-ink-faint">Generated {fmtDate(b.generatedAt)} · AI-generated guidance for preparation purposes</p>
         <button onClick={generate} disabled={generating} className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink transition-colors">
-          {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />} Regenerate
+          {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+          {generating ? `Regenerating… ${partsDone} of 3 sections` : "Regenerate"}
         </button>
       </div>
 

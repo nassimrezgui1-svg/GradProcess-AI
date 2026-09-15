@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { NextRequest, NextResponse } from "next/server"
 import { requirePaidUser, isBlocked } from "@/lib/api/guard"
+import { fetchJobPage } from "@/lib/fetch-job-page"
 
 // Vercel terminates the function at this ceiling instead of letting a slow
 // model hold the request open indefinitely. Hobby plan allows up to 60s.
@@ -13,8 +14,23 @@ export async function POST(req: NextRequest) {
   if (isBlocked(guard)) return guard
 
   try {
-    const { text } = await req.json()
-    if (!text || text.trim().length < 30) {
+    const { text, url } = await req.json()
+
+    // A URL used to be passed straight through as if it were the advert. Fetch
+    // the page and read it, so "paste a link" means what it says.
+    let source: string = typeof text === "string" ? text : ""
+    if (!source.trim() && typeof url === "string" && url.trim()) {
+      try {
+        source = await fetchJobPage(url)
+      } catch (err: any) {
+        return NextResponse.json(
+          { error: err?.message || "That page could not be read. Paste the job description instead." },
+          { status: 422 }
+        )
+      }
+    }
+
+    if (!source || source.trim().length < 30) {
       return NextResponse.json({ error: "Job description too short" }, { status: 400 })
     }
 
@@ -49,7 +65,7 @@ export async function POST(req: NextRequest) {
 }
 
 Job Description:
-${text.slice(0, 4000)}`,
+${source.slice(0, 6000)}`,
         },
       ],
     })

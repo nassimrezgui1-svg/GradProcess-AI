@@ -108,20 +108,32 @@ export async function POST(req: NextRequest) {
   if (isBlocked(guard)) return guard
 
   try {
-    const { company, role, sector, jobDescription } = await req.json()
+    const { company, role, sector, jobDescription, part } = await req.json()
     if (!company || !role) {
       return NextResponse.json({ error: "Company and role are required" }, { status: 400 })
     }
 
     const context = contextBlock(company, role, sector, jobDescription)
 
-    // Concurrent, so the wall-clock cost is the slower half, not the total.
-    const [profile, questions, plan] = await Promise.all([
-      generateSection(PROFILE_SHAPE, context, 1800),
-      generateSection(QUESTIONS_SHAPE, context, 1500),
-      generateSection(PLAN_SHAPE, context, 1500),
-    ])
+    // The three parts were already generated concurrently, but the client had
+    // to wait for all of them before it could show anything — 28-34s of blank
+    // screen. It now asks for one part per request and renders each as it
+    // lands, so the first section appears in roughly a third of the time.
+    const parts = {
+      profile:   () => generateSection(PROFILE_SHAPE, context, 1800),
+      questions: () => generateSection(QUESTIONS_SHAPE, context, 1500),
+      plan:      () => generateSection(PLAN_SHAPE, context, 1500),
+    } as const
 
+    if (typeof part === "string" && part in parts) {
+      const section = await parts[part as keyof typeof parts]()
+      return NextResponse.json({ ...section, generatedAt: new Date().toISOString() })
+    }
+
+    // No part named: return the whole breakdown, as before.
+    const [profile, questions, plan] = await Promise.all([
+      parts.profile(), parts.questions(), parts.plan(),
+    ])
     return NextResponse.json({
       ...profile, ...questions, ...plan,
       generatedAt: new Date().toISOString(),
