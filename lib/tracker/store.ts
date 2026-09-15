@@ -34,16 +34,42 @@ export function dedupe(apps: TrackerApp[]): TrackerApp[] {
   return out
 }
 
+/**
+ * Fills in the list fields an application is typed as always having.
+ *
+ * TrackerApp declares skills, softSkills, responsibilities, requirements and
+ * stageHistory as arrays, but nothing guarantees a stored record has them:
+ * entries saved before those fields existed, and ones added by hand, do not.
+ * The detail page read `app.skills.length` directly and crashed the whole tab
+ * with "Cannot read properties of undefined (reading 'length')" — the browser's
+ * own error page, not an error boundary.
+ *
+ * Normalising here means every reader gets the shape the type promises, rather
+ * than each one guarding separately and the next one forgetting.
+ */
+function normalise(app: any): TrackerApp {
+  return {
+    ...app,
+    skills: Array.isArray(app?.skills) ? app.skills : [],
+    softSkills: Array.isArray(app?.softSkills) ? app.softSkills : [],
+    responsibilities: Array.isArray(app?.responsibilities) ? app.responsibilities : [],
+    requirements: Array.isArray(app?.requirements) ? app.requirements : [],
+    stageHistory: Array.isArray(app?.stageHistory) ? app.stageHistory : [],
+    interviewDates: Array.isArray(app?.interviewDates) ? app.interviewDates : [],
+  } as TrackerApp
+}
+
 function save(apps: TrackerApp[]) {
   writeLocal("gradprocess_tracker", apps)
 }
 
 export function loadApps(): TrackerApp[] {
-  return load()
+  return load().map(normalise)
 }
 
 export function getApp(id: string): TrackerApp | null {
-  return load().find(a => a.id === id) ?? null
+  const found = load().find(a => a.id === id)
+  return found ? normalise(found) : null
 }
 
 export function addApp(app: TrackerApp): void {
