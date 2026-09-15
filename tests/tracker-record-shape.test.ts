@@ -121,3 +121,42 @@ describe("a half-finished breakdown does not break the tabs", () => {
     expect(page).toMatch(/\.\.\.emptyBreakdown\(\)/)
   })
 })
+
+/**
+ * Found by opening every page I had changed, rather than by a test.
+ *
+ * Psychometric printed "Across 1 test · NaN total questions answered" — a
+ * stored session missing a field turned every reduce into NaN and the page
+ * rendered it. Billing sat on a spinner for ever: the effect returned early
+ * when there was no session without clearing the loading flag, and nothing
+ * caught a failed query.
+ */
+describe("aggregates and loading states cannot get stuck", () => {
+  const psych = readFileSync(join(root, "app", "(app)", "psychometric", "page.tsx"), "utf8")
+  const billing = readFileSync(join(root, "app", "(app)", "billing", "page.tsx"), "utf8")
+
+  function sumBy<T>(rows: T[], pick: (r: T) => unknown): number {
+    return rows.reduce((sum, r) => {
+      const v = pick(r)
+      return sum + (typeof v === "number" && Number.isFinite(v) ? v : 0)
+    }, 0)
+  }
+
+  it("a session missing a field sums to a number, not NaN", () => {
+    const sessions = [{ total: 20 }, {}, { total: undefined }, { total: NaN }] as any[]
+    const total = sumBy(sessions, s => s.total)
+    expect(Number.isNaN(total)).toBe(false)
+    expect(total).toBe(20)
+  })
+
+  it("psychometric no longer reduces over raw fields", () => {
+    expect(psych).not.toMatch(/reduce\(\(s, t\) => s \+ t\.total, 0\)/)
+    expect(psych).toMatch(/sumBy\(testLog/)
+  })
+
+  it("billing clears its spinner on every path", () => {
+    expect(billing).toMatch(/finally \{[\s\S]{0,80}setLoading\(false\)/)
+    expect(billing).toMatch(/catch \{/)
+    expect(billing).toMatch(/loadError/)
+  })
+})

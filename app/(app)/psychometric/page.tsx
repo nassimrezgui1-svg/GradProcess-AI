@@ -234,6 +234,21 @@ export default function PsychometricPage() {
   }
 
   /** A question's answers, always as a list, whatever shape the model returned. */
+  /**
+   * Sums a field across stored sessions, treating anything missing as zero.
+   *
+   * A session saved before a field existed made these reduces produce NaN, and
+   * the page printed it: "Across 1 test · NaN total questions answered".
+   */
+  const sumBy = <T,>(rows: T[], pick: (row: T) => unknown): number =>
+    rows.reduce((sum, row) => {
+      const v = pick(row)
+      return sum + (typeof v === "number" && Number.isFinite(v) ? v : 0)
+    }, 0)
+
+  const avgBy = <T,>(rows: T[], pick: (row: T) => unknown): number =>
+    rows.length ? Math.round(sumBy(rows, pick) / rows.length) : 0
+
   const correctFor = (q: Question): number[] =>
     Array.isArray(q.correct) ? q.correct : [q.correct]
 
@@ -317,13 +332,13 @@ export default function PsychometricPage() {
   // ─── Stats calculations ────────────────────────────────────────────────────
 
   const overallScore = testLog.length > 0
-    ? Math.round(testLog.reduce((sum, s) => sum + s.score, 0) / testLog.length)
+    ? avgBy(testLog, s => s.score)
     : null
 
   const scoreByType = psychometricTests.map(t => {
     const sessions = testLog.filter(s => s.testType === t.id)
     const avg = sessions.length > 0
-      ? Math.round(sessions.reduce((sum, s) => sum + s.score, 0) / sessions.length)
+      ? avgBy(sessions, s => s.score)
       : null
     return { id: t.id, name: t.name, avg, count: sessions.length }
   })
@@ -643,7 +658,7 @@ export default function PsychometricPage() {
                 <>
                   <p className={cn("text-5xl font-bold", getScoreColor(overallScore))}>{overallScore}</p>
                   <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    Across {testLog.length} test{testLog.length !== 1 ? "s" : ""} · {testLog.reduce((s, t) => s + t.total, 0)} total questions answered
+                    Across {testLog.length} test{testLog.length !== 1 ? "s" : ""} · {sumBy(testLog, t => t.total)} total questions answered
                   </p>
                 </>
               ) : (
@@ -695,7 +710,7 @@ export default function PsychometricPage() {
               const last = lastSessionByType(test.id)
               const sessions = testLog.filter(s => s.testType === test.id)
               const avgScore = sessions.length > 0
-                ? Math.round(sessions.reduce((s, t) => s + t.score, 0) / sessions.length)
+                ? avgBy(sessions, s => s.score)
                 : null
               const colorStyle = testColorStyles[test.id] || { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.65)" }
               return (
@@ -796,12 +811,12 @@ export default function PsychometricPage() {
               </div>
               <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <Target className="w-6 h-6 mx-auto mb-2" style={{ color: "#5B8CFF" }} />
-                <p className="text-2xl font-bold text-white">{testLog.reduce((s, t) => s + t.total, 0)}</p>
+                <p className="text-2xl font-bold text-white">{sumBy(testLog, t => t.total)}</p>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Questions Answered</p>
               </div>
               <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <CheckCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#34D399" }} />
-                <p className="text-2xl font-bold text-white">{testLog.reduce((s, t) => s + t.correct, 0)}</p>
+                <p className="text-2xl font-bold text-white">{sumBy(testLog, t => t.correct)}</p>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>Correct Answers</p>
               </div>
               <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>

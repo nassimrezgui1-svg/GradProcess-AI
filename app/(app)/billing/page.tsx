@@ -16,24 +16,41 @@ type Sub = {
 export default function BillingPage() {
   const [sub, setSub] = useState<Sub | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState("")
   const [portalLoading, setPortalLoading] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState<PlanKey | null>(null)
   const [checkoutError, setCheckoutError] = useState("")
 
   useEffect(() => {
+    // Every path has to clear the spinner. `if (!user) return` left it running
+    // for ever when there was no session, and an failed query did the same
+    // because nothing caught it — the page sat on a spinner with no way out.
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase
-        .from("subscriptions")
-        .select("plan, status, billing_interval, current_period_end, cancel_at_period_end, stripe_subscription_id")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          setSub(data)
-          setLoading(false)
-        })
-    })
+    let cancelled = false
+
+    ;(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data, error } = await supabase
+          .from("subscriptions")
+          .select("plan, status, billing_interval, current_period_end, cancel_at_period_end, stripe_subscription_id")
+          .eq("user_id", user.id)
+          .maybeSingle()
+        if (cancelled) return
+        if (error) {
+          setLoadError("We could not load your plan just now. Refresh to try again.")
+          return
+        }
+        setSub(data)
+      } catch {
+        if (!cancelled) setLoadError("We could not load your plan just now. Refresh to try again.")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+
+    return () => { cancelled = true }
   }, [])
 
   async function openPortal() {
@@ -81,7 +98,13 @@ export default function BillingPage() {
         </p>
       </div>
 
-      {loading ? (
+      {loadError ? (
+        <div className="rounded-2xl p-5 flex items-start gap-3"
+          style={{ background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)" }}>
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#FCA5A5" }} />
+          <p className="text-sm" style={{ color: "#FCA5A5" }}>{loadError}</p>
+        </div>
+      ) : loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#5B8CFF" }} />
         </div>

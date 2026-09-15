@@ -98,12 +98,21 @@ export interface RoleBreakdown {
   generatedAt: string
 }
 
+/**
+ * Band colours for the readiness card.
+ *
+ * These were light fills with dark text — #FFFBEB behind #D97706 — set inline
+ * rather than as Tailwind classes, so the remap that moved the app's tinted
+ * cards onto the dark palette could not reach them. The card rendered as a
+ * cream block in an otherwise dark page. Same hues, now as translucent tints
+ * with light text, matching every other status card in the app.
+ */
 export function getReadinessBand(score: number): { label: string; color: string; bg: string } {
-  if (score >= 90) return { label: "Highly Competitive",       color: "#059669", bg: "#ECFDF5" }
-  if (score >= 75) return { label: "Interview Ready",          color: "#2563EB", bg: "#EFF6FF" }
-  if (score >= 60) return { label: "Strong Foundation",        color: "#7C3AED", bg: "#F5F3FF" }
-  if (score >= 40) return { label: "Developing Readiness",     color: "#D97706", bg: "#FFFBEB" }
-  return              { label: "Early Preparation Needed",  color: "#DC2626", bg: "#FEF2F2" }
+  if (score >= 90) return { label: "Highly Competitive",      color: "#6EE7B7", bg: "rgba(52,211,153,0.10)" }
+  if (score >= 75) return { label: "Interview Ready",         color: "#93C5FD", bg: "rgba(96,165,250,0.10)" }
+  if (score >= 60) return { label: "Strong Foundation",       color: "#C4B5FD", bg: "rgba(167,139,250,0.10)" }
+  if (score >= 40) return { label: "Developing Readiness",    color: "#FCD34D", bg: "rgba(251,191,36,0.10)" }
+  return             { label: "Early Preparation Needed", color: "#FCA5A5", bg: "rgba(248,113,113,0.10)" }
 }
 
 export const SECTORS = [
