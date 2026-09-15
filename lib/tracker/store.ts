@@ -35,6 +35,36 @@ export function dedupe(apps: TrackerApp[]): TrackerApp[] {
 }
 
 /**
+ * Fills in the list fields a breakdown is typed as always having.
+ *
+ * The breakdown is now generated in three parts that are rendered as each
+ * lands, so a saved record can legitimately hold only some of them — and a
+ * failed part leaves it that way permanently. The detail page reads
+ * b.likelyInterviewStages.length, b.interviewQuestions.map and others
+ * directly, so a partial breakdown crashed the Overview, AI Breakdown,
+ * Interview Prep and STAR Stories tabs outright.
+ */
+function normaliseBreakdown(b: any): any {
+  if (!b || typeof b !== "object") return b
+  const list = (v: unknown) => (Array.isArray(v) ? v : [])
+  return {
+    ...b,
+    keyResponsibilities: list(b.keyResponsibilities),
+    keySkills: list(b.keySkills),
+    competencies: list(b.competencies),
+    technicalAreas: list(b.technicalAreas),
+    commercialThemes: list(b.commercialThemes),
+    interviewQuestions: list(b.interviewQuestions),
+    starSuggestions: list(b.starSuggestions),
+    prepRoadmap: list(b.prepRoadmap),
+    gapAnalysis: list(b.gapAnalysis),
+    atsRecommendations: list(b.atsRecommendations),
+    likelyInterviewStages: list(b.likelyInterviewStages),
+    assessmentCentreExpectations: list(b.assessmentCentreExpectations),
+  }
+}
+
+/**
  * Fills in the list fields an application is typed as always having.
  *
  * TrackerApp declares skills, softSkills, responsibilities, requirements and
@@ -56,6 +86,7 @@ function normalise(app: any): TrackerApp {
     requirements: Array.isArray(app?.requirements) ? app.requirements : [],
     stageHistory: Array.isArray(app?.stageHistory) ? app.stageHistory : [],
     interviewDates: Array.isArray(app?.interviewDates) ? app.interviewDates : [],
+    breakdown: app?.breakdown ? normaliseBreakdown(app.breakdown) : app?.breakdown,
   } as TrackerApp
 }
 

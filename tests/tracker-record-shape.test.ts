@@ -78,3 +78,46 @@ describe("a stored role always comes back with the shape the page expects", () =
     expect(page).toMatch(/app\.skills\.length/)
   })
 })
+
+/**
+ * My own regression. Rendering the breakdown in three parts meant the first
+ * part to land was saved on its own — a breakdown holding the profile and
+ * nothing else. The tabs read b.likelyInterviewStages.length,
+ * b.interviewQuestions.map, b.prepRoadmap.length and b.starSuggestions.map
+ * directly, so AI Breakdown, Interview Prep and STAR Stories all crashed, and
+ * the partial record persisted so they stayed crashed on reload.
+ */
+const BREAKDOWN_LISTS = [
+  "keyResponsibilities", "keySkills", "competencies", "technicalAreas",
+  "commercialThemes", "interviewQuestions", "starSuggestions", "prepRoadmap",
+  "gapAnalysis", "atsRecommendations", "likelyInterviewStages",
+  "assessmentCentreExpectations",
+] as const
+
+function normaliseBreakdown(b: any) {
+  const list = (v: unknown) => (Array.isArray(v) ? v : [])
+  return { ...b, ...Object.fromEntries(BREAKDOWN_LISTS.map(k => [k, list(b?.[k])])) }
+}
+
+describe("a half-finished breakdown does not break the tabs", () => {
+  it("a profile-only breakdown still has every list the tabs read", () => {
+    const partial = { roleSummary: "…", companyOverview: "…", keySkills: ["Excel"] }
+    const b = normaliseBreakdown(partial)
+    for (const f of BREAKDOWN_LISTS) {
+      expect(Array.isArray(b[f]), `${f} is not an array`).toBe(true)
+      expect(() => b[f].length).not.toThrow()
+    }
+    expect(b.keySkills).toEqual(["Excel"])
+  })
+
+  it("the store repairs breakdowns already saved in a partial state", () => {
+    expect(store).toMatch(/normaliseBreakdown/)
+    expect(store).toMatch(/breakdown: app\?\.breakdown \? normaliseBreakdown/)
+  })
+
+  it("generation starts from a complete shape rather than an empty object", () => {
+    // Otherwise the first part to arrive is saved without the other lists.
+    expect(page).toMatch(/emptyBreakdown/)
+    expect(page).toMatch(/\.\.\.emptyBreakdown\(\)/)
+  })
+})

@@ -189,7 +189,21 @@ function BreakdownTab({ app, onBreakdownGenerated }: { app: TrackerApp; onBreakd
     // Each part is fetched separately and merged as it arrives, so the first
     // section appears in about a third of the time the whole breakdown takes.
     // Waiting for all three meant 28-34 seconds of nothing on screen.
-    let merged: Partial<RoleBreakdown> = {}
+    // Every list the tabs read, present from the first render. Sections are
+    // rendered as they arrive, so a breakdown holding only the profile is a
+    // normal intermediate state — and a failed part makes it the final one.
+    // Without this base, the first part to land saved a breakdown missing
+    // interviewQuestions, prepRoadmap and the rest, and reading .length on
+    // those crashed the Overview, AI Breakdown, Interview Prep and STAR tabs.
+    const emptyBreakdown = (): Partial<RoleBreakdown> => ({
+      keyResponsibilities: [], keySkills: [], competencies: [],
+      technicalAreas: [], commercialThemes: [], interviewQuestions: [],
+      starSuggestions: [], prepRoadmap: [], gapAnalysis: [],
+      atsRecommendations: [], likelyInterviewStages: [],
+      assessmentCentreExpectations: [],
+    })
+
+    let merged: Partial<RoleBreakdown> = { ...emptyBreakdown(), ...(app.breakdown ?? {}) }
     let failures = 0
 
     await Promise.all((["profile", "questions", "plan"] as const).map(async part => {
