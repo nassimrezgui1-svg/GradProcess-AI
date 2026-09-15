@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       numerical: "percentages, ratios, growth rates, charts/tables, profit/loss, interest rates, currency conversion, averages, breakeven, market data — use realistic financial services / consulting context with specific numbers",
       verbal: "true/false/cannot say based on passages about business topics — banking regulation, consulting strategy, technology trends, ESG, corporate finance. Each question needs a fresh passage.",
       logical: "number sequences, letter sequences, matrix patterns, syllogisms, deductive reasoning, odd one out — vary the pattern type across questions",
-      abstract: "shape sequences, visual pattern completion, rotation problems, odd one out — describe the pattern in words since this is text-based",
+      abstract: "shape sequences, visual pattern completion, rotation, counting and alternation — returned as shape DATA and drawn as real figures, never described in words",
       sjt: "realistic workplace scenarios for a graduate analyst at a bank or consulting firm — professionalism, teamwork, ethics, client handling, escalation decisions, time pressure",
       attention: "data checking (spot differences between two data sets), proofreading business emails/reports (spot errors), exact matching of figures, error spotting in financial tables",
     }
@@ -75,6 +75,15 @@ Topics and style: ${focusTopics}\n\nStay within those topics for this set so it 
 ${type === "verbal" ? "For verbal: each question needs its own unique passage (80-120 words) on a different business topic, then ask True/False/Cannot Say about a specific statement." : ""}
 ${type === "sjt" ? "For SJT: each scenario should be a different workplace situation. Provide 4 response options labelled A-D. The correct answer is the most professionally appropriate response." : ""}
 ${type === "attention" ? "For attention to detail: mix question styles — spot the difference in figures, find the error in a passage, identify the mismatched data." : ""}
+${type === "abstract" ? `For abstract reasoning the figures are DRAWN, not described. Do not write "a square rotating 90 degrees" in the question text — express it as data.
+
+Add to each question:
+  "sequence": [ [shape, ...], [shape, ...], [shape, ...], [shape, ...] ]   // 3-4 cells showing the pattern; the candidate works out the next one
+  "optionShapes": [ [shape, ...], [shape, ...], [shape, ...], [shape, ...] ] // exactly 4 candidate figures, same order as "options"
+
+A shape is {"kind": "circle"|"square"|"triangle"|"diamond"|"cross"|"arrow", "count": 1-4, "filled": true|false, "rotation": 0|45|90|135|180|225|270|315, "colour": 0-4}.
+Build a real rule — rotation, count, fill alternation, shape cycling, or two combined — and make the wrong options plausible near-misses of it.
+Set "question" to a short stem such as "Which figure completes the sequence?" and keep "options" as short labels like "A", "B", "C", "D".` : ""}
 ${avoidSection}
 
 Return ONLY this JSON (no markdown, no explanation):
@@ -87,7 +96,10 @@ Return ONLY this JSON (no markdown, no explanation):
       "passage": "<for verbal only — unique passage for this question, omit this field for other types>",
       "question": "<the full question text>",
       "options": ["<option A text>", "<option B text>", "<option C text>", "<option D text>"],
-      "correct": <MUST vary across all questions — use 0, 1, 2 AND 3 roughly equally, do NOT default to 1>,
+      "selectCount": <1 normally. Use 2 ONLY when the question genuinely asks the candidate to pick two, e.g. an SJT asking for the two most effective responses. If you use 2, the question text must say so explicitly>,
+      "correct": <when selectCount is 1, a single index. When selectCount is 2, an array of exactly two indices, e.g. [0,3]. Indices MUST vary across questions — use 0, 1, 2 AND 3 roughly equally, do NOT default to 1>,
+      "sequence": <abstract only — the cells described above, omitted entirely for other types>,
+      "optionShapes": <abstract only — four figures matching the four options, omitted for other types>,
       "explanation": "<clear explanation of the correct answer, at most 60 words. For numerical, show the working as a compact calculation rather than prose — unbounded explanations truncate the response mid-JSON and lose the whole batch>",
       "timeLimit": <recommended seconds to answer, 45-90 for easy, 75-120 for hard>
     }
@@ -112,7 +124,11 @@ Return ONLY this JSON (no markdown, no explanation):
     // Two spare batches, because near-duplicates are dropped when the batches
     // are merged and the UI promises an exact count ("Start Practice (20 Qs)").
     // With one spare, logical and attention still came back with 18-19.
-    const target = count + BATCH_SIZE * 2
+    // Abstract figures are built from a small vocabulary of shapes, so more of
+    // them collide on dedupe than worded questions do — 20 requested came back
+    // as 17. It gets an extra spare batch.
+    const spare = type === "abstract" ? 3 : 2
+    const target = count + BATCH_SIZE * spare
     const batchSizes: number[] = []
     for (let remaining = target; remaining > 0; remaining -= BATCH_SIZE) {
       batchSizes.push(Math.min(BATCH_SIZE, remaining))
@@ -132,7 +148,13 @@ Return ONLY this JSON (no markdown, no explanation):
     const seen = new Set<string>()
     const merged: any[] = []
     for (const q of batches.flat()) {
-      const key = String(q?.question ?? "").toLowerCase().replace(/\s+/g, " ").trim()
+      // Abstract questions all share one stem ("Which figure completes the
+      // sequence?") because the question IS the drawing. Keying dedupe on the
+      // text alone collapsed a whole 20-question set down to one, so the
+      // figures count towards identity too.
+      const stem = String(q?.question ?? "").toLowerCase().replace(/\s+/g, " ").trim()
+      const figures = q?.sequence ? JSON.stringify(q.sequence) : ""
+      const key = stem + figures
       if (!key || seen.has(key)) continue
       seen.add(key)
       merged.push({ ...q, id: `q${merged.length + 1}` })
@@ -149,15 +171,31 @@ Return ONLY this JSON (no markdown, no explanation):
     // Fisher-Yates shuffle on each question's options, keeping correct answer tracked by content
     if (Array.isArray(result.questions)) {
       result.questions = result.questions.map((q: any) => {
-        if (!Array.isArray(q.options) || typeof q.correct !== "number") return q
-        const correctText = q.options[q.correct]
-        // Fisher-Yates
+        if (!Array.isArray(q.options)) return q
+
+        // One answer or several — normalise to a list so the rest of the app,
+        // and the shuffle below, only ever deal with one shape.
+        const indices: number[] = Array.isArray(q.correct)
+          ? q.correct.filter((n: unknown) => typeof n === "number")
+          : typeof q.correct === "number" ? [q.correct] : []
+        if (indices.length === 0) return q
+
+        const correctTexts = indices.map((i: number) => q.options[i])
+
+        // Fisher-Yates, tracking the answers by their text rather than index.
         const shuffled = [...q.options]
         for (let i = shuffled.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
         }
-        return { ...q, options: shuffled, correct: shuffled.indexOf(correctText) }
+
+        const moved = correctTexts.map(txt => shuffled.indexOf(txt)).filter(i => i >= 0).sort()
+        return {
+          ...q,
+          options: shuffled,
+          correct: moved,
+          selectCount: moved.length,
+        }
       })
     }
 

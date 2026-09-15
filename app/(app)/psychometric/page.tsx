@@ -1,7 +1,7 @@
 "use client"
 import { savePsychScore } from "@/lib/scores"
 import { readLocal, DATA_SYNCED_EVENT } from "@/lib/db/local"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Topbar } from "@/components/layout/topbar"
 import { postAI } from "@/lib/ai/request"
 import { psychometricTests } from "@/lib/mock-data"
@@ -12,6 +12,7 @@ import {
   Loader2, TrendingUp, BarChart3, History, ChevronRight,
   AlertCircle, Zap, Target
 } from "lucide-react"
+import { ShapeFigure, ShapeSequence, type Shape } from "@/components/psychometric/shape-figure"
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,13 @@ interface Question {
   passage?: string
   question: string
   options: string[]
-  correct: number
+  /** Indices of the correct options. One for most questions, two for "select two". */
+  correct: number | number[]
+  /** How many options the candidate must pick. Defaults to 1. */
+  selectCount?: number
+  /** Abstract reasoning only: the drawn sequence, and a figure per option. */
+  sequence?: Shape[][]
+  optionShapes?: Shape[][]
   explanation: string
   timeLimit: number
 }
@@ -30,8 +37,8 @@ interface Question {
 interface AnswerRecord {
   questionId: string
   question: string
-  selected: number
-  correct: number
+  selected: number[]
+  correct: number[]
   isCorrect: boolean
   timeTaken: number
   explanation: string
@@ -79,7 +86,12 @@ export default function PsychometricPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<AnswerRecord[]>([])
-  const [selected, setSelected] = useState<number | null>(null)
+  // What the candidate has picked for the current question. A list, because a
+  // question may ask for two.
+  const [picked, setPicked] = useState<number[]>([])
+  // Read inside the navigation guard, which is bound once per phase.
+  const answersRef = useRef<AnswerRecord[]>([])
+  const [loadElapsed, setLoadElapsed] = useState(0)
   const [showExplanation, setShowExplanation] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
@@ -118,14 +130,59 @@ export default function PsychometricPage() {
     return () => clearInterval(interval)
   }, [questionIndex, phase, showExplanation])
 
+  // Leaving mid-test used to discard everything silently — no warning, and no
+  // record of the questions already answered.
+  useEffect(() => {
+    if (phase !== "active") return
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ""
+    }
+    window.addEventListener("beforeunload", warn)
+
+    // beforeunload only covers closing or reloading the tab. Clicking away in
+    // the sidebar is the likelier way to lose a test, and the router does not
+    // fire it, so links are intercepted here too.
+    const intercept = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement | null)?.closest?.("a[href]") as HTMLAnchorElement | null
+      if (!link) return
+      const href = link.getAttribute("href") || ""
+      if (!href.startsWith("/") || href.startsWith("/psychometric")) return
+      const answered = answersRef.current.length
+      const ok = window.confirm(
+        answered > 0
+          ? `You are ${answered} question${answered === 1 ? "" : "s"} into this test. Leaving now discards it — the test is only recorded once you finish. Leave anyway?`
+          : "Leaving now discards this test. Leave anyway?"
+      )
+      if (!ok) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+    document.addEventListener("click", intercept, true)
+
+    return () => {
+      window.removeEventListener("beforeunload", warn)
+      document.removeEventListener("click", intercept, true)
+    }
+  }, [phase])
+
+  // Drives the progress bar on the loading screen.
+  useEffect(() => {
+    if (phase !== "loading") { setLoadElapsed(0); return }
+    const started = Date.now()
+    const id = setInterval(() => setLoadElapsed(Math.round((Date.now() - started) / 1000)), 500)
+    return () => clearInterval(id)
+  }, [phase])
+
   const handleTimeOut = () => {
-    if (selected !== null) return
+    if (showExplanation) return
     const q = questions[questionIndex]
     const record: AnswerRecord = {
       questionId: q.id,
       question: q.question,
-      selected: -1,
-      correct: q.correct,
+      selected: [],
+      correct: correctFor(q),
       isCorrect: false,
       timeTaken: q.timeLimit,
       explanation: q.explanation,
@@ -161,7 +218,7 @@ export default function PsychometricPage() {
       setQuestions(data.questions as typeof questions)
       setQuestionIndex(0)
       setAnswers([])
-      setSelected(null)
+      setPicked([])
       setShowExplanation(false)
       setQuestionStartTime(Date.now())
       setPhase("active")
@@ -176,32 +233,62 @@ export default function PsychometricPage() {
     loadQuestions(testId)
   }
 
-  const handleSelectAnswer = (index: number) => {
-    if (selected !== null || showExplanation) return
-    setSelected(index)
-    const q = questions[questionIndex]
-    const isCorrect = index === q.correct
+  /** A question's answers, always as a list, whatever shape the model returned. */
+  const correctFor = (q: Question): number[] =>
+    Array.isArray(q.correct) ? q.correct : [q.correct]
+
+  const requiredFor = (q: Question): number =>
+    q.selectCount && q.selectCount > 0 ? q.selectCount : correctFor(q).length || 1
+
+  const submitAnswer = (q: Question, picked: number[]) => {
+    const answer = correctFor(q)
+    // Every right option and no wrong ones.
+    const isCorrect =
+      picked.length === answer.length && picked.every(i => answer.includes(i))
     const timeTaken = Math.round((Date.now() - questionStartTime) / 1000)
-    const record: AnswerRecord = {
+    proceedAfterAnswer({
       questionId: q.id,
       question: q.question,
-      selected: index,
-      correct: q.correct,
+      selected: picked,
+      correct: answer,
       isCorrect,
       timeTaken,
       explanation: q.explanation,
       options: q.options,
+    })
+  }
+
+  const handleSelectAnswer = (index: number) => {
+    if (showExplanation) return
+    const q = questions[questionIndex]
+    const required = requiredFor(q)
+
+    // Single-answer questions submit on the click, as before. A "select two"
+    // question could not be answered at all previously: the first click locked
+    // the selection and submitted a one-item answer against a two-item key.
+    if (required === 1) {
+      if (picked.length > 0) return
+      setPicked([index])
+      submitAnswer(q, [index])
+      return
     }
-    proceedAfterAnswer(record)
+
+    setPicked(prev => {
+      const next = prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+      if (next.length > required) return prev
+      if (next.length === required) submitAnswer(q, next)
+      return next
+    })
   }
 
   const proceedAfterAnswer = (record: AnswerRecord) => {
     const newAnswers = [...answers, record]
     setAnswers(newAnswers)
+    answersRef.current = newAnswers
     setShowExplanation(true)
     setTimeout(() => {
       setShowExplanation(false)
-      setSelected(null)
+      setPicked([])
       if (questionIndex < questions.length - 1) {
         setQuestionIndex(prev => prev + 1)
         setQuestionStartTime(Date.now())
@@ -258,18 +345,37 @@ export default function PsychometricPage() {
 
   if (phase === "loading") {
     const testName = psychometricTests.find(t => t.id === activeTestId)?.name
+    // Generation measures 20-35s. A spinner with fixed text gives no sense that
+    // anything is happening, so the bar tracks real elapsed time against that
+    // measured range and the caption says which stage it is at.
+    const pct = Math.min(96, Math.round((loadElapsed / 28) * 100))
+    const stage =
+      loadElapsed < 4 ? "Setting up your test"
+      : loadElapsed < 12 ? `Writing your ${testName} questions`
+      : loadElapsed < 22 ? "Working through the answers and explanations"
+      : "Almost there — checking each question"
     return (
       <div className="flex flex-col min-h-full">
         <Topbar title="Psychometric Tests" />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center w-full max-w-sm">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
               style={{ background: "rgba(91,140,255,0.12)" }}>
               <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#5B8CFF" }} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Generating 20 Questions</h3>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>Ava is building your {testName} questions...</p>
-            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.62)" }}>Questions are tailored to avoid repeating what you've seen before</p>
+            <h3 className="text-lg font-semibold text-white mb-2">Building your test</h3>
+            <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.65)" }}>{stage}…</p>
+
+            <div className="h-2 rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <div className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${pct}%`, background: "linear-gradient(90deg,#5B8CFF,#8B5CF6)" }} />
+            </div>
+            <p className="text-xs tabular-nums" style={{ color: "rgba(255,255,255,0.52)" }}>
+              {loadElapsed}s · usually takes about 25 seconds
+            </p>
+            <p className="text-xs mt-4" style={{ color: "rgba(255,255,255,0.52)" }}>
+              20 fresh questions, chosen to avoid repeating what you have already seen
+            </p>
           </div>
         </div>
       </div>
@@ -322,12 +428,25 @@ export default function PsychometricPage() {
               <p className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.62)" }}>
                 {currentQ.type.charAt(0).toUpperCase() + currentQ.type.slice(1)} · {currentQ.difficulty}
               </p>
-              <p className="text-base font-medium leading-relaxed mb-6 text-white">{currentQ.question}</p>
+              <p className="text-base font-medium leading-relaxed mb-3 text-white">{currentQ.question}</p>
+              {currentQ.sequence && currentQ.sequence.length > 0 && (
+                <div className="mb-6 p-4 rounded-xl overflow-x-auto"
+                  style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <ShapeSequence cells={currentQ.sequence} />
+                </div>
+              )}
+
+              {requiredFor(currentQ) > 1 && (
+                <p className="text-xs font-semibold mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg"
+                  style={{ background: "rgba(91,140,255,0.12)", color: "#8FB4FF", border: "1px solid rgba(91,140,255,0.3)" }}>
+                  Select {requiredFor(currentQ)} answers · {picked.length} of {requiredFor(currentQ)} chosen
+                </p>
+              )}
 
               <div className="space-y-3">
                 {currentQ.options.map((opt, i) => {
-                  const isSelected = selected === i
-                  const isCorrect = i === currentQ.correct
+                  const isSelected = picked.includes(i)
+                  const isCorrect = correctFor(currentQ).includes(i)
                   let bgStyle: React.CSSProperties = { background: "rgba(255,255,255,0.04)", border: "2px solid rgba(255,255,255,0.08)", cursor: "pointer" }
                   if (showExplanation) {
                     if (isCorrect) bgStyle = { background: "rgba(52,211,153,0.1)", border: "2px solid rgba(52,211,153,0.4)" }
@@ -340,10 +459,13 @@ export default function PsychometricPage() {
                     <button
                       key={i}
                       onClick={() => handleSelectAnswer(i)}
-                      disabled={showExplanation || selected !== null}
+                      disabled={showExplanation || (requiredFor(currentQ) === 1 && picked.length > 0)}
                       className="w-full text-left p-4 rounded-xl transition-all flex items-center gap-3"
                       style={bgStyle}
                     >
+                      {currentQ.optionShapes?.[i] && (
+                        <ShapeFigure shapes={currentQ.optionShapes[i]} size={56} />
+                      )}
                       <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
                         style={
                           showExplanation && isCorrect ? { background: "#34D399", color: "#ffffff" } :
@@ -364,14 +486,14 @@ export default function PsychometricPage() {
             {/* Explanation */}
             {showExplanation && (
               <div className="rounded-2xl border p-4 text-sm"
-                style={selected === currentQ.correct
+                style={answers[answers.length - 1]?.isCorrect
                   ? { background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.25)" }
                   : { background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.25)" }
                 }>
                 <div className="flex items-center gap-2 mb-2">
-                  {selected === currentQ.correct
+                  {answers[answers.length - 1]?.isCorrect
                     ? <><CheckCircle className="w-4 h-4" style={{ color: "#34D399" }} /><span className="font-semibold" style={{ color: "#34D399" }}>Correct!</span></>
-                    : <><XCircle className="w-4 h-4" style={{ color: "#F87171" }} /><span className="font-semibold" style={{ color: "#F87171" }}>{selected === -1 ? "Time's up!" : "Incorrect"}</span></>
+                    : <><XCircle className="w-4 h-4" style={{ color: "#F87171" }} /><span className="font-semibold" style={{ color: "#F87171" }}>{answers[answers.length - 1]?.selected.length === 0 ? "Time's up!" : "Incorrect"}</span></>
                   }
                 </div>
                 <p style={{ color: "rgba(255,255,255,0.65)" }}>{currentQ.explanation}</p>
@@ -382,7 +504,7 @@ export default function PsychometricPage() {
             {/* Score tracker */}
             <div className="flex items-center justify-between text-xs px-1" style={{ color: "rgba(255,255,255,0.62)" }}>
               <span>{answers.filter(a => a.isCorrect).length} correct so far</span>
-              <span>{answers.filter(a => !a.isCorrect && a.selected !== -1).length} incorrect · {answers.filter(a => a.selected === -1).length} timed out</span>
+              <span>{answers.filter(a => !a.isCorrect && a.selected.length > 0).length} incorrect · {answers.filter(a => a.selected.length === 0).length} timed out</span>
             </div>
           </div>
         </div>
@@ -464,8 +586,8 @@ export default function PsychometricPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white">{i + 1}. {a.question}</p>
                       <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.65)" }}>
-                        Your answer: <strong>{a.selected >= 0 ? a.options[a.selected] : "Timed out"}</strong>
-                        {!a.isCorrect && <> · Correct: <strong style={{ color: "#34D399" }}>{a.options[a.correct]}</strong></>}
+                        Your answer: <strong>{a.selected.length > 0 ? a.selected.map(i => a.options[i]).join(", ") : "Timed out"}</strong>
+                        {!a.isCorrect && <> · Correct: <strong style={{ color: "#34D399" }}>{a.correct.map(i => a.options[i]).join(", ")}</strong></>}
                         <span className="ml-2" style={{ color: "rgba(255,255,255,0.62)" }}>({a.timeTaken}s)</span>
                       </p>
                       {!a.isCorrect && <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>{a.explanation}</p>}
